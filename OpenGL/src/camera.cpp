@@ -34,7 +34,8 @@ void FPSCamera::Rotate(float yaw, float pitch) {
 }
 
 void FPSCamera::Move(const glm::vec3& offset_position) {
-	position_ += offset_position;
+	position_.x += offset_position.x;
+	position_.z += offset_position.z;
 	UpdateCameraVectors();
 }
 

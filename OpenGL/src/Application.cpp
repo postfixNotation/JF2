@@ -47,7 +47,7 @@ int main() {
 	GLuint ibo;
 	GLuint vs, fs;
 
-	Texture2D texture2d{}, floor{};
+	Texture2D crate_cube{}, floor{};
 
 	struct Color {
 		float r{ 255.0f / 255.0f };
@@ -151,7 +151,7 @@ int main() {
 	win_height = mode->height;
 	ratio = (float)win_width / win_height;
 
-	window = glfwCreateWindow(win_width / 2.0, win_height / 2.0, kWindowTitle.c_str(), NULL, NULL);
+	window = glfwCreateWindow(win_width, win_height, kWindowTitle.c_str(), NULL, NULL);
 	if (!window) {
 		std::cerr << "ERROR: COULD NOT OPEN WINDOW WITH GLFW3" << std::endl;
 		glfwTerminate();
@@ -221,8 +221,8 @@ int main() {
 		GL_STATIC_DRAW
 	);
 
-	texture2d.LoadTexture("../textures/crate.jpg");
-	floor.LoadTexture("../textures/grass.jpg");
+	crate_cube.LoadTexture("../textures/crate.jpg");
+	floor.LoadTexture("../textures/sand.jpg");
 
 	vs = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vs, 1, &vertex_shader, NULL);
@@ -305,7 +305,7 @@ int main() {
 	});
 
 	// initialization
-	glViewport(0, 0, win_width / 2.0f, win_height / 2.0f);
+	glViewport(0, 0, win_width, win_height);
 	glClearColor(rgb.r, rgb.g, rgb.b, rgb.a);
 	double previous_time{ glfwGetTime() }, delta_time{};
 
@@ -318,9 +318,16 @@ int main() {
 		glUseProgram(prog_handle);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 
-		texture2d.BindTextureUnit();
-
+		crate_cube.BindTextureUnit();
+		model = glm::translate(glm::mat4{}, cube_pos);
 		view = camera::fps_camera.GetViewMatrix();
+
+		glUniformMatrix4fv(
+			glGetUniformLocation(prog_handle, "model"),
+			1,
+			GL_FALSE,
+			(const GLfloat*)glm::value_ptr(model)
+		);
 
 		glUniformMatrix4fv(
 			glGetUniformLocation(prog_handle, "view"),
@@ -337,6 +344,24 @@ int main() {
 		);
 
 		glBindVertexArray(vao);
+
+		glDrawElements(
+			GL_TRIANGLES,
+			number_vertices,
+			GL_UNSIGNED_INT,
+			0
+		);
+
+		floor.BindTextureUnit();
+
+		model = glm::translate(glm::mat4{}, glm::vec3{ 0.0f, -half_cube_length, 0.0f });
+		model = glm::scale(model, glm::vec3{ 30.0f, 0.01f, 30.0f });
+		glUniformMatrix4fv(
+			glGetUniformLocation(prog_handle, "model"),
+			1,
+			GL_FALSE,
+			(const GLfloat*)glm::value_ptr(model)
+		);
 
 		glDrawElements(
 			GL_TRIANGLES,
@@ -384,10 +409,4 @@ void Update(double elapsed_time) {
 		camera::fps_camera.Move(camera::kMoveSpeed * (float)elapsed_time * -camera::fps_camera.GetRight());
 	else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera::fps_camera.Move(camera::kMoveSpeed * (float)elapsed_time * camera::fps_camera.GetRight());
-
-	// Up/down
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-		camera::fps_camera.Move(camera::kMoveSpeed * (float)elapsed_time * camera::fps_camera.GetUp());
-	else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-		camera::fps_camera.Move(camera::kMoveSpeed * (float)elapsed_time * -camera::fps_camera.GetUp());
 }
