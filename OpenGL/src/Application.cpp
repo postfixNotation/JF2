@@ -17,21 +17,29 @@
 #include <irrKlang/irrKlang.h>
 
 glm::mat4 proj{}, model{}, view{};
+float ratio;
+float near = 0.1f;
+float far = 100.0f;
 glm::vec3 cube_pos{};
 const GLFWvidmode* mode;
 GLuint prog_handle;
+GLint win_width, win_height;
+std::string kWindowTitle = "Camera Prototype Application";
+GLFWwindow *window = nullptr;
+
+void Update(double);
 
 namespace camera {
-	OrbitCamera orbit_camera{};
+	FPSCamera fps_camera{ glm::vec3{0.0f, 0.0f, 5.0f} };
 	float yaw{ 0.0f };
 	float pitch{ 0.0f };
 	float radius{ 10.0f };
-	constexpr float kMouseSensitivity = 0.25f;
-	constexpr float kRadiusSensitivity = 0.00001f;
+	constexpr float kZoomSensitivity = -2.0f;
+	constexpr float kMoveSpeed = 5.0f;
+	constexpr float kMouseSensitivity = 0.1f;
 }
 
 int main() {
-	GLFWwindow *window = NULL;
 	const GLubyte *renderer;
 	const GLubyte *version;
 	GLuint vao;
@@ -42,9 +50,9 @@ int main() {
 	Texture2D texture2d{}, floor{};
 
 	struct Color {
-		float r{ 0.7f };
-		float g{ 0.7f };
-		float b{ 0.7f };
+		float r{ 255.0f / 255.0f };
+		float g{ 255.0f / 255.0f };
+		float b{ 153.0f / 255.0f };
 		float a{ 1.0f };
 	} rgb;
 
@@ -139,12 +147,18 @@ int main() {
 	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 	mode = glfwGetVideoMode(monitor);
 
-	window = glfwCreateWindow(mode->width, mode->height, "Hello Triangle", NULL, NULL);
+	win_width = mode->width;
+	win_height = mode->height;
+	ratio = (float)win_width / win_height;
+
+	window = glfwCreateWindow(win_width / 2.0, win_height / 2.0, kWindowTitle.c_str(), NULL, NULL);
 	if (!window) {
 		std::cerr << "ERROR: COULD NOT OPEN WINDOW WITH GLFW3" << std::endl;
 		glfwTerminate();
 		return 1;
 	}
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetCursorPos(window, win_width / 2.0, win_height / 2.0f);
 
 	glfwMakeContextCurrent(window);
 	glewExperimental = GL_TRUE;
@@ -228,13 +242,17 @@ int main() {
 
 	glUseProgram(prog_handle);
 
+	model = glm::translate(glm::mat4{}, cube_pos);
+	glUniformMatrix4fv(
+		glGetUniformLocation(prog_handle, "model"),
+		1,
+		GL_FALSE,
+		(const GLfloat*)glm::value_ptr(model)
+	);
+
 	// perspective / frustum
 	// initialize projection matrix
-	float ratio = (float)mode->width / mode->height;
-	float near = .1f;
-	float far = 100.f;
-	float fov = glm::radians(67.f);
-	proj = glm::perspective(fov, ratio, near, far);
+	proj = glm::perspective(glm::radians(camera::fps_camera.GetFov()), ratio, near, far);
 
 	glUniformMatrix4fv(
 		glGetUniformLocation(prog_handle, "projection"),
@@ -249,52 +267,35 @@ int main() {
 		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
 			glfwSetWindowShouldClose(win, 1);
 		}
-		else if (key = GLFW_KEY_F1 && action == GLFW_PRESS) {
-			static size_t selection{ 0 };
-			switch (selection++) {
-			case 0:
-				glPointSize(5);
-				glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-				break;
-			case 1:
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-				break;
-			case 2:
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-				selection = 0;
-				break;
-			}
-		}
-	});
-
-	// set cursor callback function
-	glfwSetCursorPosCallback(
-		window,
-		[](GLFWwindow* win, double xpos, double ypos) {
-		static glm::vec2 last_mouse_pos{ 0.0f, 0.0f };
-
-		if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-			camera::pitch += ((float)ypos - last_mouse_pos.y) * camera::kMouseSensitivity;
-			camera::yaw -= ((float)xpos - last_mouse_pos.x) * camera::kMouseSensitivity;
-		}
-
-		last_mouse_pos = glm::vec2{ xpos, ypos };
 	});
 
 	// set scroll callback function
 	glfwSetScrollCallback(window, [](GLFWwindow* win, double xoffset, double yoffset) {
-		camera::radius += yoffset;
+		double fov = camera::fps_camera.GetFov() + yoffset * camera::kZoomSensitivity;
+		fov = glm::clamp(fov, 1.0, 120.0);
+		camera::fps_camera.SetFov(fov);
+
+		proj = glm::perspective(
+			glm::radians(camera::fps_camera.GetFov()),
+			ratio,
+			near,
+			far
+		);
 	});
 
 	// set framebuffer size callback function
 	glfwSetFramebufferSizeCallback(window, [](GLFWwindow* win, int width, int height) {
 		glViewport(0, 0, width, height);
+		win_width = width;
+		win_height = height;
+		ratio = (float)win_width / win_height;
 
-		float ratio = (float)width / height;
-		float near = .1f;
-		float far = 100.f;
-		float fov = glm::radians(67.f);
-		proj = glm::perspective(fov, ratio, near, far);
+		proj = glm::perspective(
+			glm::radians(camera::fps_camera.GetFov()),
+			ratio,
+			near,
+			far
+		);
 
 		glUniformMatrix4fv(
 			glGetUniformLocation(prog_handle, "projection"),
@@ -304,33 +305,22 @@ int main() {
 	});
 
 	// initialization
-	glViewport(0, 0, mode->width, mode->height);
+	glViewport(0, 0, win_width / 2.0f, win_height / 2.0f);
 	glClearColor(rgb.r, rgb.g, rgb.b, rgb.a);
-
 	double previous_time{ glfwGetTime() }, delta_time{};
-	double angle{};
 
 	while (!glfwWindowShouldClose(window)) {
 		delta_time = glfwGetTime() - previous_time;
 		previous_time = glfwGetTime();
-
-		angle = (angle > 360) ? 0 : angle + delta_time * 30.0f;
-		cube_pos.x = 8.0f * sinf(glm::radians(angle));
-		cube_pos.z = 8.0f * cosf(glm::radians(angle));
+		Update(delta_time);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glUseProgram(prog_handle);
-		glBindVertexArray(vao);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 
 		texture2d.BindTextureUnit();
 
-		camera::orbit_camera.SetLookAt(cube_pos);
-		camera::orbit_camera.SetRadius(camera::radius);
-		camera::orbit_camera.Rotate(camera::yaw, camera::pitch);
-
-		model = glm::translate(glm::mat4{}, cube_pos);
-		view = camera::orbit_camera.GetViewMatrix();
+		view = camera::fps_camera.GetViewMatrix();
 
 		glUniformMatrix4fv(
 			glGetUniformLocation(prog_handle, "view"),
@@ -340,28 +330,13 @@ int main() {
 		);
 
 		glUniformMatrix4fv(
-			glGetUniformLocation(prog_handle, "model"),
+			glGetUniformLocation(prog_handle, "projection"),
 			1,
 			GL_FALSE,
-			(const GLfloat*)glm::value_ptr(model)
+			(const GLfloat*)glm::value_ptr(proj)
 		);
 
-		glDrawElements(
-			GL_TRIANGLES,
-			number_vertices,
-			GL_UNSIGNED_INT,
-			0
-		);
-
-		floor.BindTextureUnit();
-		model = glm::scale(glm::mat4{}, glm::vec3{ 10.0f, 0.01f, 10.0f }) * glm::translate(glm::mat4{}, glm::vec3{ 0.0f, -half_cube_length * 100.0f, 0.0f });
-
-		glUniformMatrix4fv(
-			glGetUniformLocation(prog_handle, "model"),
-			1,
-			GL_FALSE,
-			(const GLfloat*)glm::value_ptr(model)
-		);
+		glBindVertexArray(vao);
 
 		glDrawElements(
 			GL_TRIANGLES,
@@ -381,4 +356,38 @@ int main() {
 
 	glfwTerminate();
 	return 0;
+}
+
+void Update(double elapsed_time) {
+	// Camera orientation
+	double mouseX, mouseY;
+
+	// Get the current mouse cursor position delta
+	glfwGetCursorPos(window, &mouseX, &mouseY);
+
+	// Rotate the camera the difference in mouse distance from the center screen.  Multiply this delta by a speed scaler
+	camera::fps_camera.Rotate((float)(win_width / 2.0 - mouseX) * camera::kMouseSensitivity, (float)(win_height / 2.0 - mouseY) * camera::kMouseSensitivity);
+
+	// Clamp mouse cursor to center of screen
+	glfwSetCursorPos(window, win_width / 2.0, win_height / 2.0);
+
+	// Camera FPS movement
+
+	// Forward/backward
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		camera::fps_camera.Move(camera::kMoveSpeed * (float)elapsed_time * camera::fps_camera.GetLook());
+	else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		camera::fps_camera.Move(camera::kMoveSpeed * (float)elapsed_time * -camera::fps_camera.GetLook());
+
+	// Strafe left/right
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		camera::fps_camera.Move(camera::kMoveSpeed * (float)elapsed_time * -camera::fps_camera.GetRight());
+	else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		camera::fps_camera.Move(camera::kMoveSpeed * (float)elapsed_time * camera::fps_camera.GetRight());
+
+	// Up/down
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+		camera::fps_camera.Move(camera::kMoveSpeed * (float)elapsed_time * camera::fps_camera.GetUp());
+	else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+		camera::fps_camera.Move(camera::kMoveSpeed * (float)elapsed_time * -camera::fps_camera.GetUp());
 }
