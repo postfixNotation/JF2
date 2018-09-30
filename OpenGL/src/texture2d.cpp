@@ -8,7 +8,8 @@ Texture2D::~Texture2D() {
 
 bool Texture2D::LoadTexture(const std::string& file_name, bool gen_mipmaps) {
 	int width, height, components;
-	unsigned char* image_data = stbi_load(
+	stbi_set_flip_vertically_on_load(true);
+	unsigned char *image_data = stbi_load(
 		file_name.c_str(),
 		&width,
 		&height,
@@ -49,8 +50,14 @@ bool Texture2D::LoadTexture(const std::string& file_name, bool gen_mipmaps) {
 	return true;
 }
 
-void Texture2D::BindTextureUnit(GLuint texunit) {
+void Texture2D::BindTextureUnit(GLuint texunit) const {
 	assert(texunit >= 0 && texunit < (GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS - GL_TEXTURE0));
 	glActiveTexture(GL_TEXTURE0 + texunit);
 	glBindTexture(GL_TEXTURE_2D, texture_handle_);
+}
+
+void Texture2D::UnbindTextureUnit(GLuint texunit) const {
+	assert(texunit >= 0 && texunit < (GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS - GL_TEXTURE0));
+	glActiveTexture(GL_TEXTURE0 + texunit);
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
