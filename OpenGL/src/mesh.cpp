@@ -11,15 +11,19 @@ Mesh::~Mesh() {
 std::vector<GLuint> Mesh::Split(std::string value, char delimiter) {
 	std::vector<GLuint> result{};
 	std::istringstream iss{};
-	GLuint buffer{};
+	std::string str_buffer{};
+	size_t size_t_buffer{};
+
 	std::replace(
 		begin(value),
 		end(value),
 		delimiter,
 		' ');
+
 	iss.str(value);
-	while (iss >> buffer) {
-		result.push_back(buffer);
+	iss >> str_buffer;
+	while (iss >> size_t_buffer) {
+		result.push_back(size_t_buffer);
 	}
 	return result;
 }
@@ -65,9 +69,6 @@ bool Mesh::LoadObj(const std::string& filename, const ObjLoadingType& obj_loadin
 			}
 			else if (type_mesh == "f") {
 				std::vector<GLuint> face = Split(iss.str());
-				for (GLuint f : face)
-					std::cout << f << " ";
-				std::cout << std::endl;
 				size_t index_buffer{};
 
 				for (size_t i{}; i < static_cast<size_t>(obj_loading_type_); ++i) {
