@@ -205,13 +205,13 @@ int main() {
 	std::vector<Texture2D> textures(3);
 	meshes.at(0).LoadObj("../models/cube.obj");
 	textures.at(0).LoadTexture("../textures/wood_3k.jpg");
-	meshes.at(1).LoadObj("../models/floor.obj");
-	textures.at(1).LoadTexture("../textures/bricks_3k.jpg");
-	meshes.at(2).LoadObj("../models/robot.obj", ObjLoadingType::TRIANGLES);
-	textures.at(2).LoadTexture("../textures/robot.jpg");
+	//meshes.at(1).LoadObj("../models/floor.obj");
+	//textures.at(1).LoadTexture("../textures/bricks_3k.jpg");
+	//meshes.at(2).LoadObj("../models/robot.obj", ObjLoadingType::TRIANGLES);
+	//textures.at(2).LoadTexture("../textures/robot.jpg");
 
-	std::string vertex_shader_string = LoadFile("../shader/vert_shader.glsl").c_str();
-	std::string fragment_shader_string = LoadFile("../shader/frag_shader.glsl").c_str();
+	std::string vertex_shader_string = LoadFile("../shader/vert_shader.glsl");
+	std::string fragment_shader_string = LoadFile("../shader/frag_shader.glsl");
 
 	const GLchar* vertex_shader = vertex_shader_string.c_str();
 	const GLchar* fragment_shader = fragment_shader_string.c_str();
@@ -339,23 +339,23 @@ int main() {
 			(const GLfloat*)glm::value_ptr(proj)
 		);
 		textures.at(0).BindTextureUnit();
-		meshes.at(0).Draw();
+		//meshes.at(0).Draw();
 		textures.at(0).UnbindTextureUnit();
 
-		textures.at(2).BindTextureUnit();
-		meshes.at(2).Draw();
-		textures.at(2).UnbindTextureUnit();
+		//textures.at(2).BindTextureUnit();
+		//meshes.at(2).Draw();
+		//textures.at(2).UnbindTextureUnit();
 
-		glUniformMatrix4fv(
-			glGetUniformLocation(prog_handle, "model"),
-			1,
-			GL_FALSE,
-			(const GLfloat*)glm::value_ptr(floor_pos)
-		);
+		//glUniformMatrix4fv(
+		//	glGetUniformLocation(prog_handle, "model"),
+		//	1,
+		//	GL_FALSE,
+		//	(const GLfloat*)glm::value_ptr(floor_pos)
+		//);
 
-		textures.at(1).BindTextureUnit();
-		meshes.at(1).Draw();
-		textures.at(1).UnbindTextureUnit();
+		//textures.at(1).BindTextureUnit();
+		//meshes.at(1).Draw();
+		//textures.at(1).UnbindTextureUnit();
 
 		glfwPollEvents();
 		glfwSwapBuffers(window);
