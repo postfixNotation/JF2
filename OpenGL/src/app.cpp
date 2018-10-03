@@ -1,3 +1,8 @@
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include <sstream>
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -9,22 +14,17 @@
 #include <glm/gtx/rotate_normalized_axis.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-#include <iostream>
-#include <sstream>
-#include <fstream>
-#include <sstream>
+#include "SFML/Audio.hpp"
 
-#include <texture2d.hpp>
-#include <camera.hpp>
-#include <mesh.hpp>
-
-#include <SFML/Audio.hpp>
+#include "texture2d.hpp"
+#include "camera.hpp"
+#include "mesh.hpp"
 
 float ratio;
 float near = 0.1f;
 float far = 100.0f;
 
-glm::mat4 proj{}, cube_pos{}, floor_pos{}, view{};
+glm::mat4 proj{}, model{}, view{};
 const GLFWvidmode* mode;
 GLuint prog_handle;
 GLint win_width, win_height;
@@ -35,10 +35,18 @@ const GLubyte *renderer;
 const GLubyte *version;
 GLuint vs, fs;
 
-Color rgb = { 0.5f, 0.5f, 0.5f, 1.0f };
+Color rgb = { 179.0f / 255, 230.0f / 255, 255.0f / 255, 1.0f };
 
 void Update(double);
 std::string LoadFile(const std::string&);
+void APIENTRY DebugMessageCallback(
+	GLenum source,
+	GLenum type,
+	GLuint id,
+	GLenum severity,
+	GLsizei length,
+	const GLchar* message,
+	const void* userParam);
 
 namespace camera {
 	FPSCamera fps_camera{ glm::vec3{0.0f, 0.0f, 20.0f} };
@@ -56,8 +64,8 @@ int main() {
 		return 1;
 	}
 
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -66,8 +74,8 @@ int main() {
 	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 	mode = glfwGetVideoMode(monitor);
 
-	win_width = mode->width;
-	win_height = mode->height;
+	win_width = mode->width / 2;
+	win_height = mode->height / 2;
 	ratio = (float)win_width / win_height;
 
 	window = glfwCreateWindow(win_width, win_height, kWindowTitle.c_str(), NULL, NULL);
@@ -127,49 +135,7 @@ int main() {
 		glEnable(GL_DEBUG_OUTPUT);
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 		glDebugMessageCallback(
-			[](GLenum source,
-				GLenum type,
-				GLuint id,
-				GLenum severity,
-				GLsizei length,
-				const GLchar* message,
-				const void* userParam) -> void APIENTRY{
-
-					// IGNORE NON-SIGNIFICANT ERROR/WARNING CODES
-					if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
-
-					std::cout << std::endl;
-					std::cout << "DEBUG MESSAGE (" << id << "): " << message << std::endl;
-
-					switch (source) {
-						case GL_DEBUG_SOURCE_API:				std::cout << "SOURCE: API"; break;
-						case GL_DEBUG_SOURCE_WINDOW_SYSTEM:		std::cout << "SOURCE: WINDOW SYSTEM"; break;
-						case GL_DEBUG_SOURCE_SHADER_COMPILER:	std::cout << "SOURCE: SHADER COMPILER"; break;
-						case GL_DEBUG_SOURCE_THIRD_PARTY:		std::cout << "SOURCE: THIRD PARTY"; break;
-						case GL_DEBUG_SOURCE_APPLICATION:		std::cout << "SOURCE: APPLICATION"; break;
-						case GL_DEBUG_SOURCE_OTHER:				std::cout << "SOURCE: OTHER"; break;
-					} std::cout << std::endl;
-
-					switch (type) {
-						case GL_DEBUG_TYPE_ERROR:               std::cout << "TYPE: ERROR"; break;
-						case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: std::cout << "TYPE: DEPRECATED BEHAVIOUR"; break;
-						case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  std::cout << "TYPE: UNDEFINED BEHAVIOUR"; break;
-						case GL_DEBUG_TYPE_PORTABILITY:         std::cout << "TYPE: PORTABILITY"; break;
-						case GL_DEBUG_TYPE_PERFORMANCE:         std::cout << "TYPE: PERFORMANCE"; break;
-						case GL_DEBUG_TYPE_MARKER:              std::cout << "TYPE: MARKER"; break;
-						case GL_DEBUG_TYPE_PUSH_GROUP:          std::cout << "TYPE: PUSH GROUP"; break;
-						case GL_DEBUG_TYPE_POP_GROUP:           std::cout << "TYPE: POP GROUP"; break;
-						case GL_DEBUG_TYPE_OTHER:               std::cout << "TYPE: OTHER"; break;
-					} std::cout << std::endl;
-
-					switch (severity) {
-						case GL_DEBUG_SEVERITY_HIGH:			std::cout << "SEVERITY: HIGH"; break;
-						case GL_DEBUG_SEVERITY_MEDIUM:			std::cout << "SEVERITY: MEDIUM"; break;
-						case GL_DEBUG_SEVERITY_LOW:				std::cout << "SEVERITY: LOW"; break;
-						case GL_DEBUG_SEVERITY_NOTIFICATION:	std::cout << "SEVERITY: NOTIFICATION"; break;
-					} std::cout << std::endl;
-					std::cout << std::endl;
-			},
+			DebugMessageCallback,
 			nullptr);
 		glDebugMessageControl(
 			GL_DONT_CARE,
@@ -201,14 +167,13 @@ int main() {
 		return -1;
 	music.play();
 
-	std::vector<Mesh> meshes(3);
-	std::vector<Texture2D> textures(3);
-	meshes.at(0).LoadObj("../models/cube.obj");
-	textures.at(0).LoadTexture("../textures/wood_3k.jpg");
-	//meshes.at(1).LoadObj("../models/floor.obj");
-	//textures.at(1).LoadTexture("../textures/bricks_3k.jpg");
-	//meshes.at(2).LoadObj("../models/robot.obj", ObjLoadingType::TRIANGLES);
-	//textures.at(2).LoadTexture("../textures/robot.jpg");
+	std::vector<Mesh> mesh(2);
+	std::vector<Texture2D> texture(2);
+	mesh[0].LoadObj("../models/robot.obj", ObjLoadingType::TRIANGLES);
+	texture[0].LoadTexture("../textures/robot.jpg");
+
+	mesh[1].LoadObj("../models/cube.obj", ObjLoadingType::QUADS);
+	texture[1].LoadTexture("../textures/wood_3k.jpg");
 
 	std::string vertex_shader_string = LoadFile("../shader/vert_shader.glsl");
 	std::string fragment_shader_string = LoadFile("../shader/frag_shader.glsl");
@@ -234,16 +199,11 @@ int main() {
 
 	glUseProgram(prog_handle);
 
-	cube_pos = glm::translate(glm::mat4{}, glm::vec3{ 0.0f,0.0f,-5.0f });
-	cube_pos = glm::scale(cube_pos, glm::vec3{ 3.0f, 3.0f, 3.0f });
-	floor_pos = glm::translate(glm::mat4{}, glm::vec3{ 0.0f,-5.0f, 0.0f });
-	floor_pos = glm::scale(floor_pos, glm::vec3{ 10.0f, 0.0f, 10.0f });
-
 	glUniformMatrix4fv(
 		glGetUniformLocation(prog_handle, "model"),
 		1,
 		GL_FALSE,
-		(const GLfloat*)glm::value_ptr(cube_pos)
+		reinterpret_cast<const GLfloat*>(glm::value_ptr(model))
 	);
 
 	proj = glm::perspective(
@@ -256,7 +216,7 @@ int main() {
 		glGetUniformLocation(prog_handle, "projection"),
 		1,
 		GL_FALSE,
-		(const GLfloat*)glm::value_ptr(proj)
+		reinterpret_cast<const GLfloat*>(glm::value_ptr(proj))
 	);
 
 	glfwSetKeyCallback(
@@ -321,12 +281,6 @@ int main() {
 		proj = glm::perspective(glm::radians(camera::fps_camera.GetFov()), ratio, near, far);
 
 		glUniformMatrix4fv(
-			glGetUniformLocation(prog_handle, "model"),
-			1,
-			GL_FALSE,
-			(const GLfloat*)glm::value_ptr(cube_pos)
-		);
-		glUniformMatrix4fv(
 			glGetUniformLocation(prog_handle, "view"),
 			1,
 			GL_FALSE,
@@ -338,24 +292,14 @@ int main() {
 			GL_FALSE,
 			(const GLfloat*)glm::value_ptr(proj)
 		);
-		textures.at(0).BindTextureUnit();
-		//meshes.at(0).Draw();
-		textures.at(0).UnbindTextureUnit();
 
-		//textures.at(2).BindTextureUnit();
-		//meshes.at(2).Draw();
-		//textures.at(2).UnbindTextureUnit();
+		texture[0].BindTextureUnit(prog_handle, "tex_sampler");
+		mesh[0].Draw();
+		texture[0].UnbindTextureUnit();
 
-		//glUniformMatrix4fv(
-		//	glGetUniformLocation(prog_handle, "model"),
-		//	1,
-		//	GL_FALSE,
-		//	(const GLfloat*)glm::value_ptr(floor_pos)
-		//);
-
-		//textures.at(1).BindTextureUnit();
-		//meshes.at(1).Draw();
-		//textures.at(1).UnbindTextureUnit();
+		texture[1].BindTextureUnit(prog_handle, "tex_sampler");
+		mesh[1].Draw();
+		texture[1].UnbindTextureUnit();
 
 		glfwPollEvents();
 		glfwSwapBuffers(window);
@@ -365,6 +309,51 @@ int main() {
 	glfwTerminate();
 	return 0;
 }
+
+void APIENTRY DebugMessageCallback(
+	GLenum source,
+	GLenum type,
+	GLuint id,
+	GLenum severity,
+	GLsizei length,
+	const GLchar* message,
+	const void* userParam) {
+
+	// IGNORE NON-SIGNIFICANT ERROR/WARNING CODES
+	if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
+
+	std::cout << std::endl;
+	std::cout << "DEBUG MESSAGE (" << id << "): " << message << std::endl;
+
+	switch (source) {
+	case GL_DEBUG_SOURCE_API:				std::cout << "SOURCE: API"; break;
+	case GL_DEBUG_SOURCE_WINDOW_SYSTEM:		std::cout << "SOURCE: WINDOW SYSTEM"; break;
+	case GL_DEBUG_SOURCE_SHADER_COMPILER:	std::cout << "SOURCE: SHADER COMPILER"; break;
+	case GL_DEBUG_SOURCE_THIRD_PARTY:		std::cout << "SOURCE: THIRD PARTY"; break;
+	case GL_DEBUG_SOURCE_APPLICATION:		std::cout << "SOURCE: APPLICATION"; break;
+	case GL_DEBUG_SOURCE_OTHER:				std::cout << "SOURCE: OTHER"; break;
+	} std::cout << std::endl;
+
+	switch (type) {
+	case GL_DEBUG_TYPE_ERROR:               std::cout << "TYPE: ERROR"; break;
+	case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: std::cout << "TYPE: DEPRECATED BEHAVIOUR"; break;
+	case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  std::cout << "TYPE: UNDEFINED BEHAVIOUR"; break;
+	case GL_DEBUG_TYPE_PORTABILITY:         std::cout << "TYPE: PORTABILITY"; break;
+	case GL_DEBUG_TYPE_PERFORMANCE:         std::cout << "TYPE: PERFORMANCE"; break;
+	case GL_DEBUG_TYPE_MARKER:              std::cout << "TYPE: MARKER"; break;
+	case GL_DEBUG_TYPE_PUSH_GROUP:          std::cout << "TYPE: PUSH GROUP"; break;
+	case GL_DEBUG_TYPE_POP_GROUP:           std::cout << "TYPE: POP GROUP"; break;
+	case GL_DEBUG_TYPE_OTHER:               std::cout << "TYPE: OTHER"; break;
+	} std::cout << std::endl;
+
+	switch (severity) {
+	case GL_DEBUG_SEVERITY_HIGH:			std::cout << "SEVERITY: HIGH"; break;
+	case GL_DEBUG_SEVERITY_MEDIUM:			std::cout << "SEVERITY: MEDIUM"; break;
+	case GL_DEBUG_SEVERITY_LOW:				std::cout << "SEVERITY: LOW"; break;
+	case GL_DEBUG_SEVERITY_NOTIFICATION:	std::cout << "SEVERITY: NOTIFICATION"; break;
+	} std::cout << std::endl;
+	std::cout << std::endl;
+};
 
 void Update(double elapsed_time) {
 	double mouseX, mouseY;

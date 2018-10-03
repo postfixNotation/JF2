@@ -24,7 +24,7 @@
     <ClCompile Include="src\mesh.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="src\application.cpp">
+    <ClCompile Include="src\app.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>

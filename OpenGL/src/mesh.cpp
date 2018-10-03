@@ -88,16 +88,18 @@ bool Mesh::LoadObj(const std::string& filename,
 			}
 			else if (type_mesh == "f") {
 				std::vector<GLuint> face = Split(iss.str());
-				const size_t kVertPerFace{ static_cast<size_t>(obj_loading_type_) };
 				FaceType ft = EvalSplitRes(face, obj_loading_type_);
+				constexpr GLubyte kFaceStride{ 3 };
+				const size_t kVertPerFace{ static_cast<size_t>(obj_loading_type_) };
+
 				if (ft == FaceType::NOT_DEFINED) { break; }
 
 				switch (ft) {
 				case FaceType::VVTVN:
 					for (size_t i{ 0 }; i < kVertPerFace; ++i) {
-						vertex_indices.push_back(face[kVertPerFace*i]);
-						uv_indices.push_back(face[kVertPerFace*i + 1]);
-						normal_indices.push_back(face[kVertPerFace*i + 2]);
+						vertex_indices.push_back(face[kFaceStride*i]);
+						uv_indices.push_back(face[kFaceStride*i + 1]);
+						normal_indices.push_back(face[kFaceStride*i + 2]);
 					}
 					break;
 				case FaceType::VVN:
