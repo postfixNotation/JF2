@@ -1,5 +1,5 @@
 #define STB_IMAGE_IMPLEMENTATION
-#include "texture2d.hpp"
+#include <texture2d.hpp>
 
 Texture2D::Texture2D() : texture_handle_{ 0 } {}
 Texture2D::~Texture2D() {
@@ -50,7 +50,13 @@ bool Texture2D::LoadTexture(const std::string& file_name, bool gen_mipmaps) {
 	return true;
 }
 
-void Texture2D::BindTextureUnit(GLuint texunit) const {
+void Texture2D::BindTextureUnit(
+	GLint phandle,
+	const GLchar* uniform,
+	GLuint texunit) const {
+	GLint loc = glGetUniformLocation(phandle, uniform);
+	glUniform1i(loc, texunit);
+
 	assert(texunit >= 0 && texunit < (GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS - GL_TEXTURE0));
 	glActiveTexture(GL_TEXTURE0 + texunit);
 	glBindTexture(GL_TEXTURE_2D, texture_handle_);

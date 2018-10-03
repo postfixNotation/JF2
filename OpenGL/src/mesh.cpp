@@ -28,6 +28,23 @@ std::vector<GLuint> Mesh::Split(std::string value, char delimiter) {
 	return result;
 }
 
+FaceType Mesh::EvalSplitRes(const std::vector<GLuint>& input_vec, const ObjLoadingType& olt) {
+	switch (olt) {
+	case ObjLoadingType::TRIANGLES:
+		if (input_vec.size() == 9) { return FaceType::VVTVN; }
+		else if (input_vec.size() == 6) { return FaceType::VVN; }
+		else if (input_vec.size() == 3) { return FaceType::V; }
+		break;
+	case ObjLoadingType::QUADS:
+		if (input_vec.size() == 12) { return FaceType::VVTVN; }
+		else if (input_vec.size() == 8) { return FaceType::VVN; }
+		else if (input_vec.size() == 4) { return FaceType::V; }
+		break;
+	}
+
+	return FaceType::NOT_DEFINED;
+}
+
 bool Mesh::LoadObj(const std::string& filename,
 	const ObjLoadingType& obj_loading_type) {
 	obj_loading_type_ = obj_loading_type;
@@ -51,6 +68,7 @@ bool Mesh::LoadObj(const std::string& filename,
 		while (std::getline(file_input, line_buffer)) {
 			iss.clear();
 			iss.str(line_buffer);
+			type_mesh.clear();
 			iss >> type_mesh;
 
 			if (type_mesh == "v") {
@@ -70,24 +88,35 @@ bool Mesh::LoadObj(const std::string& filename,
 			}
 			else if (type_mesh == "f") {
 				std::vector<GLuint> face = Split(iss.str());
-				size_t iterations{ static_cast<size_t>(obj_loading_type_) };
+				const size_t kVertPerFace{ static_cast<size_t>(obj_loading_type_) };
+				FaceType ft = EvalSplitRes(face, obj_loading_type_);
+				if (ft == FaceType::NOT_DEFINED) { break; }
 
-				// check for texture coordinates and normals
-				for (size_t i{ 0 }; i < iterations; ++i) {
-					vertex_indices.push_back(face[iterations*i]);
-					uv_indices.push_back(face[iterations*i + 1]);
-					normal_indices.push_back(face[iterations*i + 2]);
+				switch (ft) {
+				case FaceType::VVTVN:
+					for (size_t i{ 0 }; i < kVertPerFace; ++i) {
+						vertex_indices.push_back(face[kVertPerFace*i]);
+						uv_indices.push_back(face[kVertPerFace*i + 1]);
+						normal_indices.push_back(face[kVertPerFace*i + 2]);
+					}
+					break;
+				case FaceType::VVN:
+					for (size_t i{ 0 }; i < kVertPerFace; ++i) {
+						vertex_indices.push_back(face[2 * i]);
+						normal_indices.push_back(face[2 * i + 1]);
+					}
+					break;
+				case FaceType::V:
+					for (size_t i{ 0 }; i < kVertPerFace; ++i) {
+						vertex_indices.push_back(face[i]);
+					}
+					break;
 				}
 
-				if (obj_loading_type_ == ObjLoadingType::QUADS) {
-					++number_quads_;
-				}
-
+				if (obj_loading_type_ == ObjLoadingType::QUADS) { ++number_quads_; }
 			}
 		}
 		file_input.close();
-
-		std::cout << vertex_indices.size() << " " << normal_indices.size() << " " << uv_indices.size() << std::endl;
 
 		for (size_t i = 0; i < vertex_indices.size(); i++) {
 			Vertex mesh_vertex;
@@ -96,14 +125,10 @@ bool Mesh::LoadObj(const std::string& filename,
 				glm::vec3 vertex = temp_vertices[vertex_indices[i] - 1];
 				mesh_vertex.position = vertex;
 			}
-
 			if (temp_normals.size() > 0) {
 				glm::vec3 normal = temp_normals[normal_indices[i] - 1];
-				std::cout << normal.x << " " << normal.y << " " << normal.z;
-				std::cout << std::endl;
 				mesh_vertex.normal = normal;
 			}
-
 			if (temp_uvs.size() > 0) {
 				glm::vec2 uv = temp_uvs[uv_indices[i] - 1];
 				mesh_vertex.tex_coords = uv;
@@ -120,7 +145,7 @@ bool Mesh::LoadObj(const std::string& filename,
 }
 
 void Mesh::InitIBO() {
-	if (number_quads_ <= 1) return;
+	if (number_quads_ == 0) return;
 
 	std::vector<GLuint>::iterator it{};
 	std::vector<GLuint> input{};
@@ -129,12 +154,12 @@ void Mesh::InitIBO() {
 	for (size_t i{}; i < number_quads_; ++i) {
 		it = indices_.end();
 		input = {
-		*(it - 6) + kIndexStride,
-		*(it - 5) + kIndexStride,
-		*(it - 4) + kIndexStride,
-		*(it - 3) + kIndexStride,
-		*(it - 2) + kIndexStride,
-		*(it - 1) + kIndexStride
+			*(it - 6) + kIndexStride,
+			*(it - 5) + kIndexStride,
+			*(it - 4) + kIndexStride,
+			*(it - 3) + kIndexStride,
+			*(it - 2) + kIndexStride,
+			*(it - 1) + kIndexStride
 		};
 
 		indices_.insert(

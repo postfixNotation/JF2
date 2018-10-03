@@ -14,9 +14,9 @@
 constexpr size_t kVerticesPerQuad{ 6 };
 
 struct Vertex {
-	glm::vec3 position;
-	glm::vec3 normal;
-	glm::vec2 tex_coords;
+	glm::vec3 position{};
+	glm::vec3 normal{};
+	glm::vec2 tex_coords{};
 };
 
 struct Color {
@@ -31,6 +31,13 @@ enum class ObjLoadingType {
 	QUADS = 4
 };
 
+enum class FaceType {
+	V,
+	VVN,
+	VVTVN,
+	NOT_DEFINED
+};
+
 class Mesh {
 private:
 	ObjLoadingType obj_loading_type_;
@@ -40,16 +47,20 @@ private:
 	size_t number_quads_;
 	bool loaded_;
 
+	static FaceType EvalSplitRes(
+		const std::vector<GLuint>& input_vec,
+		const ObjLoadingType& olt = ObjLoadingType::QUADS
+	);
+	static std::vector<GLuint> Split(
+		std::string value,
+		char delimiter = '/'
+	);
 	void InitIBO();
 	void InitBuffers();
 public:
 	Mesh();
 	~Mesh();
 
-	static std::vector<GLuint> Split(
-		std::string value,
-		char delimiter = '/'
-	);
 	bool LoadObj(
 		const std::string& filename,
 		const ObjLoadingType& obj_loading_type = ObjLoadingType::QUADS

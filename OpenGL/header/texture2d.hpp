@@ -16,7 +16,11 @@ public:
 	virtual ~Texture2D();
 
 	bool LoadTexture(const std::string& file_name, bool gen_mipmaps = true);
-	void BindTextureUnit(GLuint texunit = 0) const;
+	void BindTextureUnit(
+		GLint phandle,
+		const GLchar* uniform,
+		GLuint texunit = 0
+	) const;
 	void UnbindTextureUnit(GLuint texunit = 0) const;
 };
 #endif // TEXTURE_2D_HPP_
