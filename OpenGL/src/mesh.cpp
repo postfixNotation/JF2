@@ -34,11 +34,13 @@ FaceType Mesh::EvalSplitRes(const std::vector<GLuint>& input_vec, const ObjLoadi
 		if (input_vec.size() == 9) { return FaceType::VVTVN; }
 		else if (input_vec.size() == 6) { return FaceType::VVN; }
 		else if (input_vec.size() == 3) { return FaceType::V; }
+		else { return FaceType::NOT_DEFINED; }
 		break;
 	case ObjLoadingType::QUADS:
 		if (input_vec.size() == 12) { return FaceType::VVTVN; }
 		else if (input_vec.size() == 8) { return FaceType::VVN; }
 		else if (input_vec.size() == 4) { return FaceType::V; }
+		else { return FaceType::NOT_DEFINED; }
 		break;
 	}
 
@@ -113,6 +115,8 @@ bool Mesh::LoadObj(const std::string& filename,
 						vertex_indices.push_back(face[i]);
 					}
 					break;
+				case FaceType::NOT_DEFINED:
+					return false;
 				}
 
 				if (obj_loading_type_ == ObjLoadingType::QUADS) { ++number_quads_; }

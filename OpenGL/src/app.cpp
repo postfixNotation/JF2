@@ -2,6 +2,7 @@
 #include <sstream>
 #include <fstream>
 #include <sstream>
+#include <vector>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -14,11 +15,11 @@
 #include <glm/gtx/rotate_normalized_axis.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-#include "SFML/Audio.hpp"
+#include <SFML/Audio.hpp>
 
-#include "texture2d.hpp"
-#include "camera.hpp"
-#include "mesh.hpp"
+#include <texture2d.hpp>
+#include <camera.hpp>
+#include <mesh.hpp>
 
 float ratio;
 float near = 0.1f;
@@ -26,7 +27,9 @@ float far = 100.0f;
 
 glm::mat4 proj{}, model{}, view{};
 const GLFWvidmode* mode;
-GLuint prog_handle;
+
+GLuint model_shader{}, cubemap_shader{};
+
 GLint win_width, win_height;
 std::string kWindowTitle = "Prototype Application";
 GLFWwindow *window = nullptr;
@@ -36,6 +39,8 @@ const GLubyte *version;
 GLuint vs, fs;
 
 Color rgb = { 179.0f / 255, 230.0f / 255, 255.0f / 255, 1.0f };
+
+GLuint LoadCubemap(std::vector<std::string>);
 
 void Update(double);
 std::string LoadFile(const std::string&);
@@ -50,6 +55,7 @@ void APIENTRY DebugMessageCallback(
 
 namespace camera {
 	FPSCamera fps_camera{ glm::vec3{0.0f, 0.0f, 20.0f} };
+	OrbitCamera orbit_camera{};
 	float yaw{ 0.0f };
 	float pitch{ 0.0f };
 	float radius{ 10.0f };
@@ -74,9 +80,9 @@ int main() {
 	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 	mode = glfwGetVideoMode(monitor);
 
-	win_width = mode->width / 2;
-	win_height = mode->height / 2;
-	ratio = (float)win_width / win_height;
+	win_width = static_cast<GLint>(mode->width * (2.0f / 3));
+	win_height = static_cast<GLint>(mode->height * (2.0f / 3));
+	ratio = static_cast<float>(win_width) / win_height;
 
 	window = glfwCreateWindow(win_width, win_height, kWindowTitle.c_str(), NULL, NULL);
 	if (!window) {
@@ -95,8 +101,7 @@ int main() {
 	const size_t kBytesPerValue{ 4 };
 	unsigned char *image_data{};
 
-	stbi_set_flip_vertically_on_load(true);
-	filename = "../textures/android_2.png";
+	filename = "../textures/donut_icon.png";
 	image_data = stbi_load(
 		filename.c_str(),
 		&width,
@@ -110,7 +115,7 @@ int main() {
 	images[0].height = height;
 	images[0].pixels = image_data;
 
-	filename = "../textures/android_1.png";
+	filename = "../textures/donut_icon.png";
 	image_data = stbi_load(
 		filename.c_str(),
 		&width,
@@ -149,6 +154,7 @@ int main() {
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
+	glDepthMask(GL_TRUE);
 	glEnable(GL_BLEND);
 	glEnable(GL_MULTISAMPLE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -173,13 +179,30 @@ int main() {
 	texture[0].LoadTexture("../textures/robot.jpg");
 
 	mesh[1].LoadObj("../models/cube.obj", ObjLoadingType::QUADS);
-	texture[1].LoadTexture("../textures/wood_3k.jpg");
+	texture[1].LoadTexture("../textures/bricks_3k.jpg");
 
 	std::string vertex_shader_string = LoadFile("../shader/vert_shader.glsl");
 	std::string fragment_shader_string = LoadFile("../shader/frag_shader.glsl");
 
+	std::string cubemap_vertex_shader_string = LoadFile("../shader/cubemap_vert_shader.glsl");
+	std::string cubemap_fragment_shader_string = LoadFile("../shader/cubemap_frag_shader.glsl");
+
 	const GLchar* vertex_shader = vertex_shader_string.c_str();
 	const GLchar* fragment_shader = fragment_shader_string.c_str();
+
+	const GLchar* cubemap_vertex_shader = cubemap_vertex_shader_string.c_str();
+	const GLchar* cubemap_fragment_shader = cubemap_fragment_shader_string.c_str();
+
+	std::vector<std::string> faces{
+		"../textures/skybox/right.jpg",
+		"../textures/skybox/left.jpg",
+		"../textures/skybox/bottom.jpg",
+		"../textures/skybox/top.jpg",
+		"../textures/skybox/front.jpg",
+		"../textures/skybox/back.jpg"
+	};
+
+	GLuint cubemap_texture = LoadCubemap(faces);
 
 	vs = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vs, 1, &vertex_shader, NULL);
@@ -189,18 +212,34 @@ int main() {
 	glShaderSource(fs, 1, &fragment_shader, NULL);
 	glCompileShader(fs);
 
-	prog_handle = glCreateProgram();
-	glAttachShader(prog_handle, fs);
-	glAttachShader(prog_handle, vs);
-	glLinkProgram(prog_handle);
+	model_shader = glCreateProgram();
+	glAttachShader(model_shader, fs);
+	glAttachShader(model_shader, vs);
+	glLinkProgram(model_shader);
 
 	glDeleteShader(vs);
 	glDeleteShader(fs);
 
-	glUseProgram(prog_handle);
+	vs = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vs, 1, &cubemap_vertex_shader, NULL);
+	glCompileShader(vs);
+
+	fs = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fs, 1, &cubemap_fragment_shader, NULL);
+	glCompileShader(fs);
+
+	cubemap_shader = glCreateProgram();
+	glAttachShader(cubemap_shader, fs);
+	glAttachShader(cubemap_shader, vs);
+	glLinkProgram(cubemap_shader);
+
+	glDeleteShader(vs);
+	glDeleteShader(fs);
+
+	glUseProgram(model_shader);
 
 	glUniformMatrix4fv(
-		glGetUniformLocation(prog_handle, "model"),
+		glGetUniformLocation(model_shader, "model"),
 		1,
 		GL_FALSE,
 		reinterpret_cast<const GLfloat*>(glm::value_ptr(model))
@@ -212,12 +251,16 @@ int main() {
 		near,
 		far
 	);
+
 	glUniformMatrix4fv(
-		glGetUniformLocation(prog_handle, "projection"),
+		glGetUniformLocation(model_shader, "projection"),
 		1,
 		GL_FALSE,
 		reinterpret_cast<const GLfloat*>(glm::value_ptr(proj))
 	);
+
+	glUseProgram(cubemap_shader);
+	glUniform1i(glGetUniformLocation(cubemap_shader, "skybox"), 0);
 
 	glfwSetKeyCallback(
 		window,
@@ -234,16 +277,36 @@ int main() {
 	});
 
 	glfwSetScrollCallback(window, [](GLFWwindow* win, double xoffset, double yoffset) {
-		double fov = camera::fps_camera.GetFov() + yoffset * camera::kZoomSensitivity;
-		fov = glm::clamp(fov, 1.0, 120.0);
-		camera::fps_camera.SetFov(static_cast<float>(fov));
+		// FPS camera
+		if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE) {
+			double fov = camera::fps_camera.GetFov() + yoffset * camera::kZoomSensitivity;
+			fov = glm::clamp(fov, 1.0, 120.0);
+			camera::fps_camera.SetFov(static_cast<float>(fov));
 
-		proj = glm::perspective(
-			glm::radians(camera::fps_camera.GetFov()),
-			ratio,
-			near,
-			far
-		);
+			proj = glm::perspective(
+				glm::radians(camera::fps_camera.GetFov()),
+				ratio,
+				near,
+				far
+			);
+		}
+		// Orbit camera
+		else if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
+			camera::orbit_camera.SetRadius(yoffset * camera::kZoomSensitivity);
+		}
+	});
+
+	// Orbit camera
+	glfwSetCursorPosCallback(window, [](GLFWwindow* win, double xpos, double ypos) {
+		static glm::vec2 last_mouse_pos = glm::vec2{};
+
+		if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+			camera::yaw -= (static_cast<float>(xpos) - last_mouse_pos.x) * camera::kMouseSensitivity;
+			camera::pitch += (static_cast<float>(ypos) - last_mouse_pos.y) * camera::kMouseSensitivity;
+			camera::orbit_camera.Rotate(camera::yaw, camera::pitch);
+		}
+
+		last_mouse_pos = glm::vec2{ static_cast<float>(xpos), static_cast<float>(ypos) };
 	});
 
 	glfwSetFramebufferSizeCallback(window, [](GLFWwindow* win, int width, int height) {
@@ -260,52 +323,81 @@ int main() {
 		);
 
 		glUniformMatrix4fv(
-			glGetUniformLocation(prog_handle, "projection"),
+			glGetUniformLocation(model_shader, "projection"),
 			1,
 			GL_FALSE,
-			(const GLfloat*)glm::value_ptr(proj));
+			(const GLfloat*)glm::value_ptr(proj)
+		);
 	});
 
 	glViewport(0, 0, win_width, win_height);
 	glClearColor(rgb.r, rgb.g, rgb.b, rgb.a);
 	double previous_time{ glfwGetTime() }, delta_time{};
 
+	camera::orbit_camera.SetLookAt(glm::vec3{ 0.0f,0.0f,0.0f });
+
 	while (!glfwWindowShouldClose(window)) {
 		Update(glfwGetTime() - previous_time);
 		previous_time = glfwGetTime();
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glUseProgram(prog_handle);
+		glUseProgram(model_shader);
 
+		//view = camera::orbit_camera.GetViewMatrix();
 		view = camera::fps_camera.GetViewMatrix();
 		proj = glm::perspective(glm::radians(camera::fps_camera.GetFov()), ratio, near, far);
 
 		glUniformMatrix4fv(
-			glGetUniformLocation(prog_handle, "view"),
+			glGetUniformLocation(model_shader, "view"),
 			1,
 			GL_FALSE,
 			(const GLfloat*)glm::value_ptr(view)
 		);
 		glUniformMatrix4fv(
-			glGetUniformLocation(prog_handle, "projection"),
+			glGetUniformLocation(model_shader, "projection"),
 			1,
 			GL_FALSE,
 			(const GLfloat*)glm::value_ptr(proj)
 		);
 
-		texture[0].BindTextureUnit(prog_handle, "tex_sampler");
+		//for (size_t i{}; i < mesh.size(); ++i) {
+		//	texture[i].BindTextureUnit(model_shader, "tex_sampler");
+		//	mesh[i].Draw();
+		//	texture[i].UnbindTextureUnit();
+		//}
+
+		texture[0].BindTextureUnit(model_shader, "tex_sampler");
 		mesh[0].Draw();
 		texture[0].UnbindTextureUnit();
 
-		texture[1].BindTextureUnit(prog_handle, "tex_sampler");
+		glDepthFunc(GL_LEQUAL);
+		glUseProgram(cubemap_shader);
+		view = glm::mat4(glm::mat3(camera::fps_camera.GetViewMatrix()));
+		glUniformMatrix4fv(
+			glGetUniformLocation(cubemap_shader, "view"),
+			1,
+			GL_FALSE,
+			(const GLfloat*)glm::value_ptr(view)
+		);
+		glUniformMatrix4fv(
+			glGetUniformLocation(cubemap_shader, "projection"),
+			1,
+			GL_FALSE,
+			(const GLfloat*)glm::value_ptr(proj)
+		);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap_texture);
+		glFrontFace(GL_CW);
 		mesh[1].Draw();
-		texture[1].UnbindTextureUnit();
+		glFrontFace(GL_CCW);
+		glDepthFunc(GL_LESS);
 
 		glfwPollEvents();
 		glfwSwapBuffers(window);
 	}
 
-	glDeleteProgram(prog_handle);
+	glDeleteProgram(model_shader);
 	glfwTerminate();
 	return 0;
 }
@@ -355,22 +447,79 @@ void APIENTRY DebugMessageCallback(
 	std::cout << std::endl;
 };
 
-void Update(double elapsed_time) {
-	double mouseX, mouseY;
+GLuint LoadCubemap(std::vector<std::string> faces) {
+	GLuint texture_id;
+	glGenTextures(1, &texture_id);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, texture_id);
 
-	glfwGetCursorPos(window, &mouseX, &mouseY);
-	camera::fps_camera.Rotate((float)(win_width / 2.0 - mouseX) * camera::kMouseSensitivity, (float)(win_height / 2.0 - mouseY) * camera::kMouseSensitivity);
-	glfwSetCursorPos(window, win_width / 2.0, win_height / 2.0);
+	int width, height, components;
+	for (size_t i = 0; i < faces.size(); i++) {
+		unsigned char *data = stbi_load(
+			faces[i].c_str(),
+			&width,
+			&height,
+			&components,
+			0
+		);
+		if (data) {
+			glTexImage2D(
+				GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+				0,
+				GL_RGB,
+				width,
+				height,
+				0,
+				GL_RGB,
+				GL_UNSIGNED_BYTE,
+				data
+			);
+			stbi_image_free(data);
+		}
+		else {
+			std::cerr << "CUBEMAP TEXTURE FAILED TO LOAD AT PATH: " << faces[i] << std::endl;
+			stbi_image_free(data);
+		}
+	}
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	return texture_id;
+}
+
+void Update(double elapsed_time) {
+	double mouse_x, mouse_y;
+
+	glfwGetCursorPos(window, &mouse_x, &mouse_y);
+	camera::fps_camera.Rotate(
+		static_cast<float>(win_width / 2.0 - mouse_x) * camera::kMouseSensitivity,
+		static_cast<float>(win_height / 2.0 - mouse_y) * camera::kMouseSensitivity
+	);
+	glfwSetCursorPos(
+		window,
+		win_width / 2.0,
+		win_height / 2.0
+	);
 
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		camera::fps_camera.Move(camera::kMoveSpeed * (float)elapsed_time * camera::fps_camera.GetLook());
+		camera::fps_camera.Move(
+			camera::kMoveSpeed * static_cast<float>(elapsed_time) * camera::fps_camera.GetLook()
+		);
 	else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		camera::fps_camera.Move(camera::kMoveSpeed * (float)elapsed_time * -camera::fps_camera.GetLook());
+		camera::fps_camera.Move(
+			camera::kMoveSpeed * static_cast<float>(elapsed_time) * -camera::fps_camera.GetLook()
+		);
 
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		camera::fps_camera.Move(camera::kMoveSpeed * (float)elapsed_time * -camera::fps_camera.GetRight());
+		camera::fps_camera.Move(
+			camera::kMoveSpeed * static_cast<float>(elapsed_time) * -camera::fps_camera.GetRight()
+		);
 	else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		camera::fps_camera.Move(camera::kMoveSpeed * (float)elapsed_time * camera::fps_camera.GetRight());
+		camera::fps_camera.Move(
+			camera::kMoveSpeed * static_cast<float>(elapsed_time) * camera::fps_camera.GetRight()
+		);
 }
 
 std::string LoadFile(const std::string &file_name) {

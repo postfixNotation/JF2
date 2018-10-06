@@ -1,6 +1,8 @@
 #ifndef TEXTURE_2D_HPP_
 #define TEXTURE_2D_HPP_
 
+#define MAX_NUMBER_TEX_UNITS 32
+
 #include <stb-master/stb_image.h>
 #include <GL/glew.h>
 #include <iostream>

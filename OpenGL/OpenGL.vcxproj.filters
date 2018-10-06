@@ -42,5 +42,7 @@
   <ItemGroup>
     <None Include="..\shader\frag_shader.glsl" />
     <None Include="..\shader\vert_shader.glsl" />
+    <None Include="..\shader\cubemap_frag_shader.glsl" />
+    <None Include="..\shader\cubemap_vert_shader.glsl" />
   </ItemGroup>
 </Project>

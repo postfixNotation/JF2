@@ -57,13 +57,13 @@ void Texture2D::BindTextureUnit(
 	GLint loc = glGetUniformLocation(phandle, uniform);
 	glUniform1i(loc, texunit);
 
-	assert(texunit >= 0 && texunit < (GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS - GL_TEXTURE0));
+	assert(texunit >= 0 && texunit < MAX_NUMBER_TEX_UNITS);
 	glActiveTexture(GL_TEXTURE0 + texunit);
 	glBindTexture(GL_TEXTURE_2D, texture_handle_);
 }
 
 void Texture2D::UnbindTextureUnit(GLuint texunit) const {
-	assert(texunit >= 0 && texunit < (GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS - GL_TEXTURE0));
+	assert(texunit >= 0 && texunit < MAX_NUMBER_TEX_UNITS);
 	glActiveTexture(GL_TEXTURE0 + texunit);
 	glBindTexture(GL_TEXTURE_2D, 0);
 }

@@ -1,10 +1,11 @@
 #include <camera.hpp>
 
-constexpr float kDefFov = 30.0f; // degrees
+constexpr float kDefFov = 45.0f; // degrees
 
 Camera::Camera() :
 	position_{ glm::vec3{0.0f,0.0f,0.0f} },
 	target_{ glm::vec3{0.0f,0.0f,0.0f} },
+	kWorldUp{ 0.0f, 1.0f, 0.0f },
 	up_{ glm::vec3{0.0f,1.0f,0.0f} },
 	yaw_{ 0.0f },
 	pitch_{ 0.0f },
@@ -16,14 +17,12 @@ glm::mat4 Camera::GetViewMatrix() const {
 }
 
 FPSCamera::FPSCamera(glm::vec3 position, float yaw, float pitch) :
-	right_{ 0.0f,0.0f,0.0f },
-	kWorldUp{ 0.0f, 1.0f, 0.0f } {
+	right_{ 1.0f,0.0f,0.0f } {
 	position_ = position;
 	yaw_ = yaw;
 	pitch_ = pitch;
 }
 
-// constrain test
 void FPSCamera::Rotate(float yaw, float pitch) {
 	yaw_ += glm::radians(yaw);
 	pitch_ += glm::radians(pitch);
@@ -51,20 +50,19 @@ void FPSCamera::UpdateCameraVectors() {
 	target_ = position_ + look_;
 }
 
-OrbitCamera::OrbitCamera() :
-	radius_{ 10.0f } {}
+OrbitCamera::OrbitCamera() : radius_{ 10.0f } {}
 
 void OrbitCamera::SetLookAt(const glm::vec3& target) {
 	target_ = target;
 	UpdateCameraVectors();
 }
 
-void OrbitCamera::SetRadius(float radius) {
-	radius_ = glm::clamp(radius, 2.0f, 80.0f);
+void OrbitCamera::SetRadius(float offset_radius) {
+	radius_ += offset_radius;
+	radius_ = glm::clamp(radius_, 2.0f, 80.0f);
 	UpdateCameraVectors();
 }
 
-// constrain test
 void OrbitCamera::Rotate(float yaw, float pitch) {
 	yaw_ = glm::radians(yaw);
 	pitch_ = glm::radians(pitch);
@@ -78,4 +76,8 @@ void OrbitCamera::UpdateCameraVectors() {
 	position_.x = target_.x + radius_ * cosf(pitch_) * sinf(yaw_);
 	position_.y = target_.y + radius_ * sinf(pitch_);
 	position_.z = target_.z + radius_ * cosf(pitch_) * cosf(yaw_);
+
+	glm::vec3 look{ target_ - position_ };
+	glm::vec3 right{ glm::normalize(glm::cross(look, kWorldUp)) };
+	up_ = glm::normalize(glm::cross(right, look));
 }

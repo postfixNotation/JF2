@@ -4,19 +4,21 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 
+// abstract camera class
 class Camera {
 private:
-	// Camera parameters
+	// camera parameters
 	float fov_; // degrees
 
 protected:
 	Camera();
 	virtual void UpdateCameraVectors() = 0;
 
+	const glm::vec3 kWorldUp;
 	glm::vec3 up_;
 	glm::vec3 position_;
 	glm::vec3 target_;
-	// Euler Angles (in radians)
+	// euler angles (in radians)
 	float yaw_;
 	float pitch_;
 
@@ -31,7 +33,6 @@ class FPSCamera : public Camera {
 private:
 	glm::vec3 look_;
 	glm::vec3 right_;
-	const glm::vec3 kWorldUp;
 	virtual void UpdateCameraVectors() override final;
 
 public:
@@ -52,8 +53,8 @@ public:
 
 class OrbitCamera : public Camera {
 private:
-	void UpdateCameraVectors() override final;
-	// Camera parameters
+	virtual void UpdateCameraVectors() override final;
+	// camera parameters
 	float radius_;
 
 public:
