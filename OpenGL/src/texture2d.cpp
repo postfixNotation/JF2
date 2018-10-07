@@ -7,6 +7,7 @@ Texture2D::~Texture2D() {
 }
 
 bool Texture2D::LoadTexture(const std::string& file_name, bool gen_mipmaps) {
+	GLenum format;
 	int width, height, components;
 	stbi_set_flip_vertically_on_load(true);
 	unsigned char *image_data = stbi_load(
@@ -14,12 +15,25 @@ bool Texture2D::LoadTexture(const std::string& file_name, bool gen_mipmaps) {
 		&width,
 		&height,
 		&components,
-		STBI_rgb_alpha
+		0
 	);
 
 	if (image_data == NULL) {
 		std::cerr << "ERROR LOADING TEXTURE '" << file_name << "'" << std::endl;
 		return false;
+	}
+	else {
+		switch (components) {
+		case 1:
+			format = GL_RED;
+			break;
+		case 3:
+			format = GL_RGB;
+			break;
+		case 4:
+			format = GL_RGBA;
+			break;
+		}
 	}
 
 	glGenTextures(1, &texture_handle_);
@@ -32,11 +46,11 @@ bool Texture2D::LoadTexture(const std::string& file_name, bool gen_mipmaps) {
 	glTexImage2D(
 		GL_TEXTURE_2D,
 		0,
-		GL_RGBA,
+		format,
 		width,
 		height,
 		0,
-		GL_RGBA,
+		format,
 		GL_UNSIGNED_BYTE,
 		image_data
 	);
@@ -47,6 +61,59 @@ bool Texture2D::LoadTexture(const std::string& file_name, bool gen_mipmaps) {
 
 	stbi_image_free(image_data);
 	glBindTexture(GL_TEXTURE_2D, 0);
+	return true;
+}
+
+bool Texture2D::LoadCubemap(const std::vector<std::string>& faces) {
+	glGenTextures(1, &texture_handle_);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, texture_handle_);
+
+	GLenum format;
+	int width, height, components;
+	for (size_t i = 0; i < faces.size(); i++) {
+		unsigned char *data = stbi_load(
+			faces[i].c_str(),
+			&width,
+			&height,
+			&components,
+			0
+		);
+
+		switch (components) {
+		case 1:
+			format = GL_RED;
+			break;
+		case 3:
+			format = GL_RGB;
+			break;
+		case 4:
+			format = GL_RGBA;
+			break;
+		}
+
+		if (data) {
+			glTexImage2D(
+				GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+				0,
+				format,
+				width,
+				height,
+				0,
+				format,
+				GL_UNSIGNED_BYTE,
+				data
+			);
+		}
+		else {
+			std::cerr << "CUBEMAP TEXTURE FAILED TO LOAD AT PATH: " << faces[i] << std::endl;
+		}
+		stbi_image_free(data);
+	}
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 	return true;
 }
 
@@ -62,8 +129,26 @@ void Texture2D::BindTextureUnit(
 	glBindTexture(GL_TEXTURE_2D, texture_handle_);
 }
 
+void Texture2D::BindCubeTextureUnit(
+	GLint phandle,
+	const GLchar* uniform,
+	GLuint texunit) const {
+	GLint loc = glGetUniformLocation(phandle, uniform);
+	glUniform1i(loc, texunit);
+
+	assert(texunit >= 0 && texunit < MAX_NUMBER_TEX_UNITS);
+	glActiveTexture(GL_TEXTURE0 + texunit);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, texture_handle_);
+}
+
 void Texture2D::UnbindTextureUnit(GLuint texunit) const {
 	assert(texunit >= 0 && texunit < MAX_NUMBER_TEX_UNITS);
 	glActiveTexture(GL_TEXTURE0 + texunit);
 	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void Texture2D::UnbindCubeTextureUnit(GLuint texunit) const {
+	assert(texunit >= 0 && texunit < MAX_NUMBER_TEX_UNITS);
+	glActiveTexture(GL_TEXTURE0 + texunit);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }

@@ -40,8 +40,6 @@ GLuint vs, fs;
 
 Color rgb = { 179.0f / 255, 230.0f / 255, 255.0f / 255, 1.0f };
 
-GLuint LoadCubemap(std::vector<std::string>);
-
 void Update(double);
 std::string LoadFile(const std::string&);
 void APIENTRY DebugMessageCallback(
@@ -107,7 +105,7 @@ int main() {
 		&width,
 		&height,
 		&components,
-		STBI_rgb_alpha
+		0
 	);
 	if (image_data == NULL) return 1;
 
@@ -121,7 +119,7 @@ int main() {
 		&width,
 		&height,
 		&components,
-		STBI_rgb_alpha
+		0
 	);
 	if (image_data == NULL) return 1;
 
@@ -178,8 +176,16 @@ int main() {
 	mesh[0].LoadObj("../models/robot.obj", ObjLoadingType::TRIANGLES);
 	texture[0].LoadTexture("../textures/robot.jpg");
 
+	std::vector<std::string> faces{
+		"../textures/skybox/right.jpg",
+		"../textures/skybox/left.jpg",
+		"../textures/skybox/bottom.jpg",
+		"../textures/skybox/top.jpg",
+		"../textures/skybox/front.jpg",
+		"../textures/skybox/back.jpg"
+	};
 	mesh[1].LoadObj("../models/cube.obj", ObjLoadingType::QUADS);
-	texture[1].LoadTexture("../textures/bricks_3k.jpg");
+	texture[1].LoadCubemap(faces);
 
 	std::string vertex_shader_string = LoadFile("../shader/vert_shader.glsl");
 	std::string fragment_shader_string = LoadFile("../shader/frag_shader.glsl");
@@ -192,17 +198,6 @@ int main() {
 
 	const GLchar* cubemap_vertex_shader = cubemap_vertex_shader_string.c_str();
 	const GLchar* cubemap_fragment_shader = cubemap_fragment_shader_string.c_str();
-
-	std::vector<std::string> faces{
-		"../textures/skybox/right.jpg",
-		"../textures/skybox/left.jpg",
-		"../textures/skybox/bottom.jpg",
-		"../textures/skybox/top.jpg",
-		"../textures/skybox/front.jpg",
-		"../textures/skybox/back.jpg"
-	};
-
-	GLuint cubemap_texture = LoadCubemap(faces);
 
 	vs = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vs, 1, &vertex_shader, NULL);
@@ -250,13 +245,6 @@ int main() {
 		ratio,
 		near,
 		far
-	);
-
-	glUniformMatrix4fv(
-		glGetUniformLocation(model_shader, "projection"),
-		1,
-		GL_FALSE,
-		reinterpret_cast<const GLfloat*>(glm::value_ptr(proj))
 	);
 
 	glUseProgram(cubemap_shader);
@@ -360,12 +348,6 @@ int main() {
 			(const GLfloat*)glm::value_ptr(proj)
 		);
 
-		//for (size_t i{}; i < mesh.size(); ++i) {
-		//	texture[i].BindTextureUnit(model_shader, "tex_sampler");
-		//	mesh[i].Draw();
-		//	texture[i].UnbindTextureUnit();
-		//}
-
 		texture[0].BindTextureUnit(model_shader, "tex_sampler");
 		mesh[0].Draw();
 		texture[0].UnbindTextureUnit();
@@ -386,10 +368,12 @@ int main() {
 			(const GLfloat*)glm::value_ptr(proj)
 		);
 
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap_texture);
 		glFrontFace(GL_CW);
+
+		texture[1].BindCubeTextureUnit(cubemap_shader, "skybox");
 		mesh[1].Draw();
+		texture[1].UnbindCubeTextureUnit();
+
 		glFrontFace(GL_CCW);
 		glDepthFunc(GL_LESS);
 
@@ -398,6 +382,7 @@ int main() {
 	}
 
 	glDeleteProgram(model_shader);
+	glDeleteProgram(cubemap_shader);
 	glfwTerminate();
 	return 0;
 }
@@ -446,48 +431,6 @@ void APIENTRY DebugMessageCallback(
 	} std::cout << std::endl;
 	std::cout << std::endl;
 };
-
-GLuint LoadCubemap(std::vector<std::string> faces) {
-	GLuint texture_id;
-	glGenTextures(1, &texture_id);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, texture_id);
-
-	int width, height, components;
-	for (size_t i = 0; i < faces.size(); i++) {
-		unsigned char *data = stbi_load(
-			faces[i].c_str(),
-			&width,
-			&height,
-			&components,
-			0
-		);
-		if (data) {
-			glTexImage2D(
-				GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-				0,
-				GL_RGB,
-				width,
-				height,
-				0,
-				GL_RGB,
-				GL_UNSIGNED_BYTE,
-				data
-			);
-			stbi_image_free(data);
-		}
-		else {
-			std::cerr << "CUBEMAP TEXTURE FAILED TO LOAD AT PATH: " << faces[i] << std::endl;
-			stbi_image_free(data);
-		}
-	}
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-	return texture_id;
-}
 
 void Update(double elapsed_time) {
 	double mouse_x, mouse_y;
