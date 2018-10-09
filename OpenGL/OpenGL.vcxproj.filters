@@ -27,6 +27,9 @@
     <ClCompile Include="src\app.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="src\text.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="header\texture2d.hpp">
@@ -38,11 +41,17 @@
     <ClInclude Include="header\mesh.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="header\text.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\shader\frag_shader.glsl" />
     <None Include="..\shader\vert_shader.glsl" />
     <None Include="..\shader\cubemap_frag_shader.glsl" />
     <None Include="..\shader\cubemap_vert_shader.glsl" />
+    <None Include="makefile" />
+    <None Include="..\shader\font_frag.glsl" />
+    <None Include="..\shader\font_vert.glsl" />
   </ItemGroup>
 </Project>

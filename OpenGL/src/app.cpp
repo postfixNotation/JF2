@@ -354,7 +354,7 @@ int main() {
 	camera::orbit_camera.SetLookAt(glm::vec3{ 0.0f,0.0f,0.0f });
 
 	Text text{ text_shader, static_cast<size_t>(win_width), static_cast<size_t>(win_height) };
-	text.SetFileName("../fonts/Wallpoet-Regular.ttf", 64);
+	text.SetFileName("../fonts/Nosifer-Regular.ttf", 64);
 
 	while (!glfwWindowShouldClose(window)) {
 		Update(glfwGetTime() - previous_time);
