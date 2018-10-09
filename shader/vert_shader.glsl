@@ -14,3 +14,4 @@ void main () {
 	gl_Position = projection * view * model * vec4(vert_pos.xyz, 1.0f);
 	tex_pos_frag = tex_pos;
 }
+

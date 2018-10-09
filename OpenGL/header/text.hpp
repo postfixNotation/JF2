@@ -6,55 +6,48 @@
 #include <GL/glew.h>
 
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
 struct Character {
-	GLuint TextureID;
-	glm::ivec2 Size;
-	glm::ivec2 Bearing;
-	GLuint Advance;
+	GLuint texture_id;
+	glm::ivec2 character_size;
+	glm::ivec2 bearing;
+	GLuint advance;
 };
 
 class Text {
 private:
 	// Text requires Shader class instance
+	// Text requires Transform(ation) class instance
 	std::string filename_;
+	size_t default_pixel_size_;
 	std::map<GLchar, Character> characters_;
 	static constexpr GLuint kVerticesPerQuad{ 6 };
 	static constexpr GLuint kPositionAndTexture{ 4 };
-	GLuint shader_handle_; // change to Shader class instance
 	GLuint vao_, vbo_; // add ibo
-	glm::mat4 projection_;
+	GLuint shader_handle_; // change to Shader class instance
+	glm::mat4 projection_; // change to transformation instance
 
-	void LoadFonts();
 	void InitBuffers();
 	void UseProjection() const;
+	void LoadFonts();
 
 public:
-	Text();
-	Text(GLuint);
+	Text(GLuint, size_t, size_t);
 	~Text();
-	void SetShaderHandle(GLuint);
-	void SetFileName(std::string);
-	void SetProjectionMatrix(glm::mat4);
-	void RenderText(
-		GLuint,
-		std::string,
-		GLfloat,
-		GLfloat,
-		GLfloat,
-		glm::vec3
-	);
+	// pixel size of 112 is maximum for many Google fonts
+	void SetFileName(std::string filename, size_t pixel_size = 48);
 	void RenderText(
 		std::string,
-		GLfloat,
-		GLfloat,
-		GLfloat,
-		glm::vec3
+		GLfloat, // x position
+		GLfloat, // y position
+		GLfloat, // scale factor
+		glm::vec3// color
 	);
 };
 #endif // TEXT_HPP_
+

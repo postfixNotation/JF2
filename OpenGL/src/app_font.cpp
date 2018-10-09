@@ -6,8 +6,8 @@
 #include <GLFW/glfw3.h>
 
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <text.hpp>
 
@@ -26,8 +26,8 @@ int main() {
 		return 1;
 	}
 
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
@@ -71,7 +71,12 @@ int main() {
 	});
 
 	glewExperimental = GL_TRUE;
-	glewInit();
+	if (GLEW_OK != glewInit()) {
+		std::cerr << "ERROR: COULD NOT INITIALIZE GLEW" << std::endl;
+		glfwTerminate();
+		return 1;
+	}
+
 	glViewport(0, 0, win_width, win_height);
 	glEnable(GL_CULL_FACE);
 
@@ -105,24 +110,17 @@ int main() {
 	glDeleteShader(vs);
 	glDeleteShader(fs);
 
-	Text text{ shader_handle };
+	Text text{ shader_handle, static_cast<size_t>(win_width), static_cast<size_t>(win_height) };
 	text.SetFileName("../fonts/Wallpoet-Regular.ttf");
-	glm::mat4 projection = glm::ortho(
-		0.0f,
-		static_cast<GLfloat>(win_width),
-		0.0f,
-		static_cast<GLfloat>(win_height)
-	);
-	text.SetProjectionMatrix(projection);
 
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
 
-		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		glClearColor(0.8f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		text.RenderText(
-			"Welcome to Snake Unlimited ©",
+			"Welcome to OpenGL ©",
 			10.0f,
 			30.0f,
 			0.6f,

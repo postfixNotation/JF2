@@ -9,9 +9,10 @@ void Text::LoadFonts() {
 	if (FT_New_Face(ft, filename_.c_str(), 0, &face)) {
 		std::cerr << "ERROR::FREETYPE: FAILED TO LOAD FONT" << std::endl;
 	}
-	FT_Set_Pixel_Sizes(face, 0, 112);
+	FT_Set_Pixel_Sizes(face, 0, default_pixel_size_);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
+	// more than ASCII set to also get further glyphs
 	for (GLubyte c = 0; c < 170; c++) {
 		if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
 			std::cerr << "ERROR::FREETYTPE: FAILED TO LOAD GLYPH" << std::endl;
@@ -41,7 +42,7 @@ void Text::LoadFonts() {
 			texture,
 			glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
 			glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-			face->glyph->advance.x
+			static_cast<GLuint>(face->glyph->advance.x)
 		};
 		characters_.insert(std::pair<GLchar, Character>(c, character));
 	}
@@ -79,6 +80,7 @@ void Text::InitBuffers() {
 
 void Text::UseProjection() const {
 	glUseProgram(shader_handle_);
+	// change to shader method
 	glUniformMatrix4fv(
 		glGetUniformLocation(shader_handle_, "projection"),
 		1,
@@ -87,35 +89,33 @@ void Text::UseProjection() const {
 	);
 }
 
-Text::Text() {
+Text::Text(GLuint shader_handle, size_t width, size_t height) {
+	shader_handle_ = shader_handle;
+	projection_ = glm::ortho(
+		0.0f,
+		static_cast<GLfloat>(width),
+		0.0f,
+		static_cast<GLfloat>(height)
+	);
 	InitBuffers();
 }
 
-Text::Text(GLuint shader_handle) {
-	shader_handle_ = shader_handle;
-	InitBuffers();
+Text::~Text() {
+	for (std::map<GLchar, Character>::iterator it{begin(characters_)}; it != end(characters_); ++it) {
+		glDeleteTextures(1, &(it->second.texture_id));
+	}
 }
 
-Text::~Text() {}
-
-void Text::SetShaderHandle(GLuint shader_handle) {
-	shader_handle_ = shader_handle;
-}
-
-void Text::SetFileName(std::string filename) {
+void Text::SetFileName(std::string filename, size_t pixel_size) {
+	default_pixel_size_ = pixel_size;
 	filename_ = filename;
 	LoadFonts();
 }
 
-void Text::SetProjectionMatrix(glm::mat4 projection) {
-	projection_ = projection;
-}
-
-void Text::RenderText(GLuint handle, std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color) {
-	SetShaderHandle(handle);
+void Text::RenderText(std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color) {
 	UseProjection();
 	glUniform3f(
-		glGetUniformLocation(handle, "textColor"),
+		glGetUniformLocation(shader_handle_, "text_color"),
 		color.x,
 		color.y,
 		color.z
@@ -127,21 +127,21 @@ void Text::RenderText(GLuint handle, std::string text, GLfloat x, GLfloat y, GLf
 	for (c = text.begin(); c != text.end(); c++) {
 		Character ch = characters_[*c];
 
-		GLfloat xpos = x + ch.Bearing.x * scale;
-		GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+		GLfloat xpos = x + ch.bearing.x * scale;
+		GLfloat ypos = y - (ch.character_size.y - ch.bearing.y) * scale;
 
-		GLfloat w = ch.Size.x * scale;
-		GLfloat h = ch.Size.y * scale;
+		GLfloat w = ch.character_size.x * scale;
+		GLfloat h = ch.character_size.y * scale;
 
 		GLfloat vertices[kVerticesPerQuad][kPositionAndTexture] = {
-			{ xpos,     ypos + h, 0.0, 0.0 },
-			{ xpos,     ypos,     0.0, 1.0 },
-			{ xpos + w, ypos,     1.0, 1.0 },
-			{ xpos,     ypos + h, 0.0, 0.0 },
-			{ xpos + w, ypos,     1.0, 1.0 },
-			{ xpos + w, ypos + h, 1.0, 0.0 }
+			{ xpos,     ypos + h, 0.0f, 0.0f },
+			{ xpos,     ypos,     0.0f, 1.0f },
+			{ xpos + w, ypos,     1.0f, 1.0f },
+			{ xpos,     ypos + h, 0.0f, 0.0f },
+			{ xpos + w, ypos,     1.0f, 1.0f },
+			{ xpos + w, ypos + h, 1.0f, 0.0f }
 		};
-		glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+		glBindTexture(GL_TEXTURE_2D, ch.texture_id);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo_);
 		glBufferSubData(
 			GL_ARRAY_BUFFER,
@@ -151,18 +151,9 @@ void Text::RenderText(GLuint handle, std::string text, GLfloat x, GLfloat y, GLf
 		);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glDrawArrays(GL_TRIANGLES, 0, 6); // add ibo -> glDrawElements(...)
-		x += (ch.Advance >> 6) * scale;
+		x += (ch.advance >> 6) * scale;
 	}
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Text::RenderText(std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color) {
-	RenderText(shader_handle_,
-		text,
-		x,
-		y,
-		scale,
-		color
-	);
-}
