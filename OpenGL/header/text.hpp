@@ -42,11 +42,11 @@ public:
 	// pixel size of 112 is maximum for many Google fonts
 	void SetFileName(std::string filename, size_t pixel_size = 48);
 	void RenderText(
-		std::string,
-		GLfloat, // x position
-		GLfloat, // y position
-		GLfloat, // scale factor
-		glm::vec3// color
+		std::string text,
+		GLfloat x,
+		GLfloat y,
+		GLfloat scale = 1.0f,
+		glm::vec3 color = glm::vec3{ 1.0f }
 	);
 };
 #endif // TEXT_HPP_

@@ -1,6 +1,7 @@
 #include <text.hpp>
 
 void Text::LoadFonts() {
+	characters_.clear();
 	FT_Library ft;
 	if (FT_Init_FreeType(&ft)) {
 		std::cerr << "ERROR::FREETYPE: COULD NOT INIT FREETYPE LIBRARY" << std::endl;
@@ -94,8 +95,8 @@ Text::Text(GLuint shader_handle, size_t width, size_t height) {
 	projection_ = glm::ortho(
 		0.0f,
 		static_cast<GLfloat>(width),
-		0.0f,
-		static_cast<GLfloat>(height)
+		static_cast<GLfloat>(height),
+		0.0f
 	);
 	InitBuffers();
 }
@@ -124,22 +125,22 @@ void Text::RenderText(std::string text, GLfloat x, GLfloat y, GLfloat scale, glm
 	glBindVertexArray(vao_);
 
 	std::string::const_iterator c;
-	for (c = text.begin(); c != text.end(); c++) {
+	for (c = text.begin(); c != text.end(); ++c) {
 		Character ch = characters_[*c];
 
 		GLfloat xpos = x + ch.bearing.x * scale;
-		GLfloat ypos = y - (ch.character_size.y - ch.bearing.y) * scale;
+		GLfloat ypos = y + (characters_['H'].bearing.y - ch.bearing.y) * scale;
 
 		GLfloat w = ch.character_size.x * scale;
 		GLfloat h = ch.character_size.y * scale;
 
 		GLfloat vertices[kVerticesPerQuad][kPositionAndTexture] = {
-			{ xpos,     ypos + h, 0.0f, 0.0f },
-			{ xpos,     ypos,     0.0f, 1.0f },
-			{ xpos + w, ypos,     1.0f, 1.0f },
-			{ xpos,     ypos + h, 0.0f, 0.0f },
-			{ xpos + w, ypos,     1.0f, 1.0f },
-			{ xpos + w, ypos + h, 1.0f, 0.0f }
+			{ xpos,     ypos + h, 0.0f, 1.0f },
+			{ xpos + w, ypos,     1.0f, 0.0f },
+			{ xpos,     ypos,     0.0f, 0.0f },
+			{ xpos,     ypos + h, 0.0f, 1.0f },
+			{ xpos + w, ypos + h, 1.0f, 1.0f },
+			{ xpos + w, ypos,     1.0f, 0.0f }
 		};
 		glBindTexture(GL_TEXTURE_2D, ch.texture_id);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo_);
