@@ -14,10 +14,11 @@
 
 class Texture2D {
 private:
-	Shader shader_;
+	Shader *shader_;
 	GLuint texture_handle_{};
 public:
-	Texture2D(Shader);
+	Texture2D(Shader*);
+	Texture2D(const Texture2D&) = delete;
 	Texture2D& operator= (const Texture2D&) = delete;
 	virtual ~Texture2D();
 

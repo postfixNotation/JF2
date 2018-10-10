@@ -17,7 +17,7 @@ public:
 	Shader(std::string, std::string);
 	virtual ~Shader();
 	void Use() const;
-	GLuint GetHandle() { return handle_; }
+	GLuint GetHandle() const { return handle_; }
 	static bool Init();
 };
 

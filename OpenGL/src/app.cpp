@@ -98,8 +98,8 @@ int main() {
 	glfwMakeContextCurrent(window);
 	Shader::Init();
 
-	model_shader = new Shader{"../shader/mesh_vert_shader.glsl","../shader/mesh_frag_shader.glsl"};
-	//cubemap_shader = new Shader{"../shader/cubemap_vert_shader.glsl","../shader/cubemap_frag_shader.glsl"};
+	model_shader = new Shader{ "../shader/mesh_vert_shader.glsl","../shader/mesh_frag_shader.glsl" };
+	cubemap_shader = new Shader{ "../shader/cubemap_vert_shader.glsl","../shader/cubemap_frag_shader.glsl" };
 	//text_shader = Shader{"../shader/font_vert.glsl","../shader/font_frag.glsl"};
 
 	//std::string filename{};
@@ -175,22 +175,21 @@ int main() {
 	//	return -1;
 	//music.play();
 
-	std::vector<MeshRenderer> mesh(1);
-	//std::vector<Texture2D> texture(1, *model_shader);
-	Texture2D texture(*model_shader);
+	std::vector<MeshRenderer> mesh(2);
+	//std::vector<Texture2D> texture{ model_shader };
 	mesh[0].LoadObj("../models/robot.obj", ObjLoadingType::TRIANGLES);
 	//texture[0].LoadTexture("../textures/robot.jpg");
-	texture.LoadTexture("../textures/robot.jpg");
 
-	//std::vector<std::string> faces{
-	//	"../textures/skybox/right.jpg",
-	//	"../textures/skybox/left.jpg",
-	//	"../textures/skybox/bottom.jpg",
-	//	"../textures/skybox/top.jpg",
-	//	"../textures/skybox/front.jpg",
-	//	"../textures/skybox/back.jpg"
-	//};
-	//mesh[1].LoadObj("../models/cube.obj", ObjLoadingType::QUADS);
+	std::vector<std::string> faces{
+		"../textures/skybox/right.jpg",
+		"../textures/skybox/left.jpg",
+		"../textures/skybox/bottom.jpg",
+		"../textures/skybox/top.jpg",
+		"../textures/skybox/front.jpg",
+		"../textures/skybox/back.jpg"
+	};
+	mesh[1].LoadObj("../models/cube.obj", ObjLoadingType::QUADS);
+	//texture.push_back(Texture2D{ cubemap_shader });
 	//texture[1].LoadCubemap(faces);
 
 	model_shader->Use();
@@ -209,8 +208,8 @@ int main() {
 		far
 	);
 
-	//cubemap_shader->Use();
-	//glUniform1i(glGetUniformLocation(cubemap_shader->GetHandle(), "skybox"), 0);
+	cubemap_shader->Use();
+	glUniform1i(glGetUniformLocation(cubemap_shader->GetHandle(), "skybox"), 0);
 
 	glfwSetKeyCallback(
 		window,
@@ -227,7 +226,7 @@ int main() {
 	});
 
 	glfwSetScrollCallback(window, [](GLFWwindow* win, double xoffset, double yoffset) {
-	//	// FPS camera
+		//	// FPS camera
 		if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE) {
 			double fov = camera::fps_camera.GetFov() + yoffset * camera::kZoomSensitivity;
 			fov = glm::clamp(fov, 1.0, 120.0);
@@ -242,7 +241,7 @@ int main() {
 		}
 		// Orbit camera
 		else if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
-			camera::orbit_camera.SetRadius(yoffset * camera::kZoomSensitivity);
+			camera::orbit_camera.SetRadius(static_cast<float>(yoffset) * camera::kZoomSensitivity);
 		}
 	});
 
@@ -319,35 +318,33 @@ int main() {
 
 		// change to Shader instance as argument
 		//texture[0].BindTextureUnit("tex_sampler");
-		texture.BindTextureUnit("tex_sampler");
 		mesh[0].Draw();
 		//texture[0].UnbindTextureUnit();
-		texture.UnbindTextureUnit();
 
-		//glDepthFunc(GL_LEQUAL);
-		//cubemap_shader->Use();
-		//view = glm::mat4(glm::mat3(camera::fps_camera.GetViewMatrix()));
-		//glUniformMatrix4fv(
-		//	glGetUniformLocation(cubemap_shader->GetHandle(), "view"),
-		//	1,
-		//	GL_FALSE,
-		//	(const GLfloat*)glm::value_ptr(view)
-		//);
-		//glUniformMatrix4fv(
-		//	glGetUniformLocation(cubemap_shader->GetHandle(), "projection"),
-		//	1,
-		//	GL_FALSE,
-		//	(const GLfloat*)glm::value_ptr(proj)
-		//);
+		glDepthFunc(GL_LEQUAL);
+		cubemap_shader->Use();
+		view = glm::mat4(glm::mat3(camera::fps_camera.GetViewMatrix()));
+		glUniformMatrix4fv(
+			glGetUniformLocation(cubemap_shader->GetHandle(), "view"),
+			1,
+			GL_FALSE,
+			(const GLfloat*)glm::value_ptr(view)
+		);
+		glUniformMatrix4fv(
+			glGetUniformLocation(cubemap_shader->GetHandle(), "projection"),
+			1,
+			GL_FALSE,
+			(const GLfloat*)glm::value_ptr(proj)
+		);
 
-		//glFrontFace(GL_CW);
+		glFrontFace(GL_CW);
 
 		//texture[1].BindCubeTextureUnit("skybox");
 		//mesh[1].Draw();
 		//texture[1].UnbindCubeTextureUnit();
 
-		//glFrontFace(GL_CCW);
-		//glDepthFunc(GL_LESS);
+		glFrontFace(GL_CCW);
+		glDepthFunc(GL_LESS);
 
 		//text.RenderText("Welcome to OpenGL ©", 0.0f, 0.0f);
 
@@ -357,7 +354,7 @@ int main() {
 
 	delete model_shader;
 	//delete text_shader;
-	//delete cubemap_shader;
+	delete cubemap_shader;
 
 	glfwTerminate();
 	return 0;

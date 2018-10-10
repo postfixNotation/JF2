@@ -59,4 +59,3 @@ std::string Shader::LoadFile(const std::string file) {
 
 	return ss.str();
 }
-

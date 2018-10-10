@@ -10,10 +10,10 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <shader.hpp>
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
-
-#include <shader.hpp>
 
 struct Character {
 	GLuint texture_id;
@@ -25,7 +25,7 @@ struct Character {
 class Text {
 private:
 	// Text requires Transform(ation) class instance
-	Shader shader_;
+	Shader *shader_;
 	std::string filename_;
 	size_t default_pixel_size_;
 	std::map<GLchar, Character> characters_;
@@ -35,13 +35,12 @@ private:
 	glm::mat4 projection_; // change to transformation instance
 	std::vector<GLuint> indices_; // efficient memory use with IBOs
 
-	void InitIBO();
 	void LoadFonts();
 	void InitBuffers();
 	void UseProjection();
 
 public:
-	Text(Shader, size_t, size_t);
+	Text(Shader*, size_t, size_t);
 	~Text();
 	// pixel size of 112 is maximum for many Google fonts
 	void SetFileName(std::string filename, size_t pixel_size = 48);

@@ -21,13 +21,16 @@
     <ClCompile Include="src\camera.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="src\mesh.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="src\app.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="src\text.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mesh_renderer.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\shader.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>
@@ -38,20 +41,23 @@
     <ClInclude Include="header\camera.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="header\mesh.hpp">
+    <ClInclude Include="header\text.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="header\text.hpp">
+    <ClInclude Include="header\mesh_renderer.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="header\shader.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\shader\frag_shader.glsl" />
-    <None Include="..\shader\vert_shader.glsl" />
+    <None Include="makefile" />
     <None Include="..\shader\cubemap_frag_shader.glsl" />
     <None Include="..\shader\cubemap_vert_shader.glsl" />
-    <None Include="makefile" />
     <None Include="..\shader\font_frag.glsl" />
     <None Include="..\shader\font_vert.glsl" />
+    <None Include="..\shader\mesh_frag_shader.glsl" />
+    <None Include="..\shader\mesh_vert_shader.glsl" />
   </ItemGroup>
 </Project>

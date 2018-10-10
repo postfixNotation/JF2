@@ -91,17 +91,17 @@ void Text::InitBuffers() {
 }
 
 void Text::UseProjection() {
-	glUseProgram(shader_.GetHandle());
+	shader_->Use();
 	// change to transformation class method
 	glUniformMatrix4fv(
-		glGetUniformLocation(shader_.GetHandle(), "projection"),
+		glGetUniformLocation(shader_->GetHandle(), "projection"),
 		1,
 		GL_FALSE,
 		glm::value_ptr(projection_)
 	);
 }
 
-Text::Text(Shader shader, size_t width, size_t height) :
+Text::Text(Shader *shader, size_t width, size_t height) :
 	shader_{ shader }, indices_{ 0, 1, 2, 0, 2, 3 } {
 	projection_ = glm::ortho(
 		0.0f,
@@ -113,7 +113,7 @@ Text::Text(Shader shader, size_t width, size_t height) :
 }
 
 Text::~Text() {
-	for (std::map<GLchar, Character>::iterator it{begin(characters_)}; it != end(characters_); ++it) {
+	for (std::map<GLchar, Character>::iterator it{ begin(characters_) }; it != end(characters_); ++it) {
 		glDeleteTextures(1, &(it->second.texture_id));
 	}
 }
@@ -125,9 +125,9 @@ void Text::SetFileName(std::string filename, size_t pixel_size) {
 }
 
 void Text::RenderText(std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color) {
-	UseProjection();
+	UseProjection(); // calls glUseProgram()
 	glUniform3f(
-		glGetUniformLocation(shader_.GetHandle(), "text_color"),
+		glGetUniformLocation(shader_->GetHandle(), "text_color"),
 		color.x,
 		color.y,
 		color.z

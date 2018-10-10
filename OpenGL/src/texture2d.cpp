@@ -1,7 +1,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <texture2d.hpp>
 
-Texture2D::Texture2D(Shader shader) : shader_{ shader }, texture_handle_{ 0 } {}
+Texture2D::Texture2D(Shader *shader) : shader_{ shader }, texture_handle_{ 0 } {}
 Texture2D::~Texture2D() {
 	glDeleteTextures(1, &texture_handle_);
 }
@@ -121,7 +121,7 @@ bool Texture2D::LoadCubemap(const std::vector<std::string> faces) {
 }
 
 void Texture2D::BindTextureUnit(const GLchar* uniform, GLuint texunit) {
-	GLint loc = glGetUniformLocation(shader_.GetHandle(), uniform);
+	GLint loc = glGetUniformLocation(shader_->GetHandle(), uniform);
 	glUniform1i(loc, texunit);
 
 	assert(texunit >= 0 && texunit < MAX_NUMBER_TEX_UNITS);
@@ -130,7 +130,7 @@ void Texture2D::BindTextureUnit(const GLchar* uniform, GLuint texunit) {
 }
 
 void Texture2D::BindCubeTextureUnit(const GLchar* uniform, GLuint texunit) {
-	GLint loc = glGetUniformLocation(shader_.GetHandle(), uniform);
+	GLint loc = glGetUniformLocation(shader_->GetHandle(), uniform);
 	glUniform1i(loc, texunit);
 
 	assert(texunit >= 0 && texunit < MAX_NUMBER_TEX_UNITS);

@@ -127,13 +127,15 @@
   <ItemGroup>
     <ClCompile Include="src\app.cpp" />
     <ClCompile Include="src\camera.cpp" />
-    <ClCompile Include="src\mesh.cpp" />
+    <ClCompile Include="src\mesh_renderer.cpp" />
+    <ClCompile Include="src\shader.cpp" />
     <ClCompile Include="src\text.cpp" />
     <ClCompile Include="src\texture2d.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="header\camera.hpp" />
-    <ClInclude Include="header\mesh.hpp" />
+    <ClInclude Include="header\mesh_renderer.hpp" />
+    <ClInclude Include="header\shader.hpp" />
     <ClInclude Include="header\text.hpp" />
     <ClInclude Include="header\texture2d.hpp" />
   </ItemGroup>
@@ -142,8 +144,8 @@
     <None Include="..\shader\cubemap_vert_shader.glsl" />
     <None Include="..\shader\font_frag.glsl" />
     <None Include="..\shader\font_vert.glsl" />
-    <None Include="..\shader\frag_shader.glsl" />
-    <None Include="..\shader\vert_shader.glsl" />
+    <None Include="..\shader\mesh_frag_shader.glsl" />
+    <None Include="..\shader\mesh_vert_shader.glsl" />
     <None Include="makefile" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
