@@ -2,6 +2,7 @@
 #define TEXT_HPP_
 
 #include <map>
+#include <vector>
 #include <iostream>
 #include <GL/glew.h>
 
@@ -28,13 +29,15 @@ private:
 	std::map<GLchar, Character> characters_;
 	static constexpr GLuint kVerticesPerQuad{ 6 };
 	static constexpr GLuint kPositionAndTexture{ 4 };
-	GLuint vao_, vbo_; // add ibo
+	GLuint vao_, vbo_, ibo_;
 	GLuint shader_handle_; // change to Shader class instance
 	glm::mat4 projection_; // change to transformation instance
+	std::vector<GLuint> indices_; // efficient memory use with IBOs
 
+	void InitIBO();
+	void LoadFonts();
 	void InitBuffers();
 	void UseProjection() const;
-	void LoadFonts();
 
 public:
 	Text(GLuint, size_t, size_t);

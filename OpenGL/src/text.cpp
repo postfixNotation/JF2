@@ -56,9 +56,17 @@ void Text::InitBuffers() {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glGenVertexArrays(1, &vao_);
+	glGenBuffers(1, &ibo_);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_);
+	glBufferData(
+		GL_ELEMENT_ARRAY_BUFFER,
+		sizeof(GLuint) * indices_.size(),
+		indices_.data(),
+		GL_STATIC_DRAW
+	);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
 	glGenBuffers(1, &vbo_);
-	glBindVertexArray(vao_);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_);
 	glBufferData(
 		GL_ARRAY_BUFFER,
@@ -66,7 +74,9 @@ void Text::InitBuffers() {
 		nullptr,
 		GL_DYNAMIC_DRAW
 	);
-	glEnableVertexAttribArray(0);
+
+	glGenVertexArrays(1, &vao_);
+	glBindVertexArray(vao_);
 	glVertexAttribPointer(
 		0,
 		kPositionAndTexture,
@@ -75,6 +85,7 @@ void Text::InitBuffers() {
 		kPositionAndTexture * sizeof(GLfloat),
 		0
 	);
+	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
@@ -90,7 +101,7 @@ void Text::UseProjection() const {
 	);
 }
 
-Text::Text(GLuint shader_handle, size_t width, size_t height) {
+Text::Text(GLuint shader_handle, size_t width, size_t height) : indices_{ 0, 1, 2, 0, 2, 3 } {
 	shader_handle_ = shader_handle;
 	projection_ = glm::ortho(
 		0.0f,
@@ -123,6 +134,7 @@ void Text::RenderText(std::string text, GLfloat x, GLfloat y, GLfloat scale, glm
 	);
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(vao_);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_);
 
 	std::string::const_iterator c;
 	for (c = text.begin(); c != text.end(); ++c) {
@@ -136,11 +148,9 @@ void Text::RenderText(std::string text, GLfloat x, GLfloat y, GLfloat scale, glm
 
 		GLfloat vertices[kVerticesPerQuad][kPositionAndTexture] = {
 			{ xpos,     ypos + h, 0.0f, 1.0f },
+			{ xpos + w, ypos + h, 1.0f, 1.0f },
 			{ xpos + w, ypos,     1.0f, 0.0f },
 			{ xpos,     ypos,     0.0f, 0.0f },
-			{ xpos,     ypos + h, 0.0f, 1.0f },
-			{ xpos + w, ypos + h, 1.0f, 1.0f },
-			{ xpos + w, ypos,     1.0f, 0.0f }
 		};
 		glBindTexture(GL_TEXTURE_2D, ch.texture_id);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo_);
@@ -151,10 +161,16 @@ void Text::RenderText(std::string text, GLfloat x, GLfloat y, GLfloat scale, glm
 			vertices
 		);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glDrawArrays(GL_TRIANGLES, 0, 6); // add ibo -> glDrawElements(...)
+		glDrawElements(
+			GL_TRIANGLES,
+			indices_.size(),
+			GL_UNSIGNED_INT,
+			nullptr
+		);
 		x += (ch.advance >> 6) * scale;
 	}
 	glBindVertexArray(0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
