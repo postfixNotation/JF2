@@ -90,19 +90,19 @@ void Text::InitBuffers() {
 	glBindVertexArray(0);
 }
 
-void Text::UseProjection() const {
-	glUseProgram(shader_handle_);
-	// change to shader method
+void Text::UseProjection() {
+	glUseProgram(shader_.GetHandle());
+	// change to transformation class method
 	glUniformMatrix4fv(
-		glGetUniformLocation(shader_handle_, "projection"),
+		glGetUniformLocation(shader_.GetHandle(), "projection"),
 		1,
 		GL_FALSE,
 		glm::value_ptr(projection_)
 	);
 }
 
-Text::Text(GLuint shader_handle, size_t width, size_t height) : indices_{ 0, 1, 2, 0, 2, 3 } {
-	shader_handle_ = shader_handle;
+Text::Text(Shader shader, size_t width, size_t height) :
+	shader_{ shader }, indices_{ 0, 1, 2, 0, 2, 3 } {
 	projection_ = glm::ortho(
 		0.0f,
 		static_cast<GLfloat>(width),
@@ -127,7 +127,7 @@ void Text::SetFileName(std::string filename, size_t pixel_size) {
 void Text::RenderText(std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color) {
 	UseProjection();
 	glUniform3f(
-		glGetUniformLocation(shader_handle_, "text_color"),
+		glGetUniformLocation(shader_.GetHandle(), "text_color"),
 		color.x,
 		color.y,
 		color.z

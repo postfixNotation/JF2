@@ -66,3 +66,4 @@ public:
 };
 
 #endif // CAMERA_HPP_
+

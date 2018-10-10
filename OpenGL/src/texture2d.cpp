@@ -1,12 +1,15 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <texture2d.hpp>
 
-Texture2D::Texture2D() : texture_handle_{ 0 } {}
+Texture2D::Texture2D(Shader shader) : shader_{ shader }, texture_handle_{ 0 } {}
 Texture2D::~Texture2D() {
 	glDeleteTextures(1, &texture_handle_);
 }
 
 bool Texture2D::LoadTexture(const std::string& file_name, bool gen_mipmaps) {
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	GLenum format;
 	int width, height, components;
 	stbi_set_flip_vertically_on_load(true);
@@ -64,7 +67,7 @@ bool Texture2D::LoadTexture(const std::string& file_name, bool gen_mipmaps) {
 	return true;
 }
 
-bool Texture2D::LoadCubemap(const std::vector<std::string>& faces) {
+bool Texture2D::LoadCubemap(const std::vector<std::string> faces) {
 	glGenTextures(1, &texture_handle_);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, texture_handle_);
 
@@ -117,11 +120,8 @@ bool Texture2D::LoadCubemap(const std::vector<std::string>& faces) {
 	return true;
 }
 
-void Texture2D::BindTextureUnit(
-	GLint phandle,
-	const GLchar* uniform,
-	GLuint texunit) const {
-	GLint loc = glGetUniformLocation(phandle, uniform);
+void Texture2D::BindTextureUnit(const GLchar* uniform, GLuint texunit) {
+	GLint loc = glGetUniformLocation(shader_.GetHandle(), uniform);
 	glUniform1i(loc, texunit);
 
 	assert(texunit >= 0 && texunit < MAX_NUMBER_TEX_UNITS);
@@ -129,11 +129,8 @@ void Texture2D::BindTextureUnit(
 	glBindTexture(GL_TEXTURE_2D, texture_handle_);
 }
 
-void Texture2D::BindCubeTextureUnit(
-	GLint phandle,
-	const GLchar* uniform,
-	GLuint texunit) const {
-	GLint loc = glGetUniformLocation(phandle, uniform);
+void Texture2D::BindCubeTextureUnit(const GLchar* uniform, GLuint texunit) {
+	GLint loc = glGetUniformLocation(shader_.GetHandle(), uniform);
 	glUniform1i(loc, texunit);
 
 	assert(texunit >= 0 && texunit < MAX_NUMBER_TEX_UNITS);
@@ -152,3 +149,4 @@ void Texture2D::UnbindCubeTextureUnit(GLuint texunit) const {
 	glActiveTexture(GL_TEXTURE0 + texunit);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
+

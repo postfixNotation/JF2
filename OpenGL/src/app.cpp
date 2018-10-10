@@ -17,8 +17,9 @@
 
 #include <texture2d.hpp>
 #include <camera.hpp>
+#include <shader.hpp>
 #include <text.hpp>
-#include <mesh.hpp>
+#include <mesh_renderer.hpp>
 
 float ratio;
 float near = 0.1f;
@@ -26,21 +27,18 @@ float far = 100.0f;
 
 glm::mat4 proj{}, model{}, view{};
 const GLFWvidmode* mode;
-
-GLuint model_shader{}, cubemap_shader{}, text_shader{};
+Shader *model_shader, *cubemap_shader, *text_shader;
 
 GLint win_width, win_height;
 std::string kWindowTitle = "Prototype Application";
 GLFWwindow *window = nullptr;
 
-const GLubyte *renderer;
-const GLubyte *version;
-GLuint vs, fs;
+//const GLubyte *renderer;
+//const GLubyte *version;
 
 Color rgb = { 179.0f / 255, 230.0f / 255, 255.0f / 255, 1.0f };
 
 void Update(double);
-std::string LoadFile(const std::string&);
 void APIENTRY DebugMessageCallback(
 	GLenum source,
 	GLenum type,
@@ -98,49 +96,47 @@ int main() {
 	glfwSetCursorPos(window, win_width / 2.0, win_height / 2.0f);
 
 	glfwMakeContextCurrent(window);
+	Shader::Init();
 
-	std::string filename{};
-	GLFWimage images[2];
-	int width{}, height{}, components{};
-	const size_t kBytesPerValue{ 4 };
-	unsigned char *image_data{};
+	model_shader = new Shader{"../shader/mesh_vert_shader.glsl","../shader/mesh_frag_shader.glsl"};
+	//cubemap_shader = new Shader{"../shader/cubemap_vert_shader.glsl","../shader/cubemap_frag_shader.glsl"};
+	//text_shader = Shader{"../shader/font_vert.glsl","../shader/font_frag.glsl"};
 
-	filename = "../textures/android_1.png";
-	image_data = stbi_load(
-		filename.c_str(),
-		&width,
-		&height,
-		&components,
-		0
-	);
-	if (image_data == NULL) return 1;
+	//std::string filename{};
+	//GLFWimage images[2];
+	//int width{}, height{}, components{};
+	//const size_t kBytesPerValue{ 4 };
+	//unsigned char *image_data{};
 
-	images[0].width = width;
-	images[0].height = height;
-	images[0].pixels = image_data;
+	//filename = "../textures/android_1.png";
+	//image_data = stbi_load(
+	//	filename.c_str(),
+	//	&width,
+	//	&height,
+	//	&components,
+	//	0
+	//);
+	//if (image_data == NULL) return 1;
 
-	filename = "../textures/android_2.png";
-	image_data = stbi_load(
-		filename.c_str(),
-		&width,
-		&height,
-		&components,
-		0
-	);
-	if (image_data == NULL) return 1;
+	//images[0].width = width;
+	//images[0].height = height;
+	//images[0].pixels = image_data;
 
-	images[1].width = width;
-	images[1].height = height;
-	images[1].pixels = image_data;
+	//filename = "../textures/android_2.png";
+	//image_data = stbi_load(
+	//	filename.c_str(),
+	//	&width,
+	//	&height,
+	//	&components,
+	//	0
+	//);
+	//if (image_data == NULL) return 1;
 
-	glfwSetWindowIcon(window, 2, images);
+	//images[1].width = width;
+	//images[1].height = height;
+	//images[1].pixels = image_data;
 
-	glewExperimental = GL_TRUE;
-	if (GLEW_OK != glewInit()) {
-		std::cerr << "ERROR: COULD NOT INITIALIZE GLEW" << std::endl;
-		glfwTerminate();
-		return 1;
-	}
+	//glfwSetWindowIcon(window, 2, images);
 
 	GLint flags;
 	glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
@@ -163,107 +159,44 @@ int main() {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glDepthMask(GL_TRUE);
-	glEnable(GL_BLEND);
 	glEnable(GL_MULTISAMPLE);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 
-	renderer = glGetString(GL_RENDERER);
-	version = glGetString(GL_VERSION);
+	//renderer = glGetString(GL_RENDERER);
+	//version = glGetString(GL_VERSION);
 
-	std::cout << "RENDERER: " << renderer << std::endl;
-	std::cout << "OPENGL VERSION SUPPORTED " << version << std::endl;
+	//std::cout << "RENDERER: " << renderer << std::endl;
+	//std::cout << "OPENGL VERSION SUPPORTED " << version << std::endl;
 
-	sf::Music music;
-	if (!music.openFromFile("../audio/throne.ogg"))
-		return -1;
-	music.play();
+	//sf::Music music;
+	//if (!music.openFromFile("../audio/throne.ogg"))
+	//	return -1;
+	//music.play();
 
-	std::vector<Mesh> mesh(2);
-	std::vector<Texture2D> texture(2);
+	std::vector<MeshRenderer> mesh(1);
+	//std::vector<Texture2D> texture(1, *model_shader);
+	Texture2D texture(*model_shader);
 	mesh[0].LoadObj("../models/robot.obj", ObjLoadingType::TRIANGLES);
-	texture[0].LoadTexture("../textures/robot.jpg");
+	//texture[0].LoadTexture("../textures/robot.jpg");
+	texture.LoadTexture("../textures/robot.jpg");
 
-	std::vector<std::string> faces{
-		"../textures/skybox/right.jpg",
-		"../textures/skybox/left.jpg",
-		"../textures/skybox/bottom.jpg",
-		"../textures/skybox/top.jpg",
-		"../textures/skybox/front.jpg",
-		"../textures/skybox/back.jpg"
-	};
-	mesh[1].LoadObj("../models/cube.obj", ObjLoadingType::QUADS);
-	texture[1].LoadCubemap(faces);
+	//std::vector<std::string> faces{
+	//	"../textures/skybox/right.jpg",
+	//	"../textures/skybox/left.jpg",
+	//	"../textures/skybox/bottom.jpg",
+	//	"../textures/skybox/top.jpg",
+	//	"../textures/skybox/front.jpg",
+	//	"../textures/skybox/back.jpg"
+	//};
+	//mesh[1].LoadObj("../models/cube.obj", ObjLoadingType::QUADS);
+	//texture[1].LoadCubemap(faces);
 
-	std::string vertex_shader_string = LoadFile("../shader/vert_shader.glsl");
-	std::string fragment_shader_string = LoadFile("../shader/frag_shader.glsl");
-
-	std::string cubemap_vertex_shader_string = LoadFile("../shader/cubemap_vert_shader.glsl");
-	std::string cubemap_fragment_shader_string = LoadFile("../shader/cubemap_frag_shader.glsl");
-
-	std::string font_vertex_shader_string = LoadFile("../shader/font_vert.glsl");
-	std::string font_fragment_shader_string = LoadFile("../shader/font_frag.glsl");
-
-	const GLchar* vertex_shader = vertex_shader_string.c_str();
-	const GLchar* fragment_shader = fragment_shader_string.c_str();
-
-	const GLchar* cubemap_vertex_shader = cubemap_vertex_shader_string.c_str();
-	const GLchar* cubemap_fragment_shader = cubemap_fragment_shader_string.c_str();
-
-	const GLchar* font_vertex_shader = font_vertex_shader_string.c_str();
-	const GLchar* font_fragment_shader = font_fragment_shader_string.c_str();
-
-	vs = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vs, 1, &vertex_shader, NULL);
-	glCompileShader(vs);
-
-	fs = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fs, 1, &fragment_shader, NULL);
-	glCompileShader(fs);
-
-	model_shader = glCreateProgram();
-	glAttachShader(model_shader, fs);
-	glAttachShader(model_shader, vs);
-	glLinkProgram(model_shader);
-
-	glDeleteShader(vs);
-	glDeleteShader(fs);
-
-	vs = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vs, 1, &cubemap_vertex_shader, nullptr);
-	glCompileShader(vs);
-
-	fs = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fs, 1, &cubemap_fragment_shader, nullptr);
-	glCompileShader(fs);
-
-	cubemap_shader = glCreateProgram();
-	glAttachShader(cubemap_shader, fs);
-	glAttachShader(cubemap_shader, vs);
-	glLinkProgram(cubemap_shader);
-
-	glDeleteShader(vs);
-	glDeleteShader(fs);
-
-	vs = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vs, 1, &font_vertex_shader, nullptr);
-	glCompileShader(vs);
-
-	fs = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fs, 1, &font_fragment_shader, nullptr);
-	glCompileShader(fs);
-
-	text_shader = glCreateProgram();
-	glAttachShader(text_shader, fs);
-	glAttachShader(text_shader, vs);
-	glLinkProgram(text_shader);
-
-	glUseProgram(model_shader);
+	model_shader->Use();
 
 	glUniformMatrix4fv(
-		glGetUniformLocation(model_shader, "model"),
+		glGetUniformLocation(model_shader->GetHandle(), "model"),
 		1,
 		GL_FALSE,
 		reinterpret_cast<const GLfloat*>(glm::value_ptr(model))
@@ -276,8 +209,8 @@ int main() {
 		far
 	);
 
-	glUseProgram(cubemap_shader);
-	glUniform1i(glGetUniformLocation(cubemap_shader, "skybox"), 0);
+	//cubemap_shader->Use();
+	//glUniform1i(glGetUniformLocation(cubemap_shader->GetHandle(), "skybox"), 0);
 
 	glfwSetKeyCallback(
 		window,
@@ -294,7 +227,7 @@ int main() {
 	});
 
 	glfwSetScrollCallback(window, [](GLFWwindow* win, double xoffset, double yoffset) {
-		// FPS camera
+	//	// FPS camera
 		if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE) {
 			double fov = camera::fps_camera.GetFov() + yoffset * camera::kZoomSensitivity;
 			fov = glm::clamp(fov, 1.0, 120.0);
@@ -313,7 +246,7 @@ int main() {
 		}
 	});
 
-	// Orbit camera
+	//// Orbit camera
 	glfwSetCursorPosCallback(window, [](GLFWwindow* win, double xpos, double ypos) {
 		static glm::vec2 last_mouse_pos = glm::vec2{};
 
@@ -340,7 +273,7 @@ int main() {
 		);
 
 		glUniformMatrix4fv(
-			glGetUniformLocation(model_shader, "projection"),
+			glGetUniformLocation(model_shader->GetHandle(), "projection"),
 			1,
 			GL_FALSE,
 			(const GLfloat*)glm::value_ptr(proj)
@@ -353,75 +286,79 @@ int main() {
 
 	camera::orbit_camera.SetLookAt(glm::vec3{ 0.0f,0.0f,0.0f });
 
-	Text text{ text_shader, static_cast<size_t>(win_width), static_cast<size_t>(win_height) };
-	text.SetFileName("../fonts/Nosifer-Regular.ttf", 64);
+	//Text text{
+	//	*text_shader,
+	//	static_cast<size_t>(win_width),
+	//	static_cast<size_t>(win_height)
+	//};
+	//text.SetFileName("../fonts/Nosifer-Regular.ttf", 64);
 
 	while (!glfwWindowShouldClose(window)) {
 		Update(glfwGetTime() - previous_time);
 		previous_time = glfwGetTime();
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glUseProgram(model_shader);
+		model_shader->Use();
 
-		//view = camera::orbit_camera.GetViewMatrix();
+		view = camera::orbit_camera.GetViewMatrix();
 		view = camera::fps_camera.GetViewMatrix();
 		proj = glm::perspective(glm::radians(camera::fps_camera.GetFov()), ratio, near, far);
 
 		glUniformMatrix4fv(
-			glGetUniformLocation(model_shader, "view"),
+			glGetUniformLocation(model_shader->GetHandle(), "view"),
 			1,
 			GL_FALSE,
 			(const GLfloat*)glm::value_ptr(view)
 		);
 		glUniformMatrix4fv(
-			glGetUniformLocation(model_shader, "projection"),
+			glGetUniformLocation(model_shader->GetHandle(), "projection"),
 			1,
 			GL_FALSE,
 			(const GLfloat*)glm::value_ptr(proj)
 		);
 
-		texture[0].BindTextureUnit(model_shader, "tex_sampler");
+		// change to Shader instance as argument
+		//texture[0].BindTextureUnit("tex_sampler");
+		texture.BindTextureUnit("tex_sampler");
 		mesh[0].Draw();
-		texture[0].UnbindTextureUnit();
+		//texture[0].UnbindTextureUnit();
+		texture.UnbindTextureUnit();
 
-		glDepthFunc(GL_LEQUAL);
-		glUseProgram(cubemap_shader);
-		view = glm::mat4(glm::mat3(camera::fps_camera.GetViewMatrix()));
-		glUniformMatrix4fv(
-			glGetUniformLocation(cubemap_shader, "view"),
-			1,
-			GL_FALSE,
-			(const GLfloat*)glm::value_ptr(view)
-		);
-		glUniformMatrix4fv(
-			glGetUniformLocation(cubemap_shader, "projection"),
-			1,
-			GL_FALSE,
-			(const GLfloat*)glm::value_ptr(proj)
-		);
+		//glDepthFunc(GL_LEQUAL);
+		//cubemap_shader->Use();
+		//view = glm::mat4(glm::mat3(camera::fps_camera.GetViewMatrix()));
+		//glUniformMatrix4fv(
+		//	glGetUniformLocation(cubemap_shader->GetHandle(), "view"),
+		//	1,
+		//	GL_FALSE,
+		//	(const GLfloat*)glm::value_ptr(view)
+		//);
+		//glUniformMatrix4fv(
+		//	glGetUniformLocation(cubemap_shader->GetHandle(), "projection"),
+		//	1,
+		//	GL_FALSE,
+		//	(const GLfloat*)glm::value_ptr(proj)
+		//);
 
-		glFrontFace(GL_CW);
+		//glFrontFace(GL_CW);
 
-		texture[1].BindCubeTextureUnit(cubemap_shader, "skybox");
-		mesh[1].Draw();
-		texture[1].UnbindCubeTextureUnit();
+		//texture[1].BindCubeTextureUnit("skybox");
+		//mesh[1].Draw();
+		//texture[1].UnbindCubeTextureUnit();
 
-		glFrontFace(GL_CCW);
-		glDepthFunc(GL_LESS);
+		//glFrontFace(GL_CCW);
+		//glDepthFunc(GL_LESS);
 
-		text.RenderText(
-			"Welcome to OpenGL ©",
-			0.0f,
-			0.0f
-		);
+		//text.RenderText("Welcome to OpenGL ©", 0.0f, 0.0f);
 
 		glfwPollEvents();
 		glfwSwapBuffers(window);
 	}
 
-	glDeleteProgram(model_shader);
-	glDeleteProgram(cubemap_shader);
-	glDeleteProgram(text_shader);
+	delete model_shader;
+	//delete text_shader;
+	//delete cubemap_shader;
+
 	glfwTerminate();
 	return 0;
 }
@@ -442,7 +379,7 @@ void APIENTRY DebugMessageCallback(
 	std::cout << "DEBUG MESSAGE (" << id << "): " << message << std::endl;
 
 	switch (source) {
-	case GL_DEBUG_SOURCE_API:				std::cout << "SOURCE: API"; break;
+	case GL_DEBUG_SOURCE_API:					std::cout << "SOURCE: API"; break;
 	case GL_DEBUG_SOURCE_WINDOW_SYSTEM:		std::cout << "SOURCE: WINDOW SYSTEM"; break;
 	case GL_DEBUG_SOURCE_SHADER_COMPILER:	std::cout << "SOURCE: SHADER COMPILER"; break;
 	case GL_DEBUG_SOURCE_THIRD_PARTY:		std::cout << "SOURCE: THIRD PARTY"; break;
@@ -451,25 +388,25 @@ void APIENTRY DebugMessageCallback(
 	} std::cout << std::endl;
 
 	switch (type) {
-	case GL_DEBUG_TYPE_ERROR:               std::cout << "TYPE: ERROR"; break;
-	case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: std::cout << "TYPE: DEPRECATED BEHAVIOUR"; break;
-	case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  std::cout << "TYPE: UNDEFINED BEHAVIOUR"; break;
-	case GL_DEBUG_TYPE_PORTABILITY:         std::cout << "TYPE: PORTABILITY"; break;
-	case GL_DEBUG_TYPE_PERFORMANCE:         std::cout << "TYPE: PERFORMANCE"; break;
-	case GL_DEBUG_TYPE_MARKER:              std::cout << "TYPE: MARKER"; break;
-	case GL_DEBUG_TYPE_PUSH_GROUP:          std::cout << "TYPE: PUSH GROUP"; break;
-	case GL_DEBUG_TYPE_POP_GROUP:           std::cout << "TYPE: POP GROUP"; break;
-	case GL_DEBUG_TYPE_OTHER:               std::cout << "TYPE: OTHER"; break;
+	case GL_DEBUG_TYPE_ERROR:					std::cout << "TYPE: ERROR"; break;
+	case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:std::cout << "TYPE: DEPRECATED BEHAVIOUR"; break;
+	case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:	std::cout << "TYPE: UNDEFINED BEHAVIOUR"; break;
+	case GL_DEBUG_TYPE_PORTABILITY:			std::cout << "TYPE: PORTABILITY"; break;
+	case GL_DEBUG_TYPE_PERFORMANCE:			std::cout << "TYPE: PERFORMANCE"; break;
+	case GL_DEBUG_TYPE_MARKER:					std::cout << "TYPE: MARKER"; break;
+	case GL_DEBUG_TYPE_PUSH_GROUP:			std::cout << "TYPE: PUSH GROUP"; break;
+	case GL_DEBUG_TYPE_POP_GROUP:				std::cout << "TYPE: POP GROUP"; break;
+	case GL_DEBUG_TYPE_OTHER:					std::cout << "TYPE: OTHER"; break;
 	} std::cout << std::endl;
 
 	switch (severity) {
-	case GL_DEBUG_SEVERITY_HIGH:			std::cout << "SEVERITY: HIGH"; break;
+	case GL_DEBUG_SEVERITY_HIGH:				std::cout << "SEVERITY: HIGH"; break;
 	case GL_DEBUG_SEVERITY_MEDIUM:			std::cout << "SEVERITY: MEDIUM"; break;
 	case GL_DEBUG_SEVERITY_LOW:				std::cout << "SEVERITY: LOW"; break;
 	case GL_DEBUG_SEVERITY_NOTIFICATION:	std::cout << "SEVERITY: NOTIFICATION"; break;
 	} std::cout << std::endl;
 	std::cout << std::endl;
-};
+}
 
 void Update(double elapsed_time) {
 	double mouse_x, mouse_y;
@@ -502,26 +439,5 @@ void Update(double elapsed_time) {
 		camera::fps_camera.Move(
 			camera::kMoveSpeed * static_cast<float>(elapsed_time) * camera::fps_camera.GetRight()
 		);
-}
-
-std::string LoadFile(const std::string &file_name) {
-	std::ifstream fs;
-	std::stringstream ss;
-
-	try {
-		fs.open(file_name, std::ifstream::in);
-
-		if (!fs.fail()) {
-			ss << fs.rdbuf();
-		}
-
-		fs.close();
-	}
-	catch (std::exception ex) {
-		std::cout << "EXCEPTION: LOADING SHADER SOURCE" << std::endl;
-		std::cout << ex.what() << std::endl;
-	}
-
-	return ss.str();
 }
 
