@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 #include <sstream>
 #include <fstream>
 #include <iostream>
@@ -45,11 +46,11 @@ enum class FaceType {
 class MeshRenderer {
 private:
 	ObjLoadingType obj_loading_type_;
+	std::shared_ptr<Shader> shader_;
 	std::vector<Vertex> vertices_;
 	std::vector<GLuint> indices_;
 	GLuint vbo_, vao_, ibo_;
 	size_t number_quads_;
-	Shader *shader_;
 	bool loaded_;
 
 	static FaceType EvalSplitRes(
@@ -63,14 +64,14 @@ private:
 	void InitIBO();
 	void InitBuffers();
 public:
-	MeshRenderer(Shader*);
+	MeshRenderer(std::shared_ptr<Shader>);
 	~MeshRenderer();
 
 	bool LoadObj(
 		const std::string& filename,
 		const ObjLoadingType& obj_loading_type = ObjLoadingType::QUADS
 	);
-	void Draw() const;
+	void Draw(std::shared_ptr<Shader> shader = std::shared_ptr<Shader>{nullptr}) const;
 };
 
 #endif //MESH_HPP_

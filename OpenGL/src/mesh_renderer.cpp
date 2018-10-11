@@ -1,6 +1,6 @@
 #include <mesh_renderer.hpp>
 
-MeshRenderer::MeshRenderer(Shader *shader) :
+MeshRenderer::MeshRenderer(std::shared_ptr<Shader> shader) :
 	shader_{ shader }, loaded_{ false }, number_quads_{}, indices_{ 0, 1, 2, 0, 2, 3 } {}
 
 MeshRenderer::~MeshRenderer() {
@@ -239,11 +239,13 @@ void MeshRenderer::InitBuffers() {
 	if (obj_loading_type_ == ObjLoadingType::QUADS) { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); }
 }
 
-void MeshRenderer::Draw() const {
+void MeshRenderer::Draw(std::shared_ptr<Shader> shader) const {
 	if (!loaded_) return;
 
 	glBindVertexArray(vao_);
-	shader_->Use();
+	if (shader.get() != nullptr) { shader->Use(); }
+	else { shader_->Use(); }
+
 	if (obj_loading_type_ == ObjLoadingType::QUADS) {
 		glDrawElements(
 			GL_TRIANGLES,

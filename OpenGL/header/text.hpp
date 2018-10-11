@@ -3,6 +3,7 @@
 
 #include <map>
 #include <vector>
+#include <memory>
 #include <iostream>
 #include <GL/glew.h>
 
@@ -24,23 +25,22 @@ struct Character {
 
 class Text {
 private:
-	// Text requires Transform(ation) class instance
-	Shader *shader_;
 	std::string filename_;
 	size_t default_pixel_size_;
 	std::map<GLchar, Character> characters_;
 	static constexpr GLuint kVerticesPerQuad{ 6 };
 	static constexpr GLuint kPositionAndTexture{ 4 };
+
+	std::shared_ptr<Shader> shader_;
+	glm::mat4 projection_;
 	GLuint vao_, vbo_, ibo_;
-	glm::mat4 projection_; // change to transformation instance
 	std::vector<GLuint> indices_; // efficient memory use with IBOs
 
 	void LoadFonts();
 	void InitBuffers();
-	void UseProjection() const;
 
 public:
-	Text(Shader*, size_t, size_t);
+	Text(std::shared_ptr<Shader>, size_t, size_t);
 	~Text();
 	// pixel size of 112 is maximum for many Google fonts
 	void SetFileName(std::string filename, size_t pixel_size = 48);
@@ -49,7 +49,8 @@ public:
 		GLfloat x,
 		GLfloat y,
 		GLfloat scale = 1.0f,
-		glm::vec3 color = glm::vec3{ 1.0f }
+		glm::vec3 color = glm::vec3{ 1.0f },
+		std::shared_ptr<Shader> shader = std::shared_ptr<Shader>{ nullptr }
 	);
 
 };

@@ -90,18 +90,7 @@ void Text::InitBuffers() {
 	glBindVertexArray(0);
 }
 
-void Text::UseProjection() const {
-	shader_->Use();
-	// change to transformation class method
-	glUniformMatrix4fv(
-		glGetUniformLocation(shader_->GetHandle(), "projection"),
-		1,
-		GL_FALSE,
-		glm::value_ptr(projection_)
-	);
-}
-
-Text::Text(Shader *shader, size_t width, size_t height) :
+Text::Text(std::shared_ptr<Shader> shader, size_t width, size_t height) :
 	shader_{ shader }, indices_{ 0, 1, 2, 0, 2, 3 } {
 	projection_ = glm::ortho(
 		0.0f,
@@ -124,14 +113,23 @@ void Text::SetFileName(std::string filename, size_t pixel_size) {
 	LoadFonts();
 }
 
-void Text::RenderText(std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color) {
-	UseProjection(); // calls glUseProgram()
-	glUniform3f(
-		glGetUniformLocation(shader_->GetHandle(), "text_color"),
-		color.x,
-		color.y,
-		color.z
-	);
+void Text::RenderText(
+		std::string text,
+		GLfloat x,
+		GLfloat y,
+		GLfloat scale,
+		glm::vec3 color,
+		std::shared_ptr<Shader> shader) {
+
+	// shader uniform methods call Use()
+	if (shader.get() != nullptr) {
+		shader->SetMat4("projection", projection_);
+		shader->SetVec3("text_color", color);
+	}
+	else {
+		shader_->SetMat4("projection", projection_);
+		shader_->SetVec3("text_color", color);
+	}
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(vao_);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_);

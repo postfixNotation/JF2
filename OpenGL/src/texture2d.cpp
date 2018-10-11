@@ -1,12 +1,12 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <texture2d.hpp>
 
-Texture2D::Texture2D() : shader_{ nullptr } {}
-Texture2D::Texture2D(Shader *shader) : shader_{ shader }, texture_handle_{} {}
+Texture2D::Texture2D() : shader_{ std::shared_ptr<Shader>{ nullptr } } {}
+Texture2D::Texture2D(std::shared_ptr<Shader> shader) : shader_{ shader }, texture_handle_{} {}
 Texture2D::~Texture2D() { glDeleteTextures(1, &texture_handle_); }
 
-bool Texture2D::AddShaderPtr(Shader* shader) {
-	if (shader != nullptr) {
+bool Texture2D::AddShaderPtr(std::shared_ptr<Shader> shader) {
+	if (shader.get() != nullptr) {
 		shader_ = shader;
 		return true;
 	}

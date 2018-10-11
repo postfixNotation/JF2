@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <memory>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -27,7 +28,7 @@ float far = 100.0f;
 
 glm::mat4 proj{}, model{}, view{};
 const GLFWvidmode* mode;
-Shader *model_shader, *cubemap_shader, *text_shader;
+std::shared_ptr<Shader> model_shader, cubemap_shader, text_shader;
 
 GLint win_width, win_height;
 std::string kWindowTitle = "Prototype Application";
@@ -36,7 +37,7 @@ GLFWwindow *window = nullptr;
 //const GLubyte *renderer;
 //const GLubyte *version;
 
-Color rgb = { 179.0f / 255, 230.0f / 255, 255.0f / 255, 1.0f };
+Color rgb = { 0.0f / 255, 117.0f / 255, 153.0f / 255, 1.0f };
 
 void Update(double);
 void APIENTRY DebugMessageCallback(
@@ -47,6 +48,7 @@ void APIENTRY DebugMessageCallback(
 	GLsizei length,
 	const GLchar* message,
 	const void* userParam);
+void SetCallbacks();
 
 namespace camera {
 	FPSCamera fps_camera{ glm::vec3{0.0f, 0.0f, 20.0f} };
@@ -73,7 +75,7 @@ int main() {
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+	GLFWmonitor *monitor = glfwGetPrimaryMonitor();
 	mode = glfwGetVideoMode(monitor);
 
 	win_width = static_cast<GLint>(mode->width * (2.0f / 3));
@@ -98,9 +100,18 @@ int main() {
 	glfwMakeContextCurrent(window);
 	Shader::Init();
 
-	model_shader = new Shader{ "../shader/mesh_vert_shader.glsl","../shader/mesh_frag_shader.glsl" };
-	cubemap_shader = new Shader{ "../shader/cubemap_vert_shader.glsl","../shader/cubemap_frag_shader.glsl" };
-	text_shader = new Shader{"../shader/font_vert.glsl","../shader/font_frag.glsl"};
+	model_shader = std::make_shared<Shader>(
+		"../shader/mesh_vert_shader.glsl",
+		"../shader/mesh_frag_shader.glsl"
+	);
+	cubemap_shader = std::make_shared<Shader>(
+		"../shader/cubemap_vert_shader.glsl",
+		"../shader/cubemap_frag_shader.glsl"
+	);
+	text_shader = std::make_shared<Shader>(
+		"../shader/font_vert.glsl",
+		"../shader/font_frag.glsl"
+	);
 
 	//std::string filename{};
 	//GLFWimage images[2];
@@ -175,12 +186,17 @@ int main() {
 	//	return -1;
 	//music.play();
 
-	std::vector<MeshRenderer*> meshes(2);
-	std::vector<Texture2D*> textures(2);
+	std::vector<std::shared_ptr<MeshRenderer>> meshes(2);
+	std::vector<std::shared_ptr<Texture2D>> textures(2);
+	std::shared_ptr<Text> text = std::make_shared<Text>(
+		text_shader,
+		static_cast<size_t>(win_width),
+		static_cast<size_t>(win_height)
+	);
 
-	meshes[0] = new MeshRenderer{model_shader};
+	meshes[0] = std::make_shared<MeshRenderer>(model_shader);
 	meshes[0]->LoadObj("../models/robot.obj", ObjLoadingType::TRIANGLES);
-	textures[0] = new Texture2D{model_shader};
+	textures[0] = std::make_shared<Texture2D>(model_shader);
 	textures[0]->LoadTexture("../textures/robot.jpg");
 
 	std::vector<std::string> faces{
@@ -191,12 +207,22 @@ int main() {
 		"../textures/skybox/front.jpg",
 		"../textures/skybox/back.jpg"
 	};
-	meshes[1] = new MeshRenderer{cubemap_shader};
+	meshes[1] = std::make_shared<MeshRenderer>(cubemap_shader);
 	meshes[1]->LoadObj("../models/cube.obj", ObjLoadingType::QUADS);
-	textures[1] = new Texture2D{ cubemap_shader };
+	textures[1] = std::make_shared<Texture2D>(cubemap_shader);
 	textures[1]->LoadCubemap(faces);
+	text->SetFileName("../fonts/Nosifer-Regular.ttf", 64);
 
 	model_shader->SetMat4("model", model);
+	cubemap_shader->SetInt("skybox", 0);
+
+	SetCallbacks();
+
+	glViewport(0, 0, win_width, win_height);
+	glClearColor(rgb.r, rgb.g, rgb.b, rgb.a);
+	double previous_time{ glfwGetTime() }, delta_time{};
+
+	camera::orbit_camera.SetLookAt(glm::vec3{ 0.0f,0.0f,0.0f });
 
 	proj = glm::perspective(
 		glm::radians(camera::fps_camera.GetFov()),
@@ -205,83 +231,9 @@ int main() {
 		far
 	);
 
-	cubemap_shader->SetInt("skybox", 0);
-
-	glfwSetKeyCallback(
-		window,
-		[](GLFWwindow* win, int key, int scancode, int action, int mode) {
-		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-			glfwSetWindowShouldClose(win, 1);
-		}
-		else if (key == GLFW_KEY_L && action == GLFW_PRESS) {
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		}
-		else if (key == GLFW_KEY_K && action == GLFW_PRESS) {
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		}
-	});
-
-	glfwSetScrollCallback(window, [](GLFWwindow* win, double xoffset, double yoffset) {
-		//	// FPS camera
-		if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE) {
-			double fov = camera::fps_camera.GetFov() + yoffset * camera::kZoomSensitivity;
-			fov = glm::clamp(fov, 1.0, 120.0);
-			camera::fps_camera.SetFov(static_cast<float>(fov));
-
-			proj = glm::perspective(
-				glm::radians(camera::fps_camera.GetFov()),
-				ratio,
-				near,
-				far
-			);
-		}
-		// Orbit camera
-		else if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
-			camera::orbit_camera.SetRadius(static_cast<float>(yoffset) * camera::kZoomSensitivity);
-		}
-	});
-
-	//// Orbit camera
-	glfwSetCursorPosCallback(window, [](GLFWwindow* win, double xpos, double ypos) {
-		static glm::vec2 last_mouse_pos = glm::vec2{};
-
-		if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-			camera::yaw -= (static_cast<float>(xpos) - last_mouse_pos.x) * camera::kMouseSensitivity;
-			camera::pitch += (static_cast<float>(ypos) - last_mouse_pos.y) * camera::kMouseSensitivity;
-			camera::orbit_camera.Rotate(camera::yaw, camera::pitch);
-		}
-
-		last_mouse_pos = glm::vec2{ static_cast<float>(xpos), static_cast<float>(ypos) };
-	});
-
-	glfwSetFramebufferSizeCallback(window, [](GLFWwindow* win, int width, int height) {
-		glViewport(0, 0, width, height);
-		win_width = width;
-		win_height = height;
-		ratio = (float)win_width / win_height;
-
-		proj = glm::perspective(
-			glm::radians(camera::fps_camera.GetFov()),
-			ratio,
-			near,
-			far
-		);
-
-		model_shader->SetMat4("projection", proj);
-	});
-
-	glViewport(0, 0, win_width, win_height);
-	glClearColor(rgb.r, rgb.g, rgb.b, rgb.a);
-	double previous_time{ glfwGetTime() }, delta_time{};
-
-	camera::orbit_camera.SetLookAt(glm::vec3{ 0.0f,0.0f,0.0f });
-
-	Text text{
-		text_shader,
-		static_cast<size_t>(win_width),
-		static_cast<size_t>(win_height)
-	};
-	text.SetFileName("../fonts/Nosifer-Regular.ttf", 64);
+	std::cout << "model_shader.use_count(): " << model_shader.use_count() << std::endl;
+	std::cout << "cubemap_shader.use_count(): " << cubemap_shader.use_count() << std::endl;
+	std::cout << "text_shader.use_count(): " << text_shader.use_count() << std::endl;
 
 	while (!glfwWindowShouldClose(window)) {
 		Update(glfwGetTime() - previous_time);
@@ -296,13 +248,14 @@ int main() {
 		model_shader->SetMat4("view", view);
 		model_shader->SetMat4("projection", proj);
 
-		// change to Shader instance as argument
 		textures[0]->BindTextureUnit("tex_sampler", 0);
 		meshes[0]->Draw();
 		textures[0]->UnbindTextureUnit(0);
 
 		glDepthFunc(GL_LEQUAL);
+
 		view = glm::mat4(glm::mat3(camera::fps_camera.GetViewMatrix()));
+
 		cubemap_shader->SetMat4("view", view);
 		cubemap_shader->SetMat4("projection", proj);
 
@@ -315,15 +268,17 @@ int main() {
 		glFrontFace(GL_CCW);
 		glDepthFunc(GL_LESS);
 
-		text.RenderText("Welcome to OpenGL ©", 0.0f, 0.0f);
+		text->RenderText(
+			"Welcome to OpenGL ©",
+			0.0f,
+			0.0f,
+			1.2f,
+			glm::vec3{.3f,.7f,.6f}
+		);
 
 		glfwPollEvents();
 		glfwSwapBuffers(window);
 	}
-
-	delete model_shader;
-	delete text_shader;
-	delete cubemap_shader;
 
 	glfwTerminate();
 	return 0;
@@ -405,5 +360,70 @@ void Update(double elapsed_time) {
 		camera::fps_camera.Move(
 			camera::kMoveSpeed * static_cast<float>(elapsed_time) * camera::fps_camera.GetRight()
 		);
+}
+
+void SetCallbacks() {
+	glfwSetKeyCallback(
+		window,
+		[](GLFWwindow* win, int key, int scancode, int action, int mode) {
+		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+			glfwSetWindowShouldClose(win, 1);
+		}
+		else if (key == GLFW_KEY_L && action == GLFW_PRESS) {
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		}
+		else if (key == GLFW_KEY_K && action == GLFW_PRESS) {
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		}
+	});
+
+	glfwSetScrollCallback(window, [](GLFWwindow* win, double xoffset, double yoffset) {
+		//	// FPS camera
+		if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE) {
+			double fov = camera::fps_camera.GetFov() + yoffset * camera::kZoomSensitivity;
+			fov = glm::clamp(fov, 1.0, 120.0);
+			camera::fps_camera.SetFov(static_cast<float>(fov));
+
+			proj = glm::perspective(
+				glm::radians(camera::fps_camera.GetFov()),
+				ratio,
+				near,
+				far
+			);
+		}
+		// Orbit camera
+		else if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
+			camera::orbit_camera.SetRadius(static_cast<float>(yoffset) * camera::kZoomSensitivity);
+		}
+	});
+
+	//// Orbit camera
+	glfwSetCursorPosCallback(window, [](GLFWwindow* win, double xpos, double ypos) {
+		static glm::vec2 last_mouse_pos = glm::vec2{};
+
+		if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+			camera::yaw -= (static_cast<float>(xpos) - last_mouse_pos.x) * camera::kMouseSensitivity;
+			camera::pitch += (static_cast<float>(ypos) - last_mouse_pos.y) * camera::kMouseSensitivity;
+			camera::orbit_camera.Rotate(camera::yaw, camera::pitch);
+		}
+
+		last_mouse_pos = glm::vec2{ static_cast<float>(xpos), static_cast<float>(ypos) };
+	});
+
+	glfwSetFramebufferSizeCallback(window, [](GLFWwindow* win, int width, int height) {
+		glViewport(0, 0, width, height);
+		win_width = width;
+		win_height = height;
+		ratio = (float)win_width / win_height;
+
+		proj = glm::perspective(
+			glm::radians(camera::fps_camera.GetFov()),
+			ratio,
+			near,
+			far
+		);
+
+		model_shader->SetMat4("projection", proj);
+	});
 }
 
