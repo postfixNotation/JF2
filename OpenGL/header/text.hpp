@@ -37,7 +37,7 @@ private:
 
 	void LoadFonts();
 	void InitBuffers();
-	void UseProjection();
+	void UseProjection() const;
 
 public:
 	Text(Shader*, size_t, size_t);
@@ -51,6 +51,7 @@ public:
 		GLfloat scale = 1.0f,
 		glm::vec3 color = glm::vec3{ 1.0f }
 	);
+
 };
 #endif // TEXT_HPP_
 

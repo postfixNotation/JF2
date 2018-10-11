@@ -11,6 +11,8 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
+#include <shader.hpp>
+
 constexpr size_t kVerticesPerQuad{ 6 };
 
 struct Vertex {
@@ -47,6 +49,7 @@ private:
 	std::vector<GLuint> indices_;
 	GLuint vbo_, vao_, ibo_;
 	size_t number_quads_;
+	Shader *shader_;
 	bool loaded_;
 
 	static FaceType EvalSplitRes(
@@ -60,7 +63,7 @@ private:
 	void InitIBO();
 	void InitBuffers();
 public:
-	MeshRenderer();
+	MeshRenderer(Shader*);
 	~MeshRenderer();
 
 	bool LoadObj(

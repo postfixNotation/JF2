@@ -1,9 +1,16 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <texture2d.hpp>
 
-Texture2D::Texture2D(Shader *shader) : shader_{ shader }, texture_handle_{ 0 } {}
-Texture2D::~Texture2D() {
-	glDeleteTextures(1, &texture_handle_);
+Texture2D::Texture2D() : shader_{ nullptr } {}
+Texture2D::Texture2D(Shader *shader) : shader_{ shader }, texture_handle_{} {}
+Texture2D::~Texture2D() { glDeleteTextures(1, &texture_handle_); }
+
+bool Texture2D::AddShaderPtr(Shader* shader) {
+	if (shader != nullptr) {
+		shader_ = shader;
+		return true;
+	}
+	return false;
 }
 
 bool Texture2D::LoadTexture(const std::string& file_name, bool gen_mipmaps) {
@@ -120,7 +127,7 @@ bool Texture2D::LoadCubemap(const std::vector<std::string> faces) {
 	return true;
 }
 
-void Texture2D::BindTextureUnit(const GLchar* uniform, GLuint texunit) {
+void Texture2D::BindTextureUnit(const GLchar* uniform, GLuint texunit) const {
 	GLint loc = glGetUniformLocation(shader_->GetHandle(), uniform);
 	glUniform1i(loc, texunit);
 
@@ -129,7 +136,7 @@ void Texture2D::BindTextureUnit(const GLchar* uniform, GLuint texunit) {
 	glBindTexture(GL_TEXTURE_2D, texture_handle_);
 }
 
-void Texture2D::BindCubeTextureUnit(const GLchar* uniform, GLuint texunit) {
+void Texture2D::BindCubeTextureUnit(const GLchar* uniform, GLuint texunit) const {
 	GLint loc = glGetUniformLocation(shader_->GetHandle(), uniform);
 	glUniform1i(loc, texunit);
 

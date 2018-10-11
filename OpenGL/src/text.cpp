@@ -90,7 +90,7 @@ void Text::InitBuffers() {
 	glBindVertexArray(0);
 }
 
-void Text::UseProjection() {
+void Text::UseProjection() const {
 	shader_->Use();
 	// change to transformation class method
 	glUniformMatrix4fv(

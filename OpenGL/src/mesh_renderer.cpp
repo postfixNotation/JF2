@@ -1,6 +1,7 @@
 #include <mesh_renderer.hpp>
 
-MeshRenderer::MeshRenderer() : loaded_(false), number_quads_{}, indices_{ 0, 1, 2, 0, 2, 3 } {}
+MeshRenderer::MeshRenderer(Shader *shader) :
+	shader_{ shader }, loaded_{ false }, number_quads_{}, indices_{ 0, 1, 2, 0, 2, 3 } {}
 
 MeshRenderer::~MeshRenderer() {
 	glDeleteVertexArrays(1, &vao_);
@@ -242,6 +243,7 @@ void MeshRenderer::Draw() const {
 	if (!loaded_) return;
 
 	glBindVertexArray(vao_);
+	shader_->Use();
 	if (obj_loading_type_ == ObjLoadingType::QUADS) {
 		glDrawElements(
 			GL_TRIANGLES,

@@ -15,11 +15,11 @@
 
 #include <SFML/Audio.hpp>
 
+#include <mesh_renderer.hpp>
 #include <texture2d.hpp>
 #include <camera.hpp>
 #include <shader.hpp>
 #include <text.hpp>
-#include <mesh_renderer.hpp>
 
 float ratio;
 float near = 0.1f;
@@ -100,7 +100,7 @@ int main() {
 
 	model_shader = new Shader{ "../shader/mesh_vert_shader.glsl","../shader/mesh_frag_shader.glsl" };
 	cubemap_shader = new Shader{ "../shader/cubemap_vert_shader.glsl","../shader/cubemap_frag_shader.glsl" };
-	//text_shader = Shader{"../shader/font_vert.glsl","../shader/font_frag.glsl"};
+	text_shader = new Shader{"../shader/font_vert.glsl","../shader/font_frag.glsl"};
 
 	//std::string filename{};
 	//GLFWimage images[2];
@@ -175,10 +175,13 @@ int main() {
 	//	return -1;
 	//music.play();
 
-	std::vector<MeshRenderer> mesh(2);
-	//std::vector<Texture2D> texture{ model_shader };
-	mesh[0].LoadObj("../models/robot.obj", ObjLoadingType::TRIANGLES);
-	//texture[0].LoadTexture("../textures/robot.jpg");
+	std::vector<MeshRenderer*> meshes(2);
+	std::vector<Texture2D*> textures(2);
+
+	meshes[0] = new MeshRenderer{model_shader};
+	meshes[0]->LoadObj("../models/robot.obj", ObjLoadingType::TRIANGLES);
+	textures[0] = new Texture2D{model_shader};
+	textures[0]->LoadTexture("../textures/robot.jpg");
 
 	std::vector<std::string> faces{
 		"../textures/skybox/right.jpg",
@@ -188,18 +191,12 @@ int main() {
 		"../textures/skybox/front.jpg",
 		"../textures/skybox/back.jpg"
 	};
-	mesh[1].LoadObj("../models/cube.obj", ObjLoadingType::QUADS);
-	//texture.push_back(Texture2D{ cubemap_shader });
-	//texture[1].LoadCubemap(faces);
+	meshes[1] = new MeshRenderer{cubemap_shader};
+	meshes[1]->LoadObj("../models/cube.obj", ObjLoadingType::QUADS);
+	textures[1] = new Texture2D{ cubemap_shader };
+	textures[1]->LoadCubemap(faces);
 
-	model_shader->Use();
-
-	glUniformMatrix4fv(
-		glGetUniformLocation(model_shader->GetHandle(), "model"),
-		1,
-		GL_FALSE,
-		reinterpret_cast<const GLfloat*>(glm::value_ptr(model))
-	);
+	model_shader->SetMat4("model", model);
 
 	proj = glm::perspective(
 		glm::radians(camera::fps_camera.GetFov()),
@@ -208,8 +205,7 @@ int main() {
 		far
 	);
 
-	cubemap_shader->Use();
-	glUniform1i(glGetUniformLocation(cubemap_shader->GetHandle(), "skybox"), 0);
+	cubemap_shader->SetInt("skybox", 0);
 
 	glfwSetKeyCallback(
 		window,
@@ -271,12 +267,7 @@ int main() {
 			far
 		);
 
-		glUniformMatrix4fv(
-			glGetUniformLocation(model_shader->GetHandle(), "projection"),
-			1,
-			GL_FALSE,
-			(const GLfloat*)glm::value_ptr(proj)
-		);
+		model_shader->SetMat4("projection", proj);
 	});
 
 	glViewport(0, 0, win_width, win_height);
@@ -285,75 +276,53 @@ int main() {
 
 	camera::orbit_camera.SetLookAt(glm::vec3{ 0.0f,0.0f,0.0f });
 
-	//Text text{
-	//	*text_shader,
-	//	static_cast<size_t>(win_width),
-	//	static_cast<size_t>(win_height)
-	//};
-	//text.SetFileName("../fonts/Nosifer-Regular.ttf", 64);
+	Text text{
+		text_shader,
+		static_cast<size_t>(win_width),
+		static_cast<size_t>(win_height)
+	};
+	text.SetFileName("../fonts/Nosifer-Regular.ttf", 64);
 
 	while (!glfwWindowShouldClose(window)) {
 		Update(glfwGetTime() - previous_time);
 		previous_time = glfwGetTime();
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		model_shader->Use();
 
 		view = camera::orbit_camera.GetViewMatrix();
 		view = camera::fps_camera.GetViewMatrix();
 		proj = glm::perspective(glm::radians(camera::fps_camera.GetFov()), ratio, near, far);
 
-		glUniformMatrix4fv(
-			glGetUniformLocation(model_shader->GetHandle(), "view"),
-			1,
-			GL_FALSE,
-			(const GLfloat*)glm::value_ptr(view)
-		);
-		glUniformMatrix4fv(
-			glGetUniformLocation(model_shader->GetHandle(), "projection"),
-			1,
-			GL_FALSE,
-			(const GLfloat*)glm::value_ptr(proj)
-		);
+		model_shader->SetMat4("view", view);
+		model_shader->SetMat4("projection", proj);
 
 		// change to Shader instance as argument
-		//texture[0].BindTextureUnit("tex_sampler");
-		mesh[0].Draw();
-		//texture[0].UnbindTextureUnit();
+		textures[0]->BindTextureUnit("tex_sampler", 0);
+		meshes[0]->Draw();
+		textures[0]->UnbindTextureUnit(0);
 
 		glDepthFunc(GL_LEQUAL);
-		cubemap_shader->Use();
 		view = glm::mat4(glm::mat3(camera::fps_camera.GetViewMatrix()));
-		glUniformMatrix4fv(
-			glGetUniformLocation(cubemap_shader->GetHandle(), "view"),
-			1,
-			GL_FALSE,
-			(const GLfloat*)glm::value_ptr(view)
-		);
-		glUniformMatrix4fv(
-			glGetUniformLocation(cubemap_shader->GetHandle(), "projection"),
-			1,
-			GL_FALSE,
-			(const GLfloat*)glm::value_ptr(proj)
-		);
+		cubemap_shader->SetMat4("view", view);
+		cubemap_shader->SetMat4("projection", proj);
 
 		glFrontFace(GL_CW);
 
-		//texture[1].BindCubeTextureUnit("skybox");
-		//mesh[1].Draw();
-		//texture[1].UnbindCubeTextureUnit();
+		textures[1]->BindCubeTextureUnit("skybox", 0);
+		meshes[1]->Draw();
+		textures[1]->UnbindCubeTextureUnit(0);
 
 		glFrontFace(GL_CCW);
 		glDepthFunc(GL_LESS);
 
-		//text.RenderText("Welcome to OpenGL ©", 0.0f, 0.0f);
+		text.RenderText("Welcome to OpenGL ©", 0.0f, 0.0f);
 
 		glfwPollEvents();
 		glfwSwapBuffers(window);
 	}
 
 	delete model_shader;
-	//delete text_shader;
+	delete text_shader;
 	delete cubemap_shader;
 
 	glfwTerminate();

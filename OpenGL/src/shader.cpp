@@ -1,7 +1,5 @@
 #include <shader.hpp>
 
-Shader::Shader() {}
-
 Shader::Shader(std::string vert_file, std::string frag_file) {
 	std::string vertex_string = LoadFile(vert_file);
 	std::string fragment_string = LoadFile(frag_file);
@@ -59,3 +57,116 @@ std::string Shader::LoadFile(const std::string file) {
 
 	return ss.str();
 }
+
+// shader uniform methods
+void Shader::SetBool(const std::string &name, GLboolean value) const {
+	this->Use();
+	glUniform1i(
+		glGetUniformLocation(handle_, name.c_str()),
+		static_cast<GLint>(value)
+	);
+}
+
+void Shader::SetInt(const std::string &name, GLint value) const {
+	this->Use();
+	glUniform1i(
+		glGetUniformLocation(handle_, name.c_str()),
+		value
+	);
+}
+
+void Shader::SetFloat(const std::string &name, GLfloat value) const {
+	this->Use();
+	glUniform1f(
+		glGetUniformLocation(handle_, name.c_str()),
+		value
+	);
+}
+
+void Shader::SetVec2(const std::string &name, const glm::vec2 &value) const {
+	this->Use();
+	glUniform2fv(
+		glGetUniformLocation(handle_, name.c_str()),
+		1,
+		reinterpret_cast<const GLfloat*>(glm::value_ptr(value))
+	);
+}
+
+void Shader::SetVec2(const std::string &name, GLfloat x, GLfloat y) const {
+	this->Use();
+	glUniform2f(
+		glGetUniformLocation(handle_, name.c_str()),
+		x,
+		y
+	);
+}
+
+void Shader::SetVec3(const std::string &name, const glm::vec3 &value) const {
+	this->Use();
+	glUniform3fv(
+		glGetUniformLocation(handle_, name.c_str()),
+		1,
+		glm::value_ptr(value)
+	);
+}
+
+void Shader::SetVec3(const std::string &name, GLfloat x, GLfloat y, GLfloat z) const {
+	this->Use();
+	glUniform3f(
+		glGetUniformLocation(handle_, name.c_str()),
+		x,
+		y,
+		z
+	);
+}
+
+void Shader::SetVec4(const std::string &name, const glm::vec4 &value) const {
+	this->Use();
+	glUniform4fv(
+		glGetUniformLocation(handle_, name.c_str()),
+		1,
+		reinterpret_cast<const GLfloat*>(glm::value_ptr(value))
+	);
+}
+
+void Shader::SetVec4(const std::string &name, GLfloat x, GLfloat y, GLfloat z, GLfloat w) const {
+	this->Use();
+	glUniform4f(
+		glGetUniformLocation(handle_, name.c_str()),
+		x,
+		y,
+		z,
+		w
+	);
+}
+
+void Shader::SetMat2(const std::string &name, const glm::mat2 &mat) const {
+	this->Use();
+	glUniformMatrix2fv(
+		glGetUniformLocation(handle_, name.c_str()),
+		1,
+		GL_FALSE,
+		reinterpret_cast<const GLfloat*>(glm::value_ptr(mat))
+	);
+}
+
+void Shader::SetMat3(const std::string &name, const glm::mat3 &mat) const {
+	this->Use();
+	glUniformMatrix3fv(
+		glGetUniformLocation(handle_, name.c_str()),
+		1,
+		GL_FALSE,
+		reinterpret_cast<const GLfloat*>(glm::value_ptr(mat))
+	);
+}
+
+void Shader::SetMat4(const std::string &name, const glm::mat4 &mat) const {
+	this->Use();
+	glUniformMatrix4fv(
+		glGetUniformLocation(handle_, name.c_str()),
+		1,
+		GL_FALSE,
+		reinterpret_cast<const GLfloat*>(glm::value_ptr(mat))
+	);
+}
+

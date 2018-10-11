@@ -17,16 +17,18 @@ private:
 	Shader *shader_;
 	GLuint texture_handle_{};
 public:
+	Texture2D();
 	Texture2D(Shader*);
 	Texture2D(const Texture2D&) = delete;
 	Texture2D& operator= (const Texture2D&) = delete;
 	virtual ~Texture2D();
 
+	bool AddShaderPtr(Shader*);
 	bool LoadTexture(const std::string& file_name, bool gen_mipmaps = true);
 	bool LoadCubemap(const std::vector<std::string>);
 
-	void BindTextureUnit(const GLchar* uniform, GLuint texunit = 0);
-	void BindCubeTextureUnit(const GLchar* uniform, GLuint texunit = 0);
+	void BindTextureUnit(const GLchar* uniform, GLuint texunit = 0) const;
+	void BindCubeTextureUnit(const GLchar* uniform, GLuint texunit = 0) const;
 	void UnbindTextureUnit(GLuint texunit = 0) const;
 	void UnbindCubeTextureUnit(GLuint texunit = 0) const;
 };
