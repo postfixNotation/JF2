@@ -231,10 +231,6 @@ int main() {
 		far
 	);
 
-	std::cout << "model_shader.use_count(): " << model_shader.use_count() << std::endl;
-	std::cout << "cubemap_shader.use_count(): " << cubemap_shader.use_count() << std::endl;
-	std::cout << "text_shader.use_count(): " << text_shader.use_count() << std::endl;
-
 	while (!glfwWindowShouldClose(window)) {
 		Update(glfwGetTime() - previous_time);
 		previous_time = glfwGetTime();

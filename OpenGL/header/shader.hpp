@@ -11,9 +11,11 @@
 class Shader {
 private:
 	GLuint handle_{};
-	GLuint vert_shader_{}, frag_shader_{};
 	std::string LoadFile(const std::string);
+	enum class Type { VERTEX, FRAGMENT, PROGRAM };
+	bool CheckCompileErrors(GLuint, Type) const;
 public:
+
 	Shader() = delete;
 	Shader(std::string, std::string);
 	virtual ~Shader();
