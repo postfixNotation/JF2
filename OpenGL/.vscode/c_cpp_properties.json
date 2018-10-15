@@ -5,6 +5,7 @@
             "includePath": [
                 "${workspaceFolder}/header",
                 "${workspaceFolder}/../Dependencies",
+                "${workspaceFolder}/../Dependencies/Box2D/include/",
                 "${workspaceFolder}/../Dependencies/FreeType/include/"
             ],
             "defines": [],

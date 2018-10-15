@@ -1,16 +1,20 @@
-DEPS=../Dependencies/
-FREETYPE=$(DEPS)FreeType/include/
-HEADER=header/
+DEPSROOT=../Dependencies/
+
+FREETYPE=$(DEPSROOT)FreeType/include/
+BOX2DHEADER=$(DEPSROOT)Box2D/include/
+BOX2DLIB=$(DEPSROOT)Box2D/lib/Linux/release/
+
+HEADER=./header/
 SOURCE=src/*.cpp
 
-FLAG1=-I$(DEPS)
-FLAG2=-I$(HEADER)
-FLAG3=-I$(FREETYPE)
+INCLUDES=-I$(DEPSROOT) -I$(FREETYPE) -I$(BOX2DHEADER) -I$(HEADER) 
+LIBDIR=-L$(BOX2DLIB) 
 
-LIBS=-lGL -lGLEW -lglfw3 -lrt -lm -ldl -lXrandr -lXinerama -lXxf86vm -lXext -lXcursor -lXrender -lXfixes -lX11 -lpthread -lxcb -lXau -lXdmcp -lsfml-system -lsfml-audio -lfreetype
+LIBS=-lGL -lGLEW -lglfw3 -lrt -lm -ldl -lXrandr -lXinerama -lXxf86vm -lXext -lXcursor -lXrender -lXfixes -lX11 -lpthread -lxcb -lXau -lXdmcp -lsfml-system -lsfml-audio -lfreetype -lBox2D
 
-CC=g++ -std=c++11
+CC=g++
+FLAGS=-std=c++11
 TARGET=../bin/
 
 opengl: $(SOURCE)
-	$(CC) -o $(TARGET)$@ $(SOURCE) $(FLAG1) $(FLAG2) $(FLAG3) $(LIBS)
+	$(CC) $(FLAGS) -o $(TARGET)$@ $(SOURCE) $(INCLUDES) $(LIBDIR) $(LIBS)
