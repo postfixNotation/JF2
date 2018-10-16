@@ -5,7 +5,10 @@
 	"C_Cpp.default.cppStandard": "c++11",
 	"C_Cpp.default.intelliSenseMode": "gcc-x64",
 	"explorer.confirmDragAndDrop": false,
+    "editor.insertSpaces": false,
 	"editor.tabCompletion": "on",
-	"editor.wordWrap": "on",
+    "explorer.confirmDelete": false,
 	"editor.fontSize": 15,
+	"editor.wordWrap": "on",
+    "git.enableSmartCommit": true
 }

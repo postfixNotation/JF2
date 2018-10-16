@@ -231,7 +231,7 @@ int main() {
 		text_shader,
 		static_cast<size_t>(win_width),
 		static_cast<size_t>(win_height)
-		);
+	);
 
 	meshes[0] = std::make_shared<MeshRenderer>(model_shader);
 	meshes[0]->LoadObj("../models/robot.obj", ObjLoadingType::TRIANGLES);
@@ -461,4 +461,3 @@ void SetCallbacks() {
 		model_shader->SetMat4("projection", proj);
 	});
 }
-
