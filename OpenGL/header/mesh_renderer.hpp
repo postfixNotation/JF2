@@ -49,6 +49,7 @@ private:
 	std::shared_ptr<Shader> shader_;
 	std::vector<Vertex> vertices_;
 	std::vector<GLuint> indices_;
+	// vbo as member variable actually unnecessary
 	GLuint vbo_, vao_, ibo_;
 	size_t number_quads_;
 	bool loaded_;
@@ -75,4 +76,3 @@ public:
 };
 
 #endif //MESH_HPP_
-

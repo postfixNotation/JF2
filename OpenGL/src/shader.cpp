@@ -1,5 +1,13 @@
 #include <shader.hpp>
 
+Shader::Shader() {}
+
+Shader& Shader::operator=(const Shader& shader) {
+	if (this == &shader) return *this;
+	handle_ = shader.GetHandle();
+	return *this;
+}
+
 Shader::Shader(std::string vert_file, std::string frag_file) {
 	std::string vertex_string = LoadFile(vert_file);
 	std::string fragment_string = LoadFile(frag_file);
@@ -246,4 +254,3 @@ bool Shader::CheckCompileErrors(GLuint shader, Type ct) const {
 
 	return true;;
 }
-

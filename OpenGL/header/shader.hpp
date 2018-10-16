@@ -14,9 +14,10 @@ private:
 	std::string LoadFile(const std::string);
 	enum class Type { VERTEX, FRAGMENT, PROGRAM };
 	bool CheckCompileErrors(GLuint, Type) const;
-public:
 
-	Shader() = delete;
+public:
+	Shader();
+	Shader& operator=(const Shader&);
 	Shader(std::string, std::string);
 	virtual ~Shader();
 
@@ -41,4 +42,3 @@ public:
 };
 
 #endif // SHADER_HPP_
-

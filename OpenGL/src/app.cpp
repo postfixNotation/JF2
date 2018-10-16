@@ -18,6 +18,7 @@
 
 #include <Box2D/Box2D.h>
 
+#include <sprite_renderer.hpp>
 #include <mesh_renderer.hpp>
 #include <texture2d.hpp>
 #include <camera.hpp>
@@ -30,7 +31,7 @@ float far = 100.0f;
 
 glm::mat4 proj{}, model{}, view{};
 const GLFWvidmode* mode;
-std::shared_ptr<Shader> model_shader, cubemap_shader, text_shader;
+std::shared_ptr<Shader> model_shader, cubemap_shader, text_shader, sprite_shader;
 
 GLint win_width, win_height;
 std::string kWindowTitle = "Prototype Application";
@@ -64,43 +65,6 @@ namespace camera {
 }
 
 int main() {
-	b2Vec2 gravity(0.0f, -10.0f);
-	b2World world(gravity);
-
-	b2BodyDef groundBodyDef;
-	groundBodyDef.position.Set(0.0f, -10.0f);
-
-	b2Body *groundBody = world.CreateBody(&groundBodyDef);
-
-	b2PolygonShape groundBox;
-	groundBox.SetAsBox(50.0f, 10.0f);
-
-	groundBody->CreateFixture(&groundBox, 0.0f);
-
-	b2BodyDef bodyDef;
-	bodyDef.type = b2_dynamicBody;
-	bodyDef.position.Set(0.0f, 4.0f);
-	b2Body *body = world.CreateBody(&bodyDef);
-
-	b2PolygonShape dynamicBox;
-	dynamicBox.SetAsBox(1.0f, 1.0f);
-
-	b2FixtureDef fixtureDef;
-	fixtureDef.shape = &dynamicBox;
-	fixtureDef.density = 1.0f;
-	fixtureDef.friction = 0.3f;
-	body->CreateFixture(&fixtureDef);
-
-	float32 timeStep = 1.0f / 60.0f;
-	int32 velocityIterations = 8;
-	int32 positionIterations = 3;
-	for (int32 i{}; i < 60; ++i) {
-		world.Step(timeStep, velocityIterations, positionIterations);
-		b2Vec2 position = body->GetPosition();
-		float32 angle = body->GetAngle();
-		printf("%4.2f %4.2f %4.2f\n", position.x, position.y, angle);
-	}
-
 	if (!glfwInit()) {
 		std::cerr << "ERROR: COULD NOT START GLFW3" << std::endl;
 		return 1;
@@ -139,18 +103,22 @@ int main() {
 	glfwMakeContextCurrent(window);
 	Shader::Init();
 
-	model_shader = std::make_shared<Shader>(
-		"../shader/mesh_vert_shader.glsl",
-		"../shader/mesh_frag_shader.glsl"
-		);
-	cubemap_shader = std::make_shared<Shader>(
-		"../shader/cubemap_vert_shader.glsl",
-		"../shader/cubemap_frag_shader.glsl"
-		);
-	text_shader = std::make_shared<Shader>(
-		"../shader/font_vert.glsl",
-		"../shader/font_frag.glsl"
-		);
+	//model_shader = std::make_shared<Shader>(
+	//	"../shader/mesh_vert_shader.glsl",
+	//	"../shader/mesh_frag_shader.glsl"
+	//);
+	//cubemap_shader = std::make_shared<Shader>(
+	//	"../shader/cubemap_vert_shader.glsl",
+	//	"../shader/cubemap_frag_shader.glsl"
+	//);
+	//text_shader = std::make_shared<Shader>(
+	//	"../shader/font_vert.glsl",
+	//	"../shader/font_frag.glsl"
+	//);
+	sprite_shader = std::make_shared<Shader>(
+		"../shader/sprite_vert_shader.glsl",
+		"../shader/sprite_frag_shader.glsl"
+	);
 
 	//std::string filename{};
 	//GLFWimage images[2];
@@ -225,91 +193,96 @@ int main() {
 	//	return -1;
 	//music.play();
 
-	std::vector<std::shared_ptr<MeshRenderer>> meshes(2);
-	std::vector<std::shared_ptr<Texture2D>> textures(2);
-	std::shared_ptr<Text> text = std::make_shared<Text>(
-		text_shader,
-		static_cast<size_t>(win_width),
-		static_cast<size_t>(win_height)
-	);
+	//std::vector<std::shared_ptr<MeshRenderer>> meshes(2);
+	//std::vector<std::shared_ptr<Texture2D>> textures(3);
+	//std::shared_ptr<Text> text = std::make_shared<Text>(
+	//	text_shader,
+	//	static_cast<size_t>(win_width),
+	//	static_cast<size_t>(win_height)
+	//);
 
-	meshes[0] = std::make_shared<MeshRenderer>(model_shader);
-	meshes[0]->LoadObj("../models/robot.obj", ObjLoadingType::TRIANGLES);
-	textures[0] = std::make_shared<Texture2D>(model_shader);
-	textures[0]->LoadTexture("../textures/robot.jpg");
+	//meshes[0] = std::make_shared<MeshRenderer>(model_shader);
+	//meshes[0]->LoadObj("../models/robot.obj", ObjLoadingType::TRIANGLES);
+	//textures[0] = std::make_shared<Texture2D>(model_shader);
+	//textures[0]->LoadTexture("../textures/robot.jpg");
 
-	std::vector<std::string> faces{
-		"../textures/skybox/right.jpg",
-		"../textures/skybox/left.jpg",
-		"../textures/skybox/bottom.jpg",
-		"../textures/skybox/top.jpg",
-		"../textures/skybox/front.jpg",
-		"../textures/skybox/back.jpg"
-	};
-	meshes[1] = std::make_shared<MeshRenderer>(cubemap_shader);
-	meshes[1]->LoadObj("../models/cube.obj", ObjLoadingType::QUADS);
-	textures[1] = std::make_shared<Texture2D>(cubemap_shader);
-	textures[1]->LoadCubemap(faces);
-	text->SetFileName("../fonts/Nosifer-Regular.ttf", 64);
+	//std::vector<std::string> faces{
+	//	"../textures/skybox/right.jpg",
+	//	"../textures/skybox/left.jpg",
+	//	"../textures/skybox/bottom.jpg",
+	//	"../textures/skybox/top.jpg",
+	//	"../textures/skybox/front.jpg",
+	//	"../textures/skybox/back.jpg"
+	//};
+	//meshes[1] = std::make_shared<MeshRenderer>(cubemap_shader);
+	//meshes[1]->LoadObj("../models/cube.obj", ObjLoadingType::QUADS);
+	//textures[1] = std::make_shared<Texture2D>(cubemap_shader);
+	//textures[1]->LoadCubemap(faces);
+	//text->SetFileName("../fonts/Nosifer-Regular.ttf", 64);
 
-	model_shader->SetMat4("model", model);
-	cubemap_shader->SetInt("skybox", 0);
+	//textures[2] = std::make_shared<Texture2D>(sprite_shader);
+	//textures[2]->LoadTexture("../textures/tux.png");
+	std::shared_ptr<Texture2D> texture = std::make_shared<Texture2D>(sprite_shader);
+	texture->LoadTexture("../textures/tux.png");
+	std::shared_ptr<SpriteRenderer> first_sprite = std::make_shared<SpriteRenderer>(sprite_shader, win_width, win_height);
+
+	//model_shader->SetMat4("model", model);
+	//cubemap_shader->SetInt("skybox", 0);
 
 	SetCallbacks();
 
 	glViewport(0, 0, win_width, win_height);
 	glClearColor(rgb.r, rgb.g, rgb.b, rgb.a);
-	double previous_time{ glfwGetTime() }, delta_time{};
+	//double previous_time{ glfwGetTime() }, delta_time{};
 
-	camera::orbit_camera.SetLookAt(glm::vec3{ 0.0f,0.0f,0.0f });
-
-	proj = glm::perspective(
-		glm::radians(camera::fps_camera.GetFov()),
-		ratio,
-		near,
-		far
-	);
+	//camera::orbit_camera.SetLookAt(glm::vec3{ 0.0f,0.0f,0.0f });
 
 	while (!glfwWindowShouldClose(window)) {
-		Update(glfwGetTime() - previous_time);
-		previous_time = glfwGetTime();
+		//Update(glfwGetTime() - previous_time);
+		//previous_time = glfwGetTime();
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		view = camera::orbit_camera.GetViewMatrix();
-		view = camera::fps_camera.GetViewMatrix();
-		proj = glm::perspective(glm::radians(camera::fps_camera.GetFov()), ratio, near, far);
+		//view = camera::orbit_camera.GetViewMatrix();
+		//view = camera::fps_camera.GetViewMatrix();
+		//proj = glm::perspective(glm::radians(camera::fps_camera.GetFov()), ratio, near, far);
 
-		model_shader->SetMat4("view", view);
-		model_shader->SetMat4("projection", proj);
+		//model_shader->SetMat4("view", view);
+		//model_shader->SetMat4("projection", proj);
 
-		textures[0]->BindTextureUnit("tex_sampler", 0);
-		meshes[0]->Draw();
-		textures[0]->UnbindTextureUnit(0);
+		//textures[0]->BindTextureUnit("tex_sampler", 0);
+		//meshes[0]->Draw();
+		//textures[0]->UnbindTextureUnit(0);
 
-		glDepthFunc(GL_LEQUAL);
-
-		view = glm::mat4(glm::mat3(camera::fps_camera.GetViewMatrix()));
-
-		cubemap_shader->SetMat4("view", view);
-		cubemap_shader->SetMat4("projection", proj);
-
-		glFrontFace(GL_CW);
-
-		textures[1]->BindCubeTextureUnit("skybox", 0);
-		meshes[1]->Draw();
-		textures[1]->UnbindCubeTextureUnit(0);
-
-		glFrontFace(GL_CCW);
-		glDepthFunc(GL_LESS);
-
-		text->RenderText(
-			"Welcome to OpenGL ©",
-			0.0f,
-			0.0f,
-			1.2f,
-			glm::vec3{ .3f,.7f,.6f }
+		first_sprite->DrawSprite(
+			texture,
+			glm::vec2{0.0f, 0.0f},
+			glm::vec2{160.0f, 160.0f}
 		);
+
+		//glDepthFunc(GL_LEQUAL);
+
+		//view = glm::mat4(glm::mat3(camera::fps_camera.GetViewMatrix()));
+
+		//cubemap_shader->SetMat4("view", view);
+		//cubemap_shader->SetMat4("projection", proj);
+
+		//glFrontFace(GL_CW);
+
+		//textures[1]->BindCubeTextureUnit("skybox", 0);
+		//meshes[1]->Draw();
+		//textures[1]->UnbindCubeTextureUnit(0);
+
+		//glFrontFace(GL_CCW);
+		//glDepthFunc(GL_LESS);
+
+		//text->RenderText(
+		//	"Welcome to OpenGL ©",
+		//	0.0f,
+		//	0.0f,
+		//	1.2f,
+		//	glm::vec3{ .3f,.7f,.6f }
+		//);
 
 		glfwPollEvents();
 		glfwSwapBuffers(window);
@@ -412,52 +385,52 @@ void SetCallbacks() {
 		}
 	});
 
-	glfwSetScrollCallback(window, [](GLFWwindow* win, double xoffset, double yoffset) {
-		//	// FPS camera
-		if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE) {
-			double fov = camera::fps_camera.GetFov() + yoffset * camera::kZoomSensitivity;
-			fov = glm::clamp(fov, 1.0, 120.0);
-			camera::fps_camera.SetFov(static_cast<float>(fov));
+	//glfwSetScrollCallback(window, [](GLFWwindow* win, double xoffset, double yoffset) {
+	//	//	// FPS camera
+	//	if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE) {
+	//		double fov = camera::fps_camera.GetFov() + yoffset * camera::kZoomSensitivity;
+	//		fov = glm::clamp(fov, 1.0, 120.0);
+	//		camera::fps_camera.SetFov(static_cast<float>(fov));
 
-			proj = glm::perspective(
-				glm::radians(camera::fps_camera.GetFov()),
-				ratio,
-				near,
-				far
-			);
-		}
-		// Orbit camera
-		else if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
-			camera::orbit_camera.SetRadius(static_cast<float>(yoffset) * camera::kZoomSensitivity);
-		}
-	});
+	//		proj = glm::perspective(
+	//			glm::radians(camera::fps_camera.GetFov()),
+	//			ratio,
+	//			near,
+	//			far
+	//		);
+	//	}
+	//	// Orbit camera
+	//	else if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
+	//		camera::orbit_camera.SetRadius(static_cast<float>(yoffset) * camera::kZoomSensitivity);
+	//	}
+	//});
 
-	//// Orbit camera
-	glfwSetCursorPosCallback(window, [](GLFWwindow* win, double xpos, double ypos) {
-		static glm::vec2 last_mouse_pos = glm::vec2{};
+	////// Orbit camera
+	//glfwSetCursorPosCallback(window, [](GLFWwindow* win, double xpos, double ypos) {
+	//	static glm::vec2 last_mouse_pos = glm::vec2{};
 
-		if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-			camera::yaw -= (static_cast<float>(xpos) - last_mouse_pos.x) * camera::kMouseSensitivity;
-			camera::pitch += (static_cast<float>(ypos) - last_mouse_pos.y) * camera::kMouseSensitivity;
-			camera::orbit_camera.Rotate(camera::yaw, camera::pitch);
-		}
+	//	if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+	//		camera::yaw -= (static_cast<float>(xpos) - last_mouse_pos.x) * camera::kMouseSensitivity;
+	//		camera::pitch += (static_cast<float>(ypos) - last_mouse_pos.y) * camera::kMouseSensitivity;
+	//		camera::orbit_camera.Rotate(camera::yaw, camera::pitch);
+	//	}
 
-		last_mouse_pos = glm::vec2{ static_cast<float>(xpos), static_cast<float>(ypos) };
-	});
+	//	last_mouse_pos = glm::vec2{ static_cast<float>(xpos), static_cast<float>(ypos) };
+	//});
 
-	glfwSetFramebufferSizeCallback(window, [](GLFWwindow* win, int width, int height) {
-		glViewport(0, 0, width, height);
-		win_width = width;
-		win_height = height;
-		ratio = (float)win_width / win_height;
+	//glfwSetFramebufferSizeCallback(window, [](GLFWwindow* win, int width, int height) {
+	//	glViewport(0, 0, width, height);
+	//	win_width = width;
+	//	win_height = height;
+	//	ratio = (float)win_width / win_height;
 
-		proj = glm::perspective(
-			glm::radians(camera::fps_camera.GetFov()),
-			ratio,
-			near,
-			far
-		);
+	//	proj = glm::perspective(
+	//		glm::radians(camera::fps_camera.GetFov()),
+	//		ratio,
+	//		near,
+	//		far
+	//	);
 
-		model_shader->SetMat4("projection", proj);
-	});
+	//	model_shader->SetMat4("projection", proj);
+	//});
 }

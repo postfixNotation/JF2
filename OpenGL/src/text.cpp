@@ -132,6 +132,7 @@ void Text::RenderText(
 	}
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(vao_);
+	// following glBindBuffer(...) required?
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_);
 
 	std::string::const_iterator c;
@@ -168,7 +169,7 @@ void Text::RenderText(
 		x += (ch.advance >> 6) * scale;
 	}
 	glBindVertexArray(0);
+	// following glBindBuffer(...) required?
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
-
