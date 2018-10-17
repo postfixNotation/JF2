@@ -38,41 +38,32 @@ void SpriteRenderer::DrawSprite(
 
     texture->BindTextureUnit("image_sampler", 0);
     glBindVertexArray(vao_);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_);
+    ibo_->Bind();
     glDrawElements(
         GL_TRIANGLES,
-        indices_.size(),
+        ibo_->GetCount(),
         GL_UNSIGNED_INT,
         nullptr
     );
+    ibo_->Unbind();
     texture->UnbindTextureUnit(0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
 
 void SpriteRenderer::InitRenderData() {
 	constexpr GLubyte kNumberComponents{ 4 }; //position and texture coordinate
-    GLuint vbo;
-
     std::vector<GLfloat> vertices { 
         1.0f, 0.0f, 1.0f, 1.0f,
         0.0f, 0.0f, 0.0f, 1.0f, 
         0.0f, 1.0f, 0.0f, 0.0f,
         1.0f, 1.0f, 1.0f, 0.0f,
     };
+    VertexBuffer vbo{
+        reinterpret_cast<const GLvoid*>(vertices.data()),
+        static_cast<GLuint>(sizeof(GLfloat)) * static_cast<GLuint>(vertices.size())
+    };
 
-    glGenBuffers(1, &vbo);
-    glGenBuffers(1, &ibo_);
     glGenVertexArrays(1, &vao_);
-
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(
-		GL_ARRAY_BUFFER,
-		sizeof(GLfloat) * vertices.size(),
-		vertices.data(),
-		GL_STATIC_DRAW
-	);
-
     glBindVertexArray(vao_);
     glVertexAttribPointer(
 		0,
@@ -83,15 +74,8 @@ void SpriteRenderer::InitRenderData() {
         reinterpret_cast<const GLvoid*>(0)
 	);
     glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_);
-    glBufferData(
-        GL_ELEMENT_ARRAY_BUFFER,
-        sizeof(GLuint) * indices_.size(),
-        indices_.data(),
-        GL_STATIC_DRAW
-    );
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    ibo_ = std::make_shared<IndexBuffer>(indices_.data(), indices_.size());
+    ibo_->Unbind();
+    vbo.Unbind();
     glBindVertexArray(0);
 }

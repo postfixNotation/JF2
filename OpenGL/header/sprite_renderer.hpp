@@ -8,14 +8,17 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <vertex_buffer.hpp>
+#include <index_buffer.hpp>
 #include <texture2d.hpp>
 #include <shader.hpp>
 
 class SpriteRenderer {
 private:
-    GLuint vao_, ibo_;
+    GLuint vao_;
 	std::vector<GLuint> indices_;
     std::shared_ptr<Shader> shader_; 
+	std::shared_ptr<IndexBuffer> ibo_;
 	glm::mat4 projection_;
     void InitRenderData();
 public:

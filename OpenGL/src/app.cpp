@@ -111,10 +111,10 @@ int main() {
 	//	"../shader/cubemap_vert_shader.glsl",
 	//	"../shader/cubemap_frag_shader.glsl"
 	//);
-	//text_shader = std::make_shared<Shader>(
-	//	"../shader/font_vert.glsl",
-	//	"../shader/font_frag.glsl"
-	//);
+	text_shader = std::make_shared<Shader>(
+		"../shader/font_vert.glsl",
+		"../shader/font_frag.glsl"
+	);
 	sprite_shader = std::make_shared<Shader>(
 		"../shader/sprite_vert_shader.glsl",
 		"../shader/sprite_frag_shader.glsl"
@@ -195,11 +195,11 @@ int main() {
 
 	//std::vector<std::shared_ptr<MeshRenderer>> meshes(2);
 	//std::vector<std::shared_ptr<Texture2D>> textures(3);
-	//std::shared_ptr<Text> text = std::make_shared<Text>(
-	//	text_shader,
-	//	static_cast<size_t>(win_width),
-	//	static_cast<size_t>(win_height)
-	//);
+	std::shared_ptr<Text> text = std::make_shared<Text>(
+		text_shader,
+		static_cast<size_t>(win_width),
+		static_cast<size_t>(win_height)
+	);
 
 	//meshes[0] = std::make_shared<MeshRenderer>(model_shader);
 	//meshes[0]->LoadObj("../models/robot.obj", ObjLoadingType::TRIANGLES);
@@ -218,10 +218,8 @@ int main() {
 	//meshes[1]->LoadObj("../models/cube.obj", ObjLoadingType::QUADS);
 	//textures[1] = std::make_shared<Texture2D>(cubemap_shader);
 	//textures[1]->LoadCubemap(faces);
-	//text->SetFileName("../fonts/Nosifer-Regular.ttf", 64);
+	text->SetFileName("../fonts/Nosifer-Regular.ttf", 64);
 
-	//textures[2] = std::make_shared<Texture2D>(sprite_shader);
-	//textures[2]->LoadTexture("../textures/tux.png");
 	std::shared_ptr<Texture2D> texture = std::make_shared<Texture2D>(sprite_shader);
 	texture->LoadTexture("../textures/tux.png");
 	std::shared_ptr<SpriteRenderer> first_sprite = std::make_shared<SpriteRenderer>(sprite_shader, win_width, win_height);
@@ -276,13 +274,13 @@ int main() {
 		//glFrontFace(GL_CCW);
 		//glDepthFunc(GL_LESS);
 
-		//text->RenderText(
-		//	"Welcome to OpenGL ©",
-		//	0.0f,
-		//	0.0f,
-		//	1.2f,
-		//	glm::vec3{ .3f,.7f,.6f }
-		//);
+		text->RenderText(
+			"Welcome to OpenGL ©",
+			0.0f,
+			static_cast<GLfloat>(win_height) / 2.0f,
+			1.2f,
+			glm::vec3{ .3f,.7f,.6f }
+		);
 
 		glfwPollEvents();
 		glfwSwapBuffers(window);

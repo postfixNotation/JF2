@@ -12,6 +12,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <shader.hpp>
+#include <index_buffer.hpp>
+#include <vertex_buffer.hpp>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -28,12 +30,14 @@ private:
 	std::string filename_;
 	size_t default_pixel_size_;
 	std::map<GLchar, Character> characters_;
-	static constexpr GLuint kVerticesPerQuad{ 6 };
+	static constexpr GLuint kVerticesPerQuad{ 4 };
 	static constexpr GLuint kPositionAndTexture{ 4 };
 
 	std::shared_ptr<Shader> shader_;
 	glm::mat4 projection_;
-	GLuint vao_, vbo_, ibo_;
+	GLuint vao_;
+	std::shared_ptr<IndexBuffer> ibo_;
+	std::shared_ptr<VertexBuffer> vbo_;
 	std::vector<GLuint> indices_; // efficient memory use with IBOs
 
 	void LoadFonts();
@@ -55,4 +59,3 @@ public:
 
 };
 #endif // TEXT_HPP_
-

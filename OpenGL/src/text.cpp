@@ -56,23 +56,12 @@ void Text::InitBuffers() {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glGenBuffers(1, &ibo_);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_);
-	glBufferData(
-		GL_ELEMENT_ARRAY_BUFFER,
-		sizeof(GLuint) * indices_.size(),
-		indices_.data(),
-		GL_STATIC_DRAW
-	);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-	glGenBuffers(1, &vbo_);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_);
-	glBufferData(
-		GL_ARRAY_BUFFER,
-		sizeof(GLfloat) * kVerticesPerQuad * kPositionAndTexture,
+	ibo_ = std::make_shared<IndexBuffer>(indices_.data(), indices_.size());
+	ibo_->Unbind();
+	vbo_ = std::make_shared<VertexBuffer>(
 		nullptr,
-		GL_DYNAMIC_DRAW
+		sizeof(GLfloat) * kVerticesPerQuad * kPositionAndTexture,
+		DrawType::DYNAMIC
 	);
 
 	glGenVertexArrays(1, &vao_);
@@ -86,7 +75,7 @@ void Text::InitBuffers() {
 		0
 	);
 	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	vbo_->Unbind();
 	glBindVertexArray(0);
 }
 
@@ -133,7 +122,7 @@ void Text::RenderText(
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(vao_);
 	// following glBindBuffer(...) required?
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_);
+	ibo_->Bind();
 
 	std::string::const_iterator c;
 	for (c = text.begin(); c != text.end(); ++c) {
@@ -152,17 +141,12 @@ void Text::RenderText(
 			{ xpos,     ypos,     0.0f, 0.0f },
 		};
 		glBindTexture(GL_TEXTURE_2D, ch.texture_id);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo_);
-		glBufferSubData(
-			GL_ARRAY_BUFFER,
-			0,
-			sizeof(vertices),
-			vertices
-		);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		vbo_->Bind();
+		vbo_->BufferSubData(vertices, sizeof(vertices));
+		vbo_->Unbind();
 		glDrawElements(
 			GL_TRIANGLES,
-			indices_.size(),
+			ibo_->GetCount(),
 			GL_UNSIGNED_INT,
 			nullptr
 		);
@@ -170,6 +154,6 @@ void Text::RenderText(
 	}
 	glBindVertexArray(0);
 	// following glBindBuffer(...) required?
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	ibo_->Unbind();
 	glBindTexture(GL_TEXTURE_2D, 0);
 }

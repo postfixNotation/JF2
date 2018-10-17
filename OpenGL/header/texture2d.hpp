@@ -16,7 +16,7 @@
 class Texture2D {
 private:
 	std::shared_ptr<Shader> shader_;
-	GLuint texture_handle_{};
+	GLuint handle_{};
 public:
 	Texture2D();
 	Texture2D(std::shared_ptr<Shader>);
