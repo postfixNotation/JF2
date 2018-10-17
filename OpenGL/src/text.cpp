@@ -56,6 +56,8 @@ void Text::InitBuffers() {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	VertexBufferLayout vbl;
+	vbl.Push<GLfloat>(kPositionAndTexture);
 	ibo_ = std::make_shared<IndexBuffer>(indices_.data(), indices_.size());
 	ibo_->Unbind();
 	vbo_ = std::make_shared<VertexBuffer>(
@@ -64,19 +66,10 @@ void Text::InitBuffers() {
 		DrawType::DYNAMIC
 	);
 
-	glGenVertexArrays(1, &vao_);
-	glBindVertexArray(vao_);
-	glVertexAttribPointer(
-		0,
-		kPositionAndTexture,
-		GL_FLOAT,
-		GL_FALSE,
-		kPositionAndTexture * sizeof(GLfloat),
-		0
-	);
-	glEnableVertexAttribArray(0);
+	vao_ = std::make_shared<VertexArray>();
+	vao_->AddBuffer(*vbo_, vbl);
 	vbo_->Unbind();
-	glBindVertexArray(0);
+	vao_->Unbind();
 }
 
 Text::Text(std::shared_ptr<Shader> shader, size_t width, size_t height) :
@@ -120,7 +113,7 @@ void Text::RenderText(
 		shader_->SetVec3("text_color", color);
 	}
 	glActiveTexture(GL_TEXTURE0);
-	glBindVertexArray(vao_);
+	vao_->Bind();
 	// following glBindBuffer(...) required?
 	ibo_->Bind();
 
@@ -152,7 +145,7 @@ void Text::RenderText(
 		);
 		x += (ch.advance >> 6) * scale;
 	}
-	glBindVertexArray(0);
+	vao_->Unbind();
 	// following glBindBuffer(...) required?
 	ibo_->Unbind();
 	glBindTexture(GL_TEXTURE_2D, 0);

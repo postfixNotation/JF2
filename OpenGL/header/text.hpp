@@ -12,8 +12,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <shader.hpp>
+#include <vertex_array.hpp>
 #include <index_buffer.hpp>
 #include <vertex_buffer.hpp>
+#include <vertex_buffer_layout.hpp>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -33,9 +35,9 @@ private:
 	static constexpr GLuint kVerticesPerQuad{ 4 };
 	static constexpr GLuint kPositionAndTexture{ 4 };
 
-	std::shared_ptr<Shader> shader_;
 	glm::mat4 projection_;
-	GLuint vao_;
+	std::shared_ptr<Shader> shader_;
+	std::shared_ptr<VertexArray> vao_;
 	std::shared_ptr<IndexBuffer> ibo_;
 	std::shared_ptr<VertexBuffer> vbo_;
 	std::vector<GLuint> indices_; // efficient memory use with IBOs
