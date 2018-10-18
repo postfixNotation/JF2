@@ -9,6 +9,10 @@ private:
 	GLuint handle_;
 public:
 	VertexArray();
+	VertexArray(
+		const VertexBuffer& vbo,
+		const VertexBufferLayout& layout
+	) : VertexArray() { AddBuffer(vbo, layout); }
 	~VertexArray();
 	void Bind() const;
 	void Unbind() const;

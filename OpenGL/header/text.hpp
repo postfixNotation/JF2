@@ -31,16 +31,16 @@ class Text {
 private:
 	std::string filename_;
 	size_t default_pixel_size_;
+	std::vector<GLuint> indices_;
 	std::map<GLchar, Character> characters_;
 	static constexpr GLuint kVerticesPerQuad{ 4 };
 	static constexpr GLuint kPositionAndTexture{ 4 };
 
 	glm::mat4 projection_;
 	std::shared_ptr<Shader> shader_;
-	std::shared_ptr<VertexArray> vao_;
-	std::shared_ptr<IndexBuffer> ibo_;
-	std::shared_ptr<VertexBuffer> vbo_;
-	std::vector<GLuint> indices_; // efficient memory use with IBOs
+	std::shared_ptr<VertexArray> va_;
+	std::shared_ptr<IndexBuffer> ib_;
+	std::shared_ptr<VertexBuffer> vb_;
 
 	void LoadFonts();
 	void InitBuffers();
@@ -50,7 +50,7 @@ public:
 	~Text();
 	// pixel size of 112 is maximum for many Google fonts
 	void SetFileName(std::string filename, size_t pixel_size = 48);
-	void RenderText(
+	void Draw(
 		std::string text,
 		GLfloat x,
 		GLfloat y,

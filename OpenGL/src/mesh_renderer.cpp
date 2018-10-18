@@ -243,8 +243,8 @@ void MeshRenderer::Draw(std::shared_ptr<Shader> shader) const {
 	if (!loaded_) return;
 
 	glBindVertexArray(vao_);
-	if (shader.get() != nullptr) { shader->Use(); }
-	else { shader_->Use(); }
+	if (shader.get() != nullptr) { shader->Bind(); }
+	else { shader_->Bind(); }
 
 	if (obj_loading_type_ == ObjLoadingType::QUADS) {
 		glDrawElements(

@@ -56,20 +56,22 @@ void Text::InitBuffers() {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	VertexBufferLayout vbl;
+	VertexBufferLayout vbl{};
 	vbl.Push<GLfloat>(kPositionAndTexture);
-	ibo_ = std::make_shared<IndexBuffer>(indices_.data(), indices_.size());
-	ibo_->Unbind();
-	vbo_ = std::make_shared<VertexBuffer>(
+
+	ib_ = std::make_shared<IndexBuffer>(indices_.data(), indices_.size());
+	ib_->Unbind();
+
+	vb_ = std::make_shared<VertexBuffer>(
 		nullptr,
 		sizeof(GLfloat) * kVerticesPerQuad * kPositionAndTexture,
 		DrawType::DYNAMIC
 	);
 
-	vao_ = std::make_shared<VertexArray>();
-	vao_->AddBuffer(*vbo_, vbl);
-	vbo_->Unbind();
-	vao_->Unbind();
+	va_ = std::make_shared<VertexArray>();
+	va_->AddBuffer(*vb_, vbl);
+	vb_->Unbind();
+	va_->Unbind();
 }
 
 Text::Text(std::shared_ptr<Shader> shader, size_t width, size_t height) :
@@ -95,7 +97,7 @@ void Text::SetFileName(std::string filename, size_t pixel_size) {
 	LoadFonts();
 }
 
-void Text::RenderText(
+void Text::Draw(
 		std::string text,
 		GLfloat x,
 		GLfloat y,
@@ -103,7 +105,6 @@ void Text::RenderText(
 		glm::vec3 color,
 		std::shared_ptr<Shader> shader) {
 
-	// shader uniform methods call Use()
 	if (shader.get() != nullptr) {
 		shader->SetMat4("projection", projection_);
 		shader->SetVec3("text_color", color);
@@ -113,9 +114,8 @@ void Text::RenderText(
 		shader_->SetVec3("text_color", color);
 	}
 	glActiveTexture(GL_TEXTURE0);
-	vao_->Bind();
-	// following glBindBuffer(...) required?
-	ibo_->Bind();
+	va_->Bind();
+	ib_->Bind();
 
 	std::string::const_iterator c;
 	for (c = text.begin(); c != text.end(); ++c) {
@@ -134,19 +134,19 @@ void Text::RenderText(
 			{ xpos,     ypos,     0.0f, 0.0f },
 		};
 		glBindTexture(GL_TEXTURE_2D, ch.texture_id);
-		vbo_->Bind();
-		vbo_->BufferSubData(vertices, sizeof(vertices));
-		vbo_->Unbind();
+		vb_->Bind();
+		vb_->BufferSubData(vertices, sizeof(vertices));
+		vb_->Unbind();
+		shader_->Bind();
 		glDrawElements(
 			GL_TRIANGLES,
-			ibo_->GetCount(),
+			ib_->GetCount(),
 			GL_UNSIGNED_INT,
 			nullptr
 		);
 		x += (ch.advance >> 6) * scale;
 	}
-	vao_->Unbind();
-	// following glBindBuffer(...) required?
-	ibo_->Unbind();
+	va_->Unbind();
+	ib_->Unbind();
 	glBindTexture(GL_TEXTURE_2D, 0);
 }

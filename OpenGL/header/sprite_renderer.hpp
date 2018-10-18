@@ -8,18 +8,22 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <vertex_buffer_layout.hpp>
 #include <vertex_buffer.hpp>
+#include <vertex_array.hpp>
 #include <index_buffer.hpp>
 #include <texture2d.hpp>
 #include <shader.hpp>
 
 class SpriteRenderer {
 private:
-    GLuint vao_;
 	std::vector<GLuint> indices_;
-    std::shared_ptr<Shader> shader_; 
-	std::shared_ptr<IndexBuffer> ibo_;
 	glm::mat4 projection_;
+
+    std::shared_ptr<Shader> shader_; 
+	std::shared_ptr<IndexBuffer> ib_;
+	std::shared_ptr<VertexArray> va_;
+
     void InitRenderData();
 public:
     SpriteRenderer(
@@ -28,7 +32,7 @@ public:
 		const GLfloat &height
 	);
     ~SpriteRenderer();
-    void DrawSprite(
+    void Draw(
 		std::shared_ptr<Texture2D> &texture,
 		glm::vec2 position,
 		glm::vec2 size = glm::vec2{10, 10},

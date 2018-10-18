@@ -16,9 +16,9 @@ SpriteRenderer::SpriteRenderer(
     InitRenderData();
 }
 
-SpriteRenderer::~SpriteRenderer() { glDeleteVertexArrays(1, &vao_); }
+SpriteRenderer::~SpriteRenderer() {}
 
-void SpriteRenderer::DrawSprite(
+void SpriteRenderer::Draw(
 	std::shared_ptr<Texture2D> &texture,
 	glm::vec2 position,
 	glm::vec2 size,
@@ -37,17 +37,18 @@ void SpriteRenderer::DrawSprite(
     shader_->SetVec3("sprite_color", color);
 
     texture->BindTextureUnit("image_sampler", 0);
-    glBindVertexArray(vao_);
-    ibo_->Bind();
+    va_->Bind();
+    ib_->Bind();
+    shader_->Bind();
     glDrawElements(
         GL_TRIANGLES,
-        ibo_->GetCount(),
+        ib_->GetCount(),
         GL_UNSIGNED_INT,
         nullptr
     );
-    ibo_->Unbind();
+    ib_->Unbind();
+    va_->Unbind();
     texture->UnbindTextureUnit(0);
-    glBindVertexArray(0);
 }
 
 void SpriteRenderer::InitRenderData() {
@@ -58,24 +59,15 @@ void SpriteRenderer::InitRenderData() {
         0.0f, 1.0f, 0.0f, 0.0f,
         1.0f, 1.0f, 1.0f, 0.0f,
     };
-    VertexBuffer vbo{
+    VertexBuffer vb{
         reinterpret_cast<const GLvoid*>(vertices.data()),
         static_cast<GLuint>(sizeof(GLfloat)) * static_cast<GLuint>(vertices.size())
     };
-
-    glGenVertexArrays(1, &vao_);
-    glBindVertexArray(vao_);
-    glVertexAttribPointer(
-		0,
-		kNumberComponents,
-		GL_FLOAT,
-		GL_FALSE,
-		kNumberComponents * sizeof(GLfloat),
-        reinterpret_cast<const GLvoid*>(0)
-	);
-    glEnableVertexAttribArray(0);
-    ibo_ = std::make_shared<IndexBuffer>(indices_.data(), indices_.size());
-    ibo_->Unbind();
-    vbo.Unbind();
-    glBindVertexArray(0);
+	VertexBufferLayout vbl{};
+    vbl.Push<GLfloat>(kNumberComponents);
+    va_ = std::make_shared<VertexArray>(vb, vbl);
+    ib_ = std::make_shared<IndexBuffer>(indices_.data(), indices_.size());
+    ib_->Unbind();
+    vb.Unbind();
+    va_->Unbind();
 }

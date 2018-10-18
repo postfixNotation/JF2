@@ -25,7 +25,8 @@ public:
 	Shader(std::string, std::string);
 	~Shader();
 
-	void Use() const;
+	void Bind() const;
+	void Unbind() const;
 	static bool Init();
 	GLuint GetHandle() const { return handle_; }
 

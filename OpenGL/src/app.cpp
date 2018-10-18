@@ -252,7 +252,7 @@ int main() {
 		//meshes[0]->Draw();
 		//textures[0]->UnbindTextureUnit(0);
 
-		first_sprite->DrawSprite(
+		first_sprite->Draw(
 			texture,
 			glm::vec2{0.0f, 0.0f},
 			glm::vec2{160.0f, 160.0f}
@@ -274,7 +274,7 @@ int main() {
 		//glFrontFace(GL_CCW);
 		//glDepthFunc(GL_LESS);
 
-		text->RenderText(
+		text->Draw(
 			"Welcome to OpenGL ©",
 			0.0f,
 			static_cast<GLfloat>(win_height) / 2.0f,
