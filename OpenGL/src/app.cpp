@@ -239,7 +239,7 @@ int main() {
 		//Update(glfwGetTime() - previous_time);
 		//previous_time = glfwGetTime();
 
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		Renderer::Clear();
 
 		//view = camera::orbit_camera.GetViewMatrix();
 		//view = camera::fps_camera.GetViewMatrix();

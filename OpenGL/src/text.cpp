@@ -68,8 +68,7 @@ void Text::InitBuffers() {
 		DrawType::DYNAMIC
 	);
 
-	va_ = std::make_shared<VertexArray>();
-	va_->AddBuffer(*vb_, vbl);
+	va_ = std::make_shared<VertexArray>(*vb_, vbl);
 	vb_->Unbind();
 	va_->Unbind();
 }
@@ -114,8 +113,6 @@ void Text::Draw(
 		shader_->SetVec3("text_color", color);
 	}
 	glActiveTexture(GL_TEXTURE0);
-	va_->Bind();
-	ib_->Bind();
 
 	std::string::const_iterator c;
 	for (c = text.begin(); c != text.end(); ++c) {
@@ -134,19 +131,13 @@ void Text::Draw(
 			{ xpos,     ypos,     0.0f, 0.0f },
 		};
 		glBindTexture(GL_TEXTURE_2D, ch.texture_id);
+
 		vb_->Bind();
 		vb_->BufferSubData(vertices, sizeof(vertices));
 		vb_->Unbind();
-		shader_->Bind();
-		glDrawElements(
-			GL_TRIANGLES,
-			ib_->GetCount(),
-			GL_UNSIGNED_INT,
-			nullptr
-		);
+		Renderer::Render(*va_, *ib_, *shader_);
+
 		x += (ch.advance >> 6) * scale;
 	}
-	va_->Unbind();
-	ib_->Unbind();
 	glBindTexture(GL_TEXTURE_2D, 0);
 }

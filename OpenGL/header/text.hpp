@@ -11,9 +11,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <shader.hpp>
-#include <vertex_array.hpp>
-#include <index_buffer.hpp>
+#include <renderer.hpp>
 #include <vertex_buffer.hpp>
 #include <vertex_buffer_layout.hpp>
 
