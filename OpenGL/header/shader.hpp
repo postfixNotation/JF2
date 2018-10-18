@@ -1,6 +1,7 @@
 #ifndef SHADER_HPP_
 #define SHADER_HPP_
 
+#include <map>
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -11,15 +12,18 @@
 class Shader {
 private:
 	GLuint handle_{};
-	std::string LoadFile(const std::string);
+	std::map<std::string, GLint> locations_;
 	enum class Type { VERTEX, FRAGMENT, PROGRAM };
+
+	std::string LoadFile(const std::string);
+	GLint GetUniformLocation(const std::string &name);
 	bool CheckCompileErrors(GLuint, Type) const;
 
 public:
 	Shader();
 	Shader& operator=(const Shader&);
 	Shader(std::string, std::string);
-	virtual ~Shader();
+	~Shader();
 
 	void Use() const;
 	static bool Init();
@@ -38,7 +42,6 @@ public:
 	void SetMat2(const std::string &name, const glm::mat2 &mat) const;
 	void SetMat3(const std::string &name, const glm::mat3 &mat) const;
 	void SetMat4(const std::string &name, const glm::mat4 &mat) const;
-
 };
 
 #endif // SHADER_HPP_

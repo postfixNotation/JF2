@@ -1,9 +1,7 @@
 #include <vertex_buffer_layout.hpp>
 
 template<typename T>
-void VertexBufferLayout::Push(GLuint count) {
-	//static_assert(false, "STATIC_ASSERT FAILED: VertexBufferLayout::Push(GLuint count)");
-}
+void VertexBufferLayout::Push(GLuint count) { assert(false); }
 
 template<>
 void  VertexBufferLayout::Push<GLfloat>(GLuint count) {
