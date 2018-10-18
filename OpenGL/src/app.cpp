@@ -200,6 +200,8 @@ int main() {
 
 	//std::vector<std::shared_ptr<MeshRenderer>> meshes(2);
 	//std::vector<std::shared_ptr<Texture2D>> textures(3);
+
+	// --> HANDLE TEXT IN RESOURCEMANAGER
 	std::shared_ptr<Text> text = std::make_shared<Text>(
 		text_shader,
 		static_cast<size_t>(win_width),
@@ -223,8 +225,11 @@ int main() {
 	//meshes[1]->LoadObj("../models/cube.obj", ObjLoadingType::QUADS);
 	//textures[1] = std::make_shared<Texture2D>(cubemap_shader);
 	//textures[1]->LoadCubemap(faces);
+
+	// --> HANDLE TEXT IN RESOURCEMANAGER
 	text->SetFileName("../fonts/Nosifer-Regular.ttf", 64);
 
+	ResourceManager::LoadTexture(sprite_shader, "../textures/tux.png", "tux");
 	std::shared_ptr<Texture2D> texture = std::make_shared<Texture2D>(sprite_shader);
 	texture->LoadTexture("../textures/tux.png");
 	std::shared_ptr<SpriteRenderer> first_sprite = std::make_shared<SpriteRenderer>(sprite_shader, win_width, win_height);

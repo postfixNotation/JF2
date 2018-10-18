@@ -127,17 +127,31 @@
   <ItemGroup>
     <ClCompile Include="src\app.cpp" />
     <ClCompile Include="src\camera.cpp" />
+    <ClCompile Include="src\index_buffer.cpp" />
     <ClCompile Include="src\mesh_renderer.cpp" />
+    <ClCompile Include="src\renderer.cpp" />
+    <ClCompile Include="src\resource_manager.cpp" />
     <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\sprite_renderer.cpp" />
     <ClCompile Include="src\text.cpp" />
     <ClCompile Include="src\texture2d.cpp" />
+    <ClCompile Include="src\vertex_array.cpp" />
+    <ClCompile Include="src\vertex_buffer.cpp" />
+    <ClCompile Include="src\vertex_buffer_layout.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="header\camera.hpp" />
+    <ClInclude Include="header\index_buffer.hpp" />
     <ClInclude Include="header\mesh_renderer.hpp" />
+    <ClInclude Include="header\renderer.hpp" />
+    <ClInclude Include="header\resource_manager.hpp" />
     <ClInclude Include="header\shader.hpp" />
+    <ClInclude Include="header\sprite_renderer.hpp" />
     <ClInclude Include="header\text.hpp" />
     <ClInclude Include="header\texture2d.hpp" />
+    <ClInclude Include="header\vertex_array.hpp" />
+    <ClInclude Include="header\vertex_buffer.hpp" />
+    <ClInclude Include="header\vertex_buffer_layout.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\shader\cubemap_frag_shader.glsl" />
