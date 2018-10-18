@@ -16,6 +16,7 @@ enum class ClearBufferBit {
 class Renderer {
 private:
 public:
+	Renderer() = delete;
 	static void Clear(ClearBufferBit mask = ClearBufferBit::COLOR_DEPTH);
 	static void Render(
 		const VertexArray& va,

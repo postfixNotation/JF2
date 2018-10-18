@@ -18,6 +18,7 @@
 
 #include <Box2D/Box2D.h>
 
+#include <resource_manager.hpp>
 #include <sprite_renderer.hpp>
 #include <mesh_renderer.hpp>
 #include <texture2d.hpp>
@@ -31,7 +32,6 @@ float far = 100.0f;
 
 glm::mat4 proj{}, model{}, view{};
 const GLFWvidmode* mode;
-std::shared_ptr<Shader> model_shader, cubemap_shader, text_shader, sprite_shader;
 
 GLint win_width, win_height;
 std::string kWindowTitle = "Prototype Application";
@@ -111,14 +111,19 @@ int main() {
 	//	"../shader/cubemap_vert_shader.glsl",
 	//	"../shader/cubemap_frag_shader.glsl"
 	//);
-	text_shader = std::make_shared<Shader>(
+	ResourceManager::LoadShader(
 		"../shader/font_vert.glsl",
-		"../shader/font_frag.glsl"
+		"../shader/font_frag.glsl",
+		"text"
 	);
-	sprite_shader = std::make_shared<Shader>(
+	ResourceManager::LoadShader(
 		"../shader/sprite_vert_shader.glsl",
-		"../shader/sprite_frag_shader.glsl"
+		"../shader/sprite_frag_shader.glsl",
+		"sprite"
 	);
+		
+	Shader text_shader = ResourceManager::GetShader("text");
+	Shader sprite_shader = ResourceManager::GetShader("sprite");
 
 	//std::string filename{};
 	//GLFWimage images[2];

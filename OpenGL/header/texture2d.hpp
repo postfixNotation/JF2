@@ -20,9 +20,12 @@ private:
 public:
 	Texture2D();
 	Texture2D(std::shared_ptr<Shader>);
+	Texture2D(
+		std::shared_ptr<Shader> shader,
+		const std::string& file_name,
+		bool gen_mipmaps = true) : Texture2D(shader) { LoadTexture(file_name, gen_mipmaps); }
 	Texture2D(const Texture2D&) = delete;
-	Texture2D& operator= (const Texture2D&) = delete;
-	virtual ~Texture2D();
+	~Texture2D();
 
 	bool AddShaderPtr(std::shared_ptr<Shader>);
 	bool LoadTexture(const std::string& file_name, bool gen_mipmaps = true);
@@ -35,4 +38,3 @@ public:
 };
 
 #endif // TEXTURE_2D_HPP_
-
