@@ -244,8 +244,6 @@ int main() {
 		"PermanentMarker"
 	);
 	ResourceManager::LoadTexture(ResourceManager::GetShader("sprite"), "../textures/tux.png", "tux");
-	
-	std::shared_ptr<Texture2D> texture = ResourceManager::GetTexture("tux");
 	std::shared_ptr<SpriteRenderer> first_sprite = std::make_shared<SpriteRenderer>(
 		ResourceManager::GetShader("sprite"),
 		win_width,
