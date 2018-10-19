@@ -1,7 +1,5 @@
 #include <shader.hpp>
 
-Shader::Shader() {}
-
 Shader& Shader::operator=(const Shader &shader) {
 	if (this == &shader) return *this;
 	handle_ = shader.GetHandle();
@@ -9,15 +7,15 @@ Shader& Shader::operator=(const Shader &shader) {
 }
 
 GLint Shader::GetUniformLocation(const std::string &name) {
-	if (locations_.find(name) != locations_.end()) {
-		return locations_[name];
+	if (uniform_locs_.find(name) != uniform_locs_.end()) {
+		return uniform_locs_[name];
 	}
-	locations_[name] = glGetUniformLocation(handle_, name.c_str());
-	assert(locations_[name] != -1);
-	return (locations_[name]);
+	uniform_locs_[name] = glGetUniformLocation(handle_, name.c_str());
+	assert(uniform_locs_[name] != -1);
+	return (uniform_locs_[name]);
 }
 
-Shader::Shader(std::string vert_file, std::string frag_file) {
+Shader::Shader(const std::string &vert_file, const std::string &frag_file) {
 	std::string vertex_string = LoadFile(vert_file);
 	std::string fragment_string = LoadFile(frag_file);
 
@@ -44,11 +42,7 @@ Shader::Shader(std::string vert_file, std::string frag_file) {
 	glDeleteShader(frag_shader);
 }
 
-Shader::~Shader() { glDeleteProgram(handle_); }
-
-void Shader::Bind() const { glUseProgram(handle_); }
-void Shader::Unbind() const { glUseProgram(0); }
-
+// move to a generic GL class
 bool Shader::Init() {
 	glewExperimental = GL_TRUE;
 	if (GLEW_OK != glewInit()) {
@@ -58,7 +52,7 @@ bool Shader::Init() {
 	return true;
 }
 
-std::string Shader::LoadFile(const std::string file) {
+std::string Shader::LoadFile(const std::string& file) {
 	std::ifstream ifs;
 	std::stringstream ss;
 
@@ -75,7 +69,6 @@ std::string Shader::LoadFile(const std::string file) {
 		std::cout << "EXCEPTION: LOADING SHADER SOURCE" << std::endl;
 		std::cout << ex.what() << std::endl;
 	}
-
 	return ss.str();
 }
 

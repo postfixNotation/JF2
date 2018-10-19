@@ -25,7 +25,7 @@ struct Character {
 	GLuint advance;
 };
 
-class Text {
+class TextRenderer {
 private:
 	std::string filename_;
 	size_t default_pixel_size_;
@@ -35,6 +35,7 @@ private:
 	static constexpr GLuint kPositionAndTexture{ 4 };
 
 	glm::mat4 projection_;
+
 	std::shared_ptr<Shader> shader_;
 	std::shared_ptr<VertexArray> va_;
 	std::shared_ptr<IndexBuffer> ib_;
@@ -44,8 +45,8 @@ private:
 	void InitBuffers();
 
 public:
-	Text(std::shared_ptr<Shader>, size_t, size_t);
-	~Text();
+	TextRenderer(std::shared_ptr<Shader>, size_t width, size_t height);
+	~TextRenderer();
 	// pixel size of 112 is maximum for many Google fonts
 	void SetFileName(std::string filename, size_t pixel_size = 48);
 	void Draw(

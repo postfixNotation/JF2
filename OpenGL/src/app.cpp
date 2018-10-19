@@ -21,10 +21,10 @@
 #include <resource_manager.hpp>
 #include <sprite_renderer.hpp>
 #include <mesh_renderer.hpp>
+#include <text_renderer.hpp>
 #include <texture2d.hpp>
 #include <camera.hpp>
 #include <shader.hpp>
-#include <text.hpp>
 
 float ratio;
 float near = 0.1f;
@@ -111,19 +111,6 @@ int main() {
 	//	"../shader/cubemap_vert_shader.glsl",
 	//	"../shader/cubemap_frag_shader.glsl"
 	//);
-	ResourceManager::LoadShader(
-		"../shader/font_vert.glsl",
-		"../shader/font_frag.glsl",
-		"text"
-	);
-	ResourceManager::LoadShader(
-		"../shader/sprite_vert_shader.glsl",
-		"../shader/sprite_frag_shader.glsl",
-		"sprite"
-	);
-		
-	Shader text_shader = ResourceManager::GetShader("text");
-	Shader sprite_shader = ResourceManager::GetShader("sprite");
 
 	//std::string filename{};
 	//GLFWimage images[2];
@@ -201,13 +188,6 @@ int main() {
 	//std::vector<std::shared_ptr<MeshRenderer>> meshes(2);
 	//std::vector<std::shared_ptr<Texture2D>> textures(3);
 
-	// --> HANDLE TEXT IN RESOURCEMANAGER
-	std::shared_ptr<Text> text = std::make_shared<Text>(
-		text_shader,
-		static_cast<size_t>(win_width),
-		static_cast<size_t>(win_height)
-	);
-
 	//meshes[0] = std::make_shared<MeshRenderer>(model_shader);
 	//meshes[0]->LoadObj("../models/robot.obj", ObjLoadingType::TRIANGLES);
 	//textures[0] = std::make_shared<Texture2D>(model_shader);
@@ -226,14 +206,6 @@ int main() {
 	//textures[1] = std::make_shared<Texture2D>(cubemap_shader);
 	//textures[1]->LoadCubemap(faces);
 
-	// --> HANDLE TEXT IN RESOURCEMANAGER
-	text->SetFileName("../fonts/Nosifer-Regular.ttf", 64);
-
-	ResourceManager::LoadTexture(sprite_shader, "../textures/tux.png", "tux");
-	std::shared_ptr<Texture2D> texture = std::make_shared<Texture2D>(sprite_shader);
-	texture->LoadTexture("../textures/tux.png");
-	std::shared_ptr<SpriteRenderer> first_sprite = std::make_shared<SpriteRenderer>(sprite_shader, win_width, win_height);
-
 	//model_shader->SetMat4("model", model);
 	//cubemap_shader->SetInt("skybox", 0);
 
@@ -244,6 +216,41 @@ int main() {
 	//double previous_time{ glfwGetTime() }, delta_time{};
 
 	//camera::orbit_camera.SetLookAt(glm::vec3{ 0.0f,0.0f,0.0f });
+
+	ResourceManager::LoadShader(
+		"../shader/font_vert.glsl",
+		"../shader/font_frag.glsl",
+		"text"
+	);
+	ResourceManager::LoadShader(
+		"../shader/sprite_vert_shader.glsl",
+		"../shader/sprite_frag_shader.glsl",
+		"sprite"
+	);
+	ResourceManager::LoadTextRenderer(
+		ResourceManager::GetShader("text"),
+		static_cast<size_t>(win_width),
+		static_cast<size_t>(win_height),
+		64,
+		"../fonts/Nosifer-Regular.ttf",
+		"Nosifier"
+	);
+	ResourceManager::LoadTextRenderer(
+		ResourceManager::GetShader("text"),
+		static_cast<size_t>(win_width),
+		static_cast<size_t>(win_height),
+		32,
+		"../fonts/PermanentMarker-Regular.ttf",
+		"PermanentMarker"
+	);
+	ResourceManager::LoadTexture(ResourceManager::GetShader("sprite"), "../textures/tux.png", "tux");
+	
+	std::shared_ptr<Texture2D> texture = ResourceManager::GetTexture("tux");
+	std::shared_ptr<SpriteRenderer> first_sprite = std::make_shared<SpriteRenderer>(
+		ResourceManager::GetShader("sprite"),
+		win_width,
+		win_height
+	);
 
 	while (!glfwWindowShouldClose(window)) {
 		//Update(glfwGetTime() - previous_time);
@@ -263,9 +270,23 @@ int main() {
 		//textures[0]->UnbindTextureUnit(0);
 
 		first_sprite->Draw(
-			texture,
+			ResourceManager::GetTexture("tux"),
 			glm::vec2{0.0f, 0.0f},
 			glm::vec2{160.0f, 160.0f}
+		);
+		ResourceManager::GetTextRenderer("Nosifier")->Draw(
+			"Welcome to OpenGL ©",
+			0.0f,
+			static_cast<GLfloat>(win_height) / 2.0f,
+			1.2f,
+			glm::vec3{ .3f,.7f,.6f }
+		);
+		ResourceManager::GetTextRenderer("PermanentMarker")->Draw(
+			"This is awesome!",
+			0.0f,
+			static_cast<GLfloat>(win_height) / 3.0f,
+			1.2f,
+			glm::vec3{ .6f,.8f,.9f }
 		);
 
 		//glDepthFunc(GL_LEQUAL);
@@ -283,14 +304,6 @@ int main() {
 
 		//glFrontFace(GL_CCW);
 		//glDepthFunc(GL_LESS);
-
-		text->Draw(
-			"Welcome to OpenGL ©",
-			0.0f,
-			static_cast<GLfloat>(win_height) / 2.0f,
-			1.2f,
-			glm::vec3{ .3f,.7f,.6f }
-		);
 
 		glfwPollEvents();
 		glfwSwapBuffers(window);

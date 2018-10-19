@@ -12,21 +12,22 @@
 class Shader {
 private:
 	GLuint handle_{};
-	std::map<std::string, GLint> locations_;
+	std::map<std::string, GLint> uniform_locs_;
 	enum class Type { VERTEX, FRAGMENT, PROGRAM };
 
-	std::string LoadFile(const std::string);
+	std::string LoadFile(const std::string&);
 	GLint GetUniformLocation(const std::string &name);
 	bool CheckCompileErrors(GLuint, Type) const;
 
 public:
-	Shader();
+	Shader(const std::string&, const std::string&);
+	~Shader() { glDeleteProgram(handle_); }
 	Shader& operator=(const Shader&);
-	Shader(std::string, std::string);
-	~Shader();
 
-	void Bind() const;
-	void Unbind() const;
+	void Bind() const { glUseProgram(handle_); }
+	void Unbind() const { glUseProgram(0); }
+
+	// move to a generic GL class
 	static bool Init();
 	GLuint GetHandle() const { return handle_; }
 

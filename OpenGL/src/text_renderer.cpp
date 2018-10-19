@@ -1,6 +1,6 @@
-#include <text.hpp>
+#include <text_renderer.hpp>
 
-void Text::LoadFonts() {
+void TextRenderer::LoadFonts() {
 	characters_.clear();
 	FT_Library ft;
 	if (FT_Init_FreeType(&ft)) {
@@ -52,16 +52,14 @@ void Text::LoadFonts() {
 	FT_Done_FreeType(ft);
 }
 
-void Text::InitBuffers() {
+void TextRenderer::InitBuffers() {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	VertexBufferLayout vbl{};
 	vbl.Push<GLfloat>(kPositionAndTexture);
-
 	ib_ = std::make_shared<IndexBuffer>(indices_.data(), indices_.size());
 	ib_->Unbind();
-
 	vb_ = std::make_shared<VertexBuffer>(
 		nullptr,
 		sizeof(GLfloat) * kVerticesPerQuad * kPositionAndTexture,
@@ -73,7 +71,7 @@ void Text::InitBuffers() {
 	va_->Unbind();
 }
 
-Text::Text(std::shared_ptr<Shader> shader, size_t width, size_t height) :
+TextRenderer::TextRenderer(std::shared_ptr<Shader> shader, size_t width, size_t height) :
 	shader_{ shader }, indices_{ 0, 1, 2, 0, 2, 3 } {
 	projection_ = glm::ortho(
 		0.0f,
@@ -84,19 +82,19 @@ Text::Text(std::shared_ptr<Shader> shader, size_t width, size_t height) :
 	InitBuffers();
 }
 
-Text::~Text() {
+TextRenderer::~TextRenderer() {
 	for (std::map<GLchar, Character>::iterator it{ begin(characters_) }; it != end(characters_); ++it) {
 		glDeleteTextures(1, &(it->second.texture_id));
 	}
 }
 
-void Text::SetFileName(std::string filename, size_t pixel_size) {
+void TextRenderer::SetFileName(std::string filename, size_t pixel_size) {
 	default_pixel_size_ = pixel_size;
 	filename_ = filename;
 	LoadFonts();
 }
 
-void Text::Draw(
+void TextRenderer::Draw(
 		std::string text,
 		GLfloat x,
 		GLfloat y,

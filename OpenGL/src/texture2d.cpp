@@ -1,18 +1,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <texture2d.hpp>
 
-Texture2D::Texture2D() : shader_{ std::shared_ptr<Shader>{ nullptr } } {}
-Texture2D::Texture2D(std::shared_ptr<Shader> shader) : shader_{ shader }, handle_{} {}
-Texture2D::~Texture2D() { glDeleteTextures(1, &handle_); }
-
-bool Texture2D::AddShaderPtr(std::shared_ptr<Shader> shader) {
-	if (shader.get() != nullptr) {
-		shader_ = shader;
-		return true;
-	}
-	return false;
-}
-
 bool Texture2D::LoadTexture(const std::string& file_name, bool gen_mipmaps) {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -65,16 +53,14 @@ bool Texture2D::LoadTexture(const std::string& file_name, bool gen_mipmaps) {
 		image_data
 	);
 
-	if (gen_mipmaps) {
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
+	if (gen_mipmaps) { glGenerateMipmap(GL_TEXTURE_2D); }
 
 	stbi_image_free(image_data);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	return true;
 }
 
-bool Texture2D::LoadCubemap(const std::vector<std::string> faces) {
+bool Texture2D::LoadCubemap(const std::vector<std::string>& faces) {
 	glGenTextures(1, &handle_);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, handle_);
 

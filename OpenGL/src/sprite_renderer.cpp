@@ -1,7 +1,7 @@
 #include <sprite_renderer.hpp>
 
 SpriteRenderer::SpriteRenderer(
-    std::shared_ptr<Shader> &shader,
+    const std::shared_ptr<Shader> &shader,
     const GLfloat &width,
     const GLfloat &height) :
     indices_{ 0, 1, 2, 0, 2, 3 }, shader_{ shader } {
@@ -19,7 +19,7 @@ SpriteRenderer::SpriteRenderer(
 SpriteRenderer::~SpriteRenderer() {}
 
 void SpriteRenderer::Draw(
-	std::shared_ptr<Texture2D> &texture,
+	const std::shared_ptr<Texture2D> &texture,
 	glm::vec2 position,
 	glm::vec2 size,
 	GLfloat rotate,

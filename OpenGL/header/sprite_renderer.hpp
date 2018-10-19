@@ -27,13 +27,13 @@ private:
     void InitRenderData();
 public:
     SpriteRenderer(
-		std::shared_ptr<Shader> &shader,
+		const std::shared_ptr<Shader> &shader,
 		const GLfloat &width,
 		const GLfloat &height
 	);
     ~SpriteRenderer();
     void Draw(
-		std::shared_ptr<Texture2D> &texture,
+		const std::shared_ptr<Texture2D> &texture,
 		glm::vec2 position,
 		glm::vec2 size = glm::vec2{10, 10},
 		GLfloat rotate = 0.0f,

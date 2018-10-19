@@ -18,18 +18,18 @@ private:
 	std::shared_ptr<Shader> shader_;
 	GLuint handle_{};
 public:
-	Texture2D();
-	Texture2D(std::shared_ptr<Shader>);
+	Texture2D(std::shared_ptr<Shader> shader) : shader_{ shader } {}
+	Texture2D() : Texture2D{ nullptr } {}
 	Texture2D(
 		std::shared_ptr<Shader> shader,
 		const std::string& file_name,
-		bool gen_mipmaps = true) : Texture2D(shader) { LoadTexture(file_name, gen_mipmaps); }
+		bool gen_mipmaps = true
+	) : Texture2D(shader) { LoadTexture(file_name, gen_mipmaps); }
 	Texture2D(const Texture2D&) = delete;
-	~Texture2D();
+	~Texture2D() { glDeleteTextures(1, &handle_); }
 
-	bool AddShaderPtr(std::shared_ptr<Shader>);
 	bool LoadTexture(const std::string& file_name, bool gen_mipmaps = true);
-	bool LoadCubemap(const std::vector<std::string>);
+	bool LoadCubemap(const std::vector<std::string>&);
 
 	void BindTextureUnit(const GLchar* uniform, GLuint texunit = 0) const;
 	void BindCubeTextureUnit(const GLchar* uniform, GLuint texunit = 0) const;
