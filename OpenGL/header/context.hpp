@@ -7,7 +7,7 @@
 #include <sstream>
 #include <string>
 
-class Context {
+struct Context {
 private:
 	// change to <memory> shared_ptr<T>
 	GLFWwindow *window_{ nullptr };
