@@ -24,9 +24,6 @@
     <ClCompile Include="src\app.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="src\text.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="src\mesh_renderer.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
@@ -54,15 +51,18 @@
     <ClCompile Include="src\vertex_buffer_layout.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="src\context.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\text_renderer.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="header\texture2d.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="header\camera.hpp">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="header\text.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="header\mesh_renderer.hpp">
@@ -90,6 +90,12 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="header\vertex_buffer_layout.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="header\context.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="header\text_renderer.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
