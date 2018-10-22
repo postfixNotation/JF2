@@ -1,12 +1,6 @@
-#include <iostream>
 #include <sstream>
-#include <fstream>
 #include <sstream>
 #include <vector>
-#include <memory>
-
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -23,22 +17,14 @@
 #include <mesh_renderer.hpp>
 #include <text_renderer.hpp>
 #include <texture2d.hpp>
+#include <context.hpp>
 #include <camera.hpp>
 #include <shader.hpp>
 
-float ratio;
 float near = 0.1f;
 float far = 100.0f;
 
 glm::mat4 proj{}, model{}, view{};
-const GLFWvidmode* mode;
-
-GLint win_width, win_height;
-std::string kWindowTitle = "Prototype Application";
-GLFWwindow *window = nullptr;
-
-//const GLubyte *renderer;
-//const GLubyte *version;
 
 Color rgb = { 0.0f / 255, 117.0f / 255, 153.0f / 255, 1.0f };
 
@@ -64,43 +50,12 @@ namespace camera {
 	constexpr float kMouseSensitivity = 0.1f;
 }
 
+Context window;
 int main() {
-	if (!glfwInit()) {
-		std::cerr << "ERROR: COULD NOT START GLFW3" << std::endl;
-		return 1;
-	}
-
-	glfwWindowHint(GLFW_SAMPLES, 4);
-	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-	GLFWmonitor *monitor = glfwGetPrimaryMonitor();
-	mode = glfwGetVideoMode(monitor);
-
-	win_width = static_cast<GLint>(mode->width * (2.0f / 3));
-	win_height = static_cast<GLint>(mode->height * (2.0f / 3));
-	ratio = static_cast<float>(win_width) / win_height;
-
-	window = glfwCreateWindow(
-		win_width,
-		win_height,
-		kWindowTitle.c_str(),
-		nullptr,
-		nullptr
-	);
-	if (!window) {
-		std::cerr << "ERROR: COULD NOT OPEN WINDOW WITH GLFW3" << std::endl;
-		glfwTerminate();
-		return 1;
-	}
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	glfwSetCursorPos(window, win_width / 2.0, win_height / 2.0f);
-
-	glfwMakeContextCurrent(window);
+	window.SetHints(3, 3, 4, true, true);
+	window.Create("JF2 - Rendering Engine", ContextSize::FULLSCREEEN);
+	window.SetCursorMode(ContextStates::ENABLED);
+	window.SetCursorPos(window.GetWidth() / 2, window.GetHeight() / 2);
 	Shader::Init();
 
 	//model_shader = std::make_shared<Shader>(
@@ -174,12 +129,6 @@ int main() {
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 
-	//renderer = glGetString(GL_RENDERER);
-	//version = glGetString(GL_VERSION);
-
-	//std::cout << "RENDERER: " << renderer << std::endl;
-	//std::cout << "OPENGL VERSION SUPPORTED " << version << std::endl;
-
 	//sf::Music music;
 	//if (!music.openFromFile("../audio/throne.ogg"))
 	//	return -1;
@@ -211,7 +160,7 @@ int main() {
 
 	SetCallbacks();
 
-	glViewport(0, 0, win_width, win_height);
+	glViewport(0, 0, window.GetWidth(), window.GetHeight());
 	glClearColor(rgb.r, rgb.g, rgb.b, rgb.a);
 	//double previous_time{ glfwGetTime() }, delta_time{};
 
@@ -229,28 +178,38 @@ int main() {
 	);
 	ResourceManager::LoadTextRenderer(
 		ResourceManager::GetShader("text"),
-		static_cast<size_t>(win_width),
-		static_cast<size_t>(win_height),
+		window.GetWidth(),
+		window.GetHeight(),
 		64,
 		"../fonts/Nosifer-Regular.ttf",
 		"Nosifier"
 	);
 	ResourceManager::LoadTextRenderer(
 		ResourceManager::GetShader("text"),
-		static_cast<size_t>(win_width),
-		static_cast<size_t>(win_height),
+		window.GetWidth(),
+		window.GetHeight(),
 		32,
 		"../fonts/PermanentMarker-Regular.ttf",
 		"PermanentMarker"
 	);
-	ResourceManager::LoadTexture(ResourceManager::GetShader("sprite"), "../textures/tux.png", "tux");
+	ResourceManager::LoadTextRenderer(
+		ResourceManager::GetShader("text"),
+		window.GetWidth(),
+		window.GetHeight(),
+		20,
+		"../fonts/Wallpoet-Regular.ttf",
+		"Wallpoet"
+	);
+	ResourceManager::LoadTexture(
+		ResourceManager::GetShader("sprite"), "../textures/tux.png", "tux"
+	);
 	std::shared_ptr<SpriteRenderer> first_sprite = std::make_shared<SpriteRenderer>(
 		ResourceManager::GetShader("sprite"),
-		win_width,
-		win_height
+		window.GetWidth(),
+		window.GetHeight()
 	);
 
-	while (!glfwWindowShouldClose(window)) {
+	while (!window) {
 		//Update(glfwGetTime() - previous_time);
 		//previous_time = glfwGetTime();
 
@@ -275,14 +234,14 @@ int main() {
 		ResourceManager::GetTextRenderer("Nosifier")->Draw(
 			"Welcome to OpenGL ©",
 			0.0f,
-			static_cast<GLfloat>(win_height) / 2.0f,
+			static_cast<GLfloat>(window.GetHeight()) / 2,
 			1.2f,
 			glm::vec3{ .3f,.7f,.6f }
 		);
-		ResourceManager::GetTextRenderer("PermanentMarker")->Draw(
-			"This is awesome!",
+		ResourceManager::GetTextRenderer("Wallpoet")->Draw(
+			std::to_string(window.GetFrameRate(2)),
 			0.0f,
-			static_cast<GLfloat>(win_height) / 3.0f,
+			static_cast<GLfloat>(window.GetHeight()) / 3.0f,
 			1.2f,
 			glm::vec3{ .6f,.8f,.9f }
 		);
@@ -303,11 +262,11 @@ int main() {
 		//glFrontFace(GL_CCW);
 		//glDepthFunc(GL_LESS);
 
-		glfwPollEvents();
-		glfwSwapBuffers(window);
+		window.PollEvents();
+		window.SwapBuffers();
 	}
 
-	glfwTerminate();
+	window.Terminate();
 	return 0;
 }
 
@@ -357,44 +316,44 @@ void APIENTRY DebugMessageCallback(
 }
 
 void Update(double elapsed_time) {
-	double mouse_x, mouse_y;
+	//double mouse_x, mouse_y;
 
-	glfwGetCursorPos(window, &mouse_x, &mouse_y);
-	camera::fps_camera.Rotate(
-		static_cast<float>(win_width / 2.0 - mouse_x) * camera::kMouseSensitivity,
-		static_cast<float>(win_height / 2.0 - mouse_y) * camera::kMouseSensitivity
-	);
-	glfwSetCursorPos(
-		window,
-		win_width / 2.0,
-		win_height / 2.0
-	);
+	//glfwGetCursorPos(window.Get(), &mouse_x, &mouse_y);
+	//camera::fps_camera.Rotate(
+	//	static_cast<float>(window.GetWidth() / 2.0 - mouse_x) * camera::kMouseSensitivity,
+	//	static_cast<float>(window.GetHeight() / 2.0 - mouse_y) * camera::kMouseSensitivity
+	//);
+	//glfwSetCursorPos(
+	//	window.Get(),
+	//	window.GetWidth() / 2.0,
+	//	window.GetHeight() / 2.0
+	//);
 
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		camera::fps_camera.Move(
-			camera::kMoveSpeed * static_cast<float>(elapsed_time) * camera::fps_camera.GetLook()
-		);
-	else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		camera::fps_camera.Move(
-			camera::kMoveSpeed * static_cast<float>(elapsed_time) * -camera::fps_camera.GetLook()
-		);
+	//if (glfwGetKey(window.Get(), GLFW_KEY_W) == GLFW_PRESS)
+	//	camera::fps_camera.Move(
+	//		camera::kMoveSpeed * static_cast<float>(elapsed_time) * camera::fps_camera.GetLook()
+	//	);
+	//else if (glfwGetKey(window.Get(), GLFW_KEY_S) == GLFW_PRESS)
+	//	camera::fps_camera.Move(
+	//		camera::kMoveSpeed * static_cast<float>(elapsed_time) * -camera::fps_camera.GetLook()
+	//	);
 
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		camera::fps_camera.Move(
-			camera::kMoveSpeed * static_cast<float>(elapsed_time) * -camera::fps_camera.GetRight()
-		);
-	else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		camera::fps_camera.Move(
-			camera::kMoveSpeed * static_cast<float>(elapsed_time) * camera::fps_camera.GetRight()
-		);
+	//if (glfwGetKey(window.Get(), GLFW_KEY_A) == GLFW_PRESS)
+	//	camera::fps_camera.Move(
+	//		camera::kMoveSpeed * static_cast<float>(elapsed_time) * -camera::fps_camera.GetRight()
+	//	);
+	//else if (glfwGetKey(window.Get(), GLFW_KEY_D) == GLFW_PRESS)
+	//	camera::fps_camera.Move(
+	//		camera::kMoveSpeed * static_cast<float>(elapsed_time) * camera::fps_camera.GetRight()
+	//	);
 }
 
 void SetCallbacks() {
 	glfwSetKeyCallback(
-		window,
+		window.Get(),
 		[](GLFWwindow* win, int key, int scancode, int action, int mode) {
 		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-			glfwSetWindowShouldClose(win, 1);
+			glfwSetWindowShouldClose(win, GLFW_TRUE);
 		}
 		else if (key == GLFW_KEY_L && action == GLFW_PRESS) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -437,12 +396,9 @@ void SetCallbacks() {
 	//	last_mouse_pos = glm::vec2{ static_cast<float>(xpos), static_cast<float>(ypos) };
 	//});
 
-	//glfwSetFramebufferSizeCallback(window, [](GLFWwindow* win, int width, int height) {
-	//	glViewport(0, 0, width, height);
-	//	win_width = width;
-	//	win_height = height;
-	//	ratio = (float)win_width / win_height;
-
+	glfwSetFramebufferSizeCallback(window.Get(), [](GLFWwindow* win, int width, int height) {
+		glViewport(0, 0, width, height);
+		window.UpdateDimensions();
 	//	proj = glm::perspective(
 	//		glm::radians(camera::fps_camera.GetFov()),
 	//		ratio,
@@ -451,5 +407,5 @@ void SetCallbacks() {
 	//	);
 
 	//	model_shader->SetMat4("projection", proj);
-	//});
+	});
 }

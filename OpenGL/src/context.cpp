@@ -4,108 +4,127 @@ Context::Context() {
 	if (!glfwInit()) {
 		std::cerr << "ERROR: COULD NOT START GLFW3" << std::endl;
 	}
+	if (!Init()) {
+		std::cerr << "ERROR: COULD NOT INITIALIZE CONTEXT" << std::endl;
+	}
 }
 
-void Context::SetMonitorReference() {
+Context::~Context() { Terminate(); }
+
+void Context::Terminate() {
+	glfwDestroyWindow(window_);
+	window_ = nullptr;
+	glfwTerminate();
+}
+
+bool Context::Init() {
 	monitor_ = glfwGetPrimaryMonitor();
+	UpdateVideoMode();
+
+	width_ = video_mode_->width;
+	height_ = video_mode_->height;
+	ratio_ = static_cast<float>(width_) / height_;
+
+	if (monitor_ && video_mode_) return true;
+	return false;
 }
 
-void Context::SetMonitorVidmode() {
-	kvidmode_ = glfwGetVideoMode(monitor_);
-}
+void Context::UpdateVideoMode() { video_mode_ = const_cast<GLFWvidmode*>(glfwGetVideoMode(monitor_)); }
 
-void Context::SetMonitorDimensions() {
-	window_width_ = kvidmode_->width;
-	window_height_ = kvidmode_->height;
-	display_ratio_ = static_cast<float>(window_width_) / static_cast<float>(window_height_);
-}
+void Context::SetHints(
+	OpenGLMajor major,
+	OpenGLMinor minor,
+	NumberOfSamples samples,
+	bool resizable,
+	bool debug) const {
+	glfwWindowHint(GLFW_SAMPLES, samples);
 
-void Context::SetWindowTitle(const std::string &wt) {
-	window_title_ = wt;
-}
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, major);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minor);
 
-void Context::SetWindowHints() const {
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	glfwWindowHint(GLFW_RED_BITS, kvidmode_->redBits);
-	glfwWindowHint(GLFW_GREEN_BITS, kvidmode_->greenBits);
-	glfwWindowHint(GLFW_BLUE_BITS, kvidmode_->blueBits);
-	glfwWindowHint(GLFW_REFRESH_RATE, kvidmode_->refreshRate);
+	glfwWindowHint(GLFW_RED_BITS, video_mode_->redBits);
+	glfwWindowHint(GLFW_GREEN_BITS, video_mode_->greenBits);
+	glfwWindowHint(GLFW_BLUE_BITS, video_mode_->blueBits);
+	glfwWindowHint(GLFW_REFRESH_RATE, video_mode_->refreshRate);
+
+	glfwWindowHint(GLFW_RESIZABLE, static_cast<size_t>(resizable));
+	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, static_cast<size_t>(debug));
 }
 
-void Context::SetWindowCloseFlag(GLFWwindow *win) {
-	glfwSetWindowShouldClose(win, 1);
+void Context::SetCursorMode(ContextStates state) {
+	if (state == ContextStates::ENABLED) {
+		glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	}
+	else if (state == ContextStates::DISABLED) {
+		glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	}
 }
 
-bool Context::GetWindowCloseFlag() const {
-	return (glfwWindowShouldClose(window_) == 0);
-}
-
-void Context::CreateWindow() {
-	// Exception handling might be
-	// appropriate
-
-	window_ = glfwCreateWindow(
-		window_width_,
-		window_height_,
-		window_title_.c_str(),
-		monitor_,
-		nullptr
-	);
+void Context::Create(const std::string &title, ContextSize size) {
+	switch (size) {
+		case ContextSize::DEBUG:
+			contextsize = size;
+			window_ = glfwCreateWindow(
+				width_ / 2,
+				height_ / 2,
+				title.c_str(),
+				nullptr,
+				nullptr
+			);
+			break;
+		case ContextSize::MAXIMIZED:
+			contextsize = size;
+			window_ = glfwCreateWindow(
+				width_,
+				height_,
+				title.c_str(),
+				nullptr,
+				nullptr
+			);
+			break;
+		case ContextSize::FULLSCREEEN:
+			contextsize = size;
+			window_ = glfwCreateWindow(
+				width_,
+				height_,
+				title.c_str(),
+				monitor_,
+				nullptr
+			);
+			break;
+	}
 
 	if (!window_) {
 		std::cerr << "ERROR: COULD NOT OPEN WINDOW WITH GLFW3" << std::endl;
-		TerminateWindow();
+		glfwTerminate();
 	}
-
 	glfwMakeContextCurrent(window_);
 }
 
-void Context::FrameRateTitle() const {
-	static size_t number_of_frames{};
-	static double time_elapsed{};
-	static double time_previous{};
-	static std::ostringstream title_stream{};
-	title_stream.precision(4);
+void Context::UpdateDimensions() {
+	UpdateVideoMode();
+	width_ = video_mode_->width;
+	height_ = video_mode_->height;
+	ratio_ = static_cast<float>(width_) / height_;
+}
+
+float Context::GetFrameRate(size_t precision) const {
+	static size_t number_of_frames;
+	static double time_elapsed;
+	static double time_previous;
+	static double fps;
 
 	++number_of_frames;
 	time_elapsed = glfwGetTime();
 
 	if ((time_elapsed - time_previous) > 0.5) {
-		double fps = number_of_frames / (time_elapsed - time_previous);
-		title_stream << "Snake Unlimited - FPS: ";
-		title_stream << fps;
-		glfwSetWindowTitle(window_, title_stream.str().c_str());
-
-		title_stream.clear();
-		title_stream.str("");
+		fps = number_of_frames / (time_elapsed - time_previous);
 		number_of_frames = 0;
 		time_previous = time_elapsed;
 	}
+	fps = static_cast<int>(fps * pow(10, precision) + 0.5) / pow(10, precision);
+	return static_cast<float>(fps);
 }
-
-void Context::CreateWindowDebug() {
-	window_ = glfwCreateWindow(
-		window_width_ / 2,
-		window_height_ / 2,
-		window_title_.c_str(),
-		nullptr,
-		nullptr
-	);
-
-	if (!window_) {
-		std::cerr << "ERROR: COULD NOT OPEN WINDOW WITH GLFW3" << std::endl;
-		TerminateWindow();
-	}
-
-	glfwMakeContextCurrent(window_);
-}
-
-void Context::SwapBuffers() const { glfwSwapBuffers(window_); }
-void Context::PollEvents() const { glfwPollEvents(); }
-void Context::TerminateWindow() const { glfwTerminate(); }
-
-Context window;

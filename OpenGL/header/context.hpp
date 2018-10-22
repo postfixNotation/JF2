@@ -4,50 +4,66 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
-#include <sstream>
+#include <cassert>
 #include <string>
+#include <cmath>
+
+using OpenGLMajor = size_t;
+using OpenGLMinor = size_t;
+using NumberOfSamples = size_t;
+
+enum class ContextSize {
+	DEBUG,
+	MAXIMIZED,
+	FULLSCREEEN
+};
+
+enum class ContextStates {
+	ENABLED,
+	DISABLED
+};
 
 struct Context {
 private:
-	// change to <memory> shared_ptr<T>
-	GLFWwindow *window_{ nullptr };
-	GLFWmonitor *monitor_{ nullptr };
-	const GLFWvidmode *kvidmode_{ nullptr };
+	bool Init();
 
-	size_t window_width_{ 0 };
-	size_t window_height_{ 0 };
-	float display_ratio_{ 0 };
-	std::string window_title_{ "" };
+	GLFWwindow *window_;
+	GLFWmonitor *monitor_;
+	GLFWvidmode *video_mode_;
 
+	ContextSize contextsize;
+	size_t height_;
+	size_t width_;
+	float ratio_;
 public:
 	Context();
+	~Context();
+	void SetHints(
+		OpenGLMajor major,
+		OpenGLMinor minor,
+		NumberOfSamples samples,
+		bool resizable,
+		bool debug) const;
+	void Create(const std::string &title, ContextSize size = ContextSize::DEBUG);
 
-	void SetMonitorReference();
-	void SetMonitorVidmode();
-	void SetMonitorDimensions();
-	void SetWindowTitle(const std::string &);
-	void SetWindowHints() const;
-	void SetWindowWidth(size_t width) { window_width_ = width; }
-	void SetWindowHeight(size_t height) { window_height_ = height; }
-	static void SetWindowCloseFlag(GLFWwindow *);
+	GLFWwindow* Get() const { return window_; }
+	inline void SetCloseFlag() { glfwSetWindowShouldClose(window_, GLFW_TRUE); }
+	inline int GetCloseFlag() const { return glfwWindowShouldClose(window_); }
+	operator bool() const { return GetCloseFlag(); }
+	bool operator!() const { return !GetCloseFlag(); }
 
-	GLFWwindow *GetWindow() const { return window_; }
-	const GLFWmonitor *GetMonitor() const { return monitor_; }
-	const size_t &GetWindowWidth() const { return window_width_; }
-	const size_t &GetWindowHeight() const { return window_height_; }
-	const std::string &GetWindowTitle() const { return window_title_; }
-	bool GetWindowCloseFlag() const;
-	float GetDisplayRatio() { return display_ratio_; }
+	inline void SetCursorPos(double xpos, double ypos) { glfwSetCursorPos(window_, xpos, ypos); }
+	inline size_t GetWidth() const { return width_; }
+	inline size_t GetHeight() const { return height_; }
+	inline float GetRatio() { return ratio_; }
+	float GetFrameRate(size_t precision) const;
+	void UpdateVideoMode();
+	void UpdateDimensions();
+	void SetCursorMode(ContextStates state = ContextStates::ENABLED);
 
-	void CreateWindow();
-	void CreateWindowDebug();
-	void SwapBuffers() const;
-	void PollEvents() const;
-	void TerminateWindow() const;
-
-	void FrameRateTitle() const;
+	void SwapBuffers() const { glfwSwapBuffers(window_); }
+	void PollEvents() const { glfwPollEvents(); }
+	void Terminate();
 };
-
-extern Context window;
 
 #endif // CONTEXT_HPP_
