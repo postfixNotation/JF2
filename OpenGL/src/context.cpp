@@ -32,9 +32,9 @@ bool Context::Init() {
 void Context::UpdateVideoMode() { video_mode_ = const_cast<GLFWvidmode*>(glfwGetVideoMode(monitor_)); }
 
 void Context::SetHints(
-	OpenGLMajor major,
-	OpenGLMinor minor,
-	NumberOfSamples samples,
+	size_t major,
+	size_t minor,
+	size_t samples,
 	bool debug) const {
 	glfwWindowHint(GLFW_SAMPLES, samples);
 
@@ -53,22 +53,28 @@ void Context::SetHints(
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, static_cast<size_t>(debug));
 }
 
-void Context::SetCursorMode(State state) {
-	if (state == State::ENABLED) {
+void Context::SetCursorMode(bool cursor_enabled) {
+	if (cursor_enabled) {
 		glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	}
-	else if (state == State::DISABLED) {
+	else {
 		glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	}
 }
 
-void Context::Create(const std::string &title, Size size) {
-	switch (size) {
+void Context::Create(const Config &config) {
+	SetHints(
+		config.opengl_major,
+		config.opengl_minor,
+		config.number_of_samples,
+		config.debug_context
+	);
+	switch (config.context_size) {
 		case Size::DEBUG:
 			window_ = glfwCreateWindow(
 				(width_ = width_ / 2),
 				(height_ = height_ / 2),
-				title.c_str(),
+				config.context_title.c_str(),
 				nullptr,
 				nullptr
 			);
@@ -77,7 +83,7 @@ void Context::Create(const std::string &title, Size size) {
 			window_ = glfwCreateWindow(
 				width_,
 				height_,
-				title.c_str(),
+				config.context_title.c_str(),
 				nullptr,
 				nullptr
 			);
@@ -86,7 +92,7 @@ void Context::Create(const std::string &title, Size size) {
 			window_ = glfwCreateWindow(
 				width_,
 				height_,
-				title.c_str(),
+				config.context_title.c_str(),
 				monitor_,
 				nullptr
 			);
@@ -98,6 +104,7 @@ void Context::Create(const std::string &title, Size size) {
 		glfwTerminate();
 	}
 	glfwMakeContextCurrent(window_);
+	SetCursorMode(config.cusor_enabled);
 }
 
 void Context::UpdateDimensions() {

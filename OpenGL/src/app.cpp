@@ -52,9 +52,16 @@ namespace camera {
 
 Context window;
 int main() {
-	window.SetHints(3, 3, 4, true);
-	window.Create("JF2 - Rendering Engine", Size::DEBUG);
-	window.SetCursorMode(State::ENABLED);
+	Config config;
+	config.opengl_major = 3;
+	config.opengl_minor = 3;
+	config.number_of_samples = 4;
+	config.debug_context = true;
+	config.cusor_enabled = false;
+	config.context_title = "JF2 - Rendering Engine";
+	config.context_size = Size::DEBUG;
+
+	window.Create(config);
 	window.SetCursorPos(window.GetWidth() / 2, window.GetHeight() / 2);
 	Shader::Init();
 

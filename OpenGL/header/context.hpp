@@ -3,29 +3,22 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
+#include <config.hpp>
+
 #include <iostream>
 #include <cassert>
 #include <string>
 #include <cmath>
 
-using OpenGLMajor = size_t;
-using OpenGLMinor = size_t;
-using NumberOfSamples = size_t;
-
-enum class Size {
-	DEBUG,
-	MAXIMIZED,
-	FULLSCREEEN
-};
-
-enum class State {
-	ENABLED,
-	DISABLED
-};
-
 struct Context {
 private:
 	bool Init();
+	void SetHints(
+		size_t major,
+		size_t minor,
+		size_t samples,
+		bool debug) const;
 
 	GLFWwindow *window_;
 	GLFWmonitor *monitor_;
@@ -37,19 +30,15 @@ private:
 public:
 	Context();
 	~Context();
-	void SetHints(
-		OpenGLMajor major,
-		OpenGLMinor minor,
-		NumberOfSamples samples,
-		bool debug) const;
-	void Create(const std::string &title, Size size = Size::DEBUG);
 
+	void Create(const Config &config);
 	GLFWwindow* Get() const { return window_; }
 	inline void SetCloseFlag() { glfwSetWindowShouldClose(window_, GLFW_TRUE); }
 	inline int GetCloseFlag() const { return glfwWindowShouldClose(window_); }
 	operator bool() const { return GetCloseFlag(); }
 	bool operator!() const { return !GetCloseFlag(); }
 
+	void SetCursorMode(bool cursor_enabled);
 	inline void SetCursorPos(double xpos, double ypos) { glfwSetCursorPos(window_, xpos, ypos); }
 	inline size_t GetWidth() const { return width_; }
 	inline size_t GetHeight() const { return height_; }
@@ -57,7 +46,6 @@ public:
 	float GetFrameRate(size_t precision) const;
 	void UpdateVideoMode();
 	void UpdateDimensions();
-	void SetCursorMode(State state = State::ENABLED);
 
 	void SwapBuffers() const { glfwSwapBuffers(window_); }
 	void PollEvents() const { glfwPollEvents(); }
