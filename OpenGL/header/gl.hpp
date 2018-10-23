@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
 namespace opengl {
 	bool Init();
@@ -17,7 +18,7 @@ namespace opengl {
 		GLclampf g,
 		GLclampf b,
 		GLclampf a);
-	void DebugMessageCallback(
+	void APIENTRY DebugMessageCallback(
 		GLenum source,
 		GLenum type,
 		GLuint id,

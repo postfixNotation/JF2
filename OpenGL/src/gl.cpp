@@ -39,7 +39,7 @@ void opengl::SetColor(
 }
 
 
-void opengl::DebugMessageCallback(
+void APIENTRY opengl::DebugMessageCallback(
 	GLenum source,
 	GLenum type,
 	GLuint id,

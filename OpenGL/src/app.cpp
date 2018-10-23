@@ -58,7 +58,7 @@ int main() {
 	opengl::SetViewport(0, 0, window.GetWidth(), window.GetHeight());
 	opengl::SetColor(0.7f, 0.9f, 0.8f, 1.0f);
 
-	/*GLint flags;
+	GLint flags;
 	glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
 	if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
 		glEnable(GL_DEBUG_OUTPUT);
@@ -75,7 +75,7 @@ int main() {
 			nullptr,
 			GL_TRUE
 		);
-	}*/
+	}
 
 	SetCallbacks();
 
@@ -197,7 +197,7 @@ int main() {
 		ResourceManager::GetShader("sprite"),
 		window.GetWidth(),
 		window.GetHeight()
-	);
+		);
 
 	while (!window) {
 		//Update(glfwGetTime() - previous_time);
@@ -218,8 +218,8 @@ int main() {
 
 		first_sprite->Draw(
 			ResourceManager::GetTexture("tux"),
-			glm::vec2{0.0f, 0.0f},
-			glm::vec2{160.0f, 160.0f}
+			glm::vec2{ 0.0f, 0.0f },
+			glm::vec2{ 160.0f, 160.0f }
 		);
 		ResourceManager::GetTextRenderer("Nosifier")->Draw(
 			"Welcome to OpenGL ©",
@@ -344,13 +344,13 @@ void SetCallbacks() {
 	glfwSetFramebufferSizeCallback(window.Get(), [](GLFWwindow* win, int width, int height) {
 		glViewport(0, 0, width, height);
 		window.UpdateDimensions();
-	//	proj = glm::perspective(
-	//		glm::radians(camera::fps_camera.GetFov()),
-	//		ratio,
-	//		near,
-	//		far
-	//	);
+		//	proj = glm::perspective(
+		//		glm::radians(camera::fps_camera.GetFov()),
+		//		ratio,
+		//		near,
+		//		far
+		//	);
 
-	//	model_shader->SetMat4("projection", proj);
+		//	model_shader->SetMat4("projection", proj);
 	});
 }
