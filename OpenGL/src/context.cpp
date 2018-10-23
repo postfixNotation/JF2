@@ -35,7 +35,6 @@ void Context::SetHints(
 	OpenGLMajor major,
 	OpenGLMinor minor,
 	NumberOfSamples samples,
-	bool resizable,
 	bool debug) const {
 	glfwWindowHint(GLFW_SAMPLES, samples);
 
@@ -50,33 +49,31 @@ void Context::SetHints(
 	glfwWindowHint(GLFW_BLUE_BITS, video_mode_->blueBits);
 	glfwWindowHint(GLFW_REFRESH_RATE, video_mode_->refreshRate);
 
-	glfwWindowHint(GLFW_RESIZABLE, static_cast<size_t>(resizable));
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, static_cast<size_t>(debug));
 }
 
-void Context::SetCursorMode(ContextStates state) {
-	if (state == ContextStates::ENABLED) {
+void Context::SetCursorMode(State state) {
+	if (state == State::ENABLED) {
 		glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	}
-	else if (state == ContextStates::DISABLED) {
+	else if (state == State::DISABLED) {
 		glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	}
 }
 
-void Context::Create(const std::string &title, ContextSize size) {
+void Context::Create(const std::string &title, Size size) {
 	switch (size) {
-		case ContextSize::DEBUG:
-			contextsize = size;
+		case Size::DEBUG:
 			window_ = glfwCreateWindow(
-				width_ / 2,
-				height_ / 2,
+				(width_ = width_ / 2),
+				(height_ = height_ / 2),
 				title.c_str(),
 				nullptr,
 				nullptr
 			);
 			break;
-		case ContextSize::MAXIMIZED:
-			contextsize = size;
+		case Size::MAXIMIZED:
 			window_ = glfwCreateWindow(
 				width_,
 				height_,
@@ -85,8 +82,7 @@ void Context::Create(const std::string &title, ContextSize size) {
 				nullptr
 			);
 			break;
-		case ContextSize::FULLSCREEEN:
-			contextsize = size;
+		case Size::FULLSCREEEN:
 			window_ = glfwCreateWindow(
 				width_,
 				height_,

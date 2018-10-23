@@ -52,9 +52,9 @@ namespace camera {
 
 Context window;
 int main() {
-	window.SetHints(3, 3, 4, true, true);
-	window.Create("JF2 - Rendering Engine", ContextSize::FULLSCREEEN);
-	window.SetCursorMode(ContextStates::ENABLED);
+	window.SetHints(3, 3, 4, true);
+	window.Create("JF2 - Rendering Engine", Size::DEBUG);
+	window.SetCursorMode(State::ENABLED);
 	window.SetCursorPos(window.GetWidth() / 2, window.GetHeight() / 2);
 	Shader::Init();
 
@@ -353,7 +353,7 @@ void SetCallbacks() {
 		window.Get(),
 		[](GLFWwindow* win, int key, int scancode, int action, int mode) {
 		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-			glfwSetWindowShouldClose(win, GLFW_TRUE);
+			window.SetCloseFlag();
 		}
 		else if (key == GLFW_KEY_L && action == GLFW_PRESS) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

@@ -12,13 +12,13 @@ using OpenGLMajor = size_t;
 using OpenGLMinor = size_t;
 using NumberOfSamples = size_t;
 
-enum class ContextSize {
+enum class Size {
 	DEBUG,
 	MAXIMIZED,
 	FULLSCREEEN
 };
 
-enum class ContextStates {
+enum class State {
 	ENABLED,
 	DISABLED
 };
@@ -31,7 +31,6 @@ private:
 	GLFWmonitor *monitor_;
 	GLFWvidmode *video_mode_;
 
-	ContextSize contextsize;
 	size_t height_;
 	size_t width_;
 	float ratio_;
@@ -42,9 +41,8 @@ public:
 		OpenGLMajor major,
 		OpenGLMinor minor,
 		NumberOfSamples samples,
-		bool resizable,
 		bool debug) const;
-	void Create(const std::string &title, ContextSize size = ContextSize::DEBUG);
+	void Create(const std::string &title, Size size = Size::DEBUG);
 
 	GLFWwindow* Get() const { return window_; }
 	inline void SetCloseFlag() { glfwSetWindowShouldClose(window_, GLFW_TRUE); }
@@ -59,7 +57,7 @@ public:
 	float GetFrameRate(size_t precision) const;
 	void UpdateVideoMode();
 	void UpdateDimensions();
-	void SetCursorMode(ContextStates state = ContextStates::ENABLED);
+	void SetCursorMode(State state = State::ENABLED);
 
 	void SwapBuffers() const { glfwSwapBuffers(window_); }
 	void PollEvents() const { glfwPollEvents(); }
