@@ -7,7 +7,7 @@
 namespace opengl {
 	bool Init();
 	bool SetDefaultSetting();
-	bool SetViewport(
+	void SetViewport(
 		GLint xpos,
 		GLint ypos,
 		GLsizei width,

@@ -57,6 +57,9 @@
     <ClCompile Include="src\text_renderer.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="src\gl.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="header\texture2d.hpp">
@@ -96,6 +99,12 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="header\text_renderer.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="header\config.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="header\gl.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

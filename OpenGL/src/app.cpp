@@ -58,7 +58,7 @@ int main() {
 	opengl::SetViewport(0, 0, window.GetWidth(), window.GetHeight());
 	opengl::SetColor(0.7f, 0.9f, 0.8f, 1.0f);
 
-	GLint flags;
+	/*GLint flags;
 	glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
 	if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
 		glEnable(GL_DEBUG_OUTPUT);
@@ -75,7 +75,7 @@ int main() {
 			nullptr,
 			GL_TRUE
 		);
-	}
+	}*/
 
 	SetCallbacks();
 
