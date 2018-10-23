@@ -62,7 +62,7 @@ void Context::SetCursorMode(bool cursor_enabled) {
 	}
 }
 
-void Context::Create(const Config &config) {
+void Context::Create(const context::Config &config) {
 	SetHints(
 		config.opengl_major,
 		config.opengl_minor,
@@ -70,7 +70,7 @@ void Context::Create(const Config &config) {
 		config.debug_context
 	);
 	switch (config.context_size) {
-		case Size::DEBUG:
+		case context::Size::DEBUG:
 			window_ = glfwCreateWindow(
 				(width_ = width_ / 2),
 				(height_ = height_ / 2),
@@ -79,7 +79,7 @@ void Context::Create(const Config &config) {
 				nullptr
 			);
 			break;
-		case Size::MAXIMIZED:
+		case context::Size::MAXIMIZED:
 			window_ = glfwCreateWindow(
 				width_,
 				height_,
@@ -88,7 +88,7 @@ void Context::Create(const Config &config) {
 				nullptr
 			);
 			break;
-		case Size::FULLSCREEEN:
+		case context::Size::FULLSCREEEN:
 			window_ = glfwCreateWindow(
 				width_,
 				height_,

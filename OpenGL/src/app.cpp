@@ -9,7 +9,6 @@
 #include <glm/gtx/rotate_normalized_axis.hpp>
 
 #include <SFML/Audio.hpp>
-
 #include <Box2D/Box2D.h>
 
 #include <resource_manager.hpp>
@@ -20,23 +19,14 @@
 #include <context.hpp>
 #include <camera.hpp>
 #include <shader.hpp>
+#include <gl.hpp>
 
 float near = 0.1f;
 float far = 100.0f;
 
 glm::mat4 proj{}, model{}, view{};
 
-Color rgb = { 0.0f / 255, 117.0f / 255, 153.0f / 255, 1.0f };
-
 void Update(double);
-void APIENTRY DebugMessageCallback(
-	GLenum source,
-	GLenum type,
-	GLuint id,
-	GLenum severity,
-	GLsizei length,
-	const GLchar* message,
-	const void* userParam);
 void SetCallbacks();
 
 namespace camera {
@@ -52,18 +42,42 @@ namespace camera {
 
 Context window;
 int main() {
-	Config config;
+	context::Config config;
 	config.opengl_major = 3;
 	config.opengl_minor = 3;
 	config.number_of_samples = 4;
 	config.debug_context = true;
 	config.cusor_enabled = false;
 	config.context_title = "JF2 - Rendering Engine";
-	config.context_size = Size::DEBUG;
+	config.context_size = context::Size::DEBUG;
 
 	window.Create(config);
 	window.SetCursorPos(window.GetWidth() / 2, window.GetHeight() / 2);
-	Shader::Init();
+	opengl::Init();
+	opengl::SetDefaultSetting();
+	opengl::SetViewport(0, 0, window.GetWidth(), window.GetHeight());
+	opengl::SetColor(0.7f, 0.9f, 0.8f, 1.0f);
+
+	GLint flags;
+	glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+	if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
+		glEnable(GL_DEBUG_OUTPUT);
+		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+		glDebugMessageCallback(
+			opengl::DebugMessageCallback,
+			nullptr);
+
+		glDebugMessageControl(
+			GL_DONT_CARE,
+			GL_DONT_CARE,
+			GL_DONT_CARE,
+			0,
+			nullptr,
+			GL_TRUE
+		);
+	}
+
+	SetCallbacks();
 
 	//model_shader = std::make_shared<Shader>(
 	//	"../shader/mesh_vert_shader.glsl",
@@ -110,32 +124,6 @@ int main() {
 
 	//glfwSetWindowIcon(window, 2, images);
 
-	GLint flags;
-	glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-	if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
-		glEnable(GL_DEBUG_OUTPUT);
-		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-		glDebugMessageCallback(
-			DebugMessageCallback,
-			nullptr);
-		glDebugMessageControl(
-			GL_DONT_CARE,
-			GL_DONT_CARE,
-			GL_DONT_CARE,
-			0,
-			nullptr,
-			GL_TRUE
-		);
-	}
-
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-	glDepthMask(GL_TRUE);
-	glEnable(GL_MULTISAMPLE);
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-	glFrontFace(GL_CCW);
-
 	//sf::Music music;
 	//if (!music.openFromFile("../audio/throne.ogg"))
 	//	return -1;
@@ -165,12 +153,7 @@ int main() {
 	//model_shader->SetMat4("model", model);
 	//cubemap_shader->SetInt("skybox", 0);
 
-	SetCallbacks();
-
-	glViewport(0, 0, window.GetWidth(), window.GetHeight());
-	glClearColor(rgb.r, rgb.g, rgb.b, rgb.a);
 	//double previous_time{ glfwGetTime() }, delta_time{};
-
 	//camera::orbit_camera.SetLookAt(glm::vec3{ 0.0f,0.0f,0.0f });
 
 	ResourceManager::LoadShader(
@@ -275,51 +258,6 @@ int main() {
 
 	window.Terminate();
 	return 0;
-}
-
-void APIENTRY DebugMessageCallback(
-	GLenum source,
-	GLenum type,
-	GLuint id,
-	GLenum severity,
-	GLsizei length,
-	const GLchar* message,
-	const void* userParam) {
-
-	// IGNORE NON-SIGNIFICANT ERROR/WARNING CODES
-	if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
-
-	std::cout << std::endl;
-	std::cout << "DEBUG MESSAGE (" << id << "): " << message << std::endl;
-
-	switch (source) {
-	case GL_DEBUG_SOURCE_API:					std::cout << "SOURCE: API"; break;
-	case GL_DEBUG_SOURCE_WINDOW_SYSTEM:		std::cout << "SOURCE: WINDOW SYSTEM"; break;
-	case GL_DEBUG_SOURCE_SHADER_COMPILER:	std::cout << "SOURCE: SHADER COMPILER"; break;
-	case GL_DEBUG_SOURCE_THIRD_PARTY:		std::cout << "SOURCE: THIRD PARTY"; break;
-	case GL_DEBUG_SOURCE_APPLICATION:		std::cout << "SOURCE: APPLICATION"; break;
-	case GL_DEBUG_SOURCE_OTHER:				std::cout << "SOURCE: OTHER"; break;
-	} std::cout << std::endl;
-
-	switch (type) {
-	case GL_DEBUG_TYPE_ERROR:					std::cout << "TYPE: ERROR"; break;
-	case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:std::cout << "TYPE: DEPRECATED BEHAVIOUR"; break;
-	case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:	std::cout << "TYPE: UNDEFINED BEHAVIOUR"; break;
-	case GL_DEBUG_TYPE_PORTABILITY:			std::cout << "TYPE: PORTABILITY"; break;
-	case GL_DEBUG_TYPE_PERFORMANCE:			std::cout << "TYPE: PERFORMANCE"; break;
-	case GL_DEBUG_TYPE_MARKER:					std::cout << "TYPE: MARKER"; break;
-	case GL_DEBUG_TYPE_PUSH_GROUP:			std::cout << "TYPE: PUSH GROUP"; break;
-	case GL_DEBUG_TYPE_POP_GROUP:				std::cout << "TYPE: POP GROUP"; break;
-	case GL_DEBUG_TYPE_OTHER:					std::cout << "TYPE: OTHER"; break;
-	} std::cout << std::endl;
-
-	switch (severity) {
-	case GL_DEBUG_SEVERITY_HIGH:				std::cout << "SEVERITY: HIGH"; break;
-	case GL_DEBUG_SEVERITY_MEDIUM:			std::cout << "SEVERITY: MEDIUM"; break;
-	case GL_DEBUG_SEVERITY_LOW:				std::cout << "SEVERITY: LOW"; break;
-	case GL_DEBUG_SEVERITY_NOTIFICATION:	std::cout << "SEVERITY: NOTIFICATION"; break;
-	} std::cout << std::endl;
-	std::cout << std::endl;
 }
 
 void Update(double elapsed_time) {

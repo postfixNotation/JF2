@@ -31,7 +31,7 @@ public:
 	Context();
 	~Context();
 
-	void Create(const Config &config);
+	void Create(const context::Config &config);
 	GLFWwindow* Get() const { return window_; }
 	inline void SetCloseFlag() { glfwSetWindowShouldClose(window_, GLFW_TRUE); }
 	inline int GetCloseFlag() const { return glfwWindowShouldClose(window_); }

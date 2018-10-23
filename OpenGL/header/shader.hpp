@@ -27,8 +27,6 @@ public:
 	void Bind() const { glUseProgram(handle_); }
 	void Unbind() const { glUseProgram(0); }
 
-	// move to a generic GL class
-	static bool Init();
 	GLuint GetHandle() const { return handle_; }
 
 	// shader uniform methods

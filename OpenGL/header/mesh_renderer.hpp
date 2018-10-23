@@ -22,14 +22,6 @@ struct Vertex {
 	glm::vec2 tex_coords{};
 };
 
-// this struct might be moved somewhere else
-struct Color {
-	GLfloat r;
-	GLfloat g;
-	GLfloat b;
-	GLfloat a;
-};
-
 enum class ObjLoadingType {
 	TRIANGLES = 3,
 	QUADS = 4

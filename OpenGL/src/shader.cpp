@@ -42,16 +42,6 @@ Shader::Shader(const std::string &vert_file, const std::string &frag_file) {
 	glDeleteShader(frag_shader);
 }
 
-// move to a generic GL class
-bool Shader::Init() {
-	glewExperimental = GL_TRUE;
-	if (GLEW_OK != glewInit()) {
-		std::cerr << "ERROR: COULD NOT INITIALIZE GLEW" << std::endl;
-		return false;
-	}
-	return true;
-}
-
 std::string Shader::LoadFile(const std::string& file) {
 	std::ifstream ifs;
 	std::stringstream ss;
