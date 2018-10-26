@@ -15,6 +15,7 @@
 #include <sprite_renderer.hpp>
 #include <mesh_renderer.hpp>
 #include <text_renderer.hpp>
+#include <filesystem.hpp>
 #include <texture2d.hpp>
 #include <context.hpp>
 #include <camera.hpp>
@@ -41,7 +42,11 @@ namespace camera {
 }
 
 Context window;
-int main() {
+int main(int argc, const char **argv) {
+	bf::path temp = FileSystem::GetShaderPath();
+	std::cout << temp.generic_string() << std::endl;
+	std::cout << (temp/=bf::path("font_vert.glsl")).generic_string() << std::endl;
+
 	context::Config config;
 	config.opengl_major = 3;
 	config.opengl_minor = 3;
@@ -58,24 +63,24 @@ int main() {
 	opengl::SetViewport(0, 0, window.GetWidth(), window.GetHeight());
 	opengl::SetColor(0.7f, 0.9f, 0.8f, 1.0f);
 
-	GLint flags;
-	glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-	if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
-		glEnable(GL_DEBUG_OUTPUT);
-		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-		glDebugMessageCallback(
-			opengl::DebugMessageCallback,
-			nullptr);
+	//GLint flags;
+	//glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+	//if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
+	//	glEnable(GL_DEBUG_OUTPUT);
+	//	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+	//	glDebugMessageCallback(
+	//		opengl::DebugMessageCallback,
+	//		nullptr);
 
-		glDebugMessageControl(
-			GL_DONT_CARE,
-			GL_DONT_CARE,
-			GL_DONT_CARE,
-			0,
-			nullptr,
-			GL_TRUE
-		);
-	}
+	//	glDebugMessageControl(
+	//		GL_DONT_CARE,
+	//		GL_DONT_CARE,
+	//		GL_DONT_CARE,
+	//		0,
+	//		nullptr,
+	//		GL_TRUE
+	//	);
+	//}
 
 	SetCallbacks();
 

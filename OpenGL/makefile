@@ -4,7 +4,7 @@ FREETYPE=$(DEPROOT)FreeType/include/
 BOX2DHEADER=$(DEPROOT)Box2D/include/
 BOX2DLIB=$(DEPROOT)Box2D/lib/Linux/release/
 BOOSTHEADER=$(DEPROOT)boost/include/
-BOOSTLIB=$(DEPROOT)boost/lib/Linux/
+BOOSTLIB=$(DEPROOT)boost/lib/Linux/release/
 
 HEADER=./header/
 SOURCE=src/*.cpp
