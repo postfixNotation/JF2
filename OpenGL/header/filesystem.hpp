@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <vector>
 #include <map>
 
 #define BOOST_FILESYSTEM_NO_DEPRECATED
@@ -37,5 +38,7 @@ public:
 
 	static const bf::path& SetResourceRootDir(bf::path path);
 	static const bf::path& SetResourceSubDir(const std::string &name);
+
+	static void InitSubDirs(const std::vector<std::string> &sub_dir_list);
 };
 #endif // FILESYSTEM_HPP_

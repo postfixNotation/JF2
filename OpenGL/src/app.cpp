@@ -45,11 +45,7 @@ Context window;
 
 int main(int argc, const char **argv) {
 	FileSystem::SetResourceRootDir("Resources");
-	FileSystem::SetResourceSubDir("fonts");
-	FileSystem::SetResourceSubDir("audio");
-	FileSystem::SetResourceSubDir("models");
-	FileSystem::SetResourceSubDir("shader");
-	FileSystem::SetResourceSubDir("textures");
+	FileSystem::InitSubDirs( {"fonts", "audio", "models", "shader", "textures"} );
 
 	context::Config config;
 	config.opengl_major = 3;
@@ -165,48 +161,50 @@ int main(int argc, const char **argv) {
 	//double previous_time{ glfwGetTime() }, delta_time{};
 	//camera::orbit_camera.SetLookAt(glm::vec3{ 0.0f,0.0f,0.0f });
 
-	//ResourceManager::LoadShader(
-	//	"../shader/font_vert.glsl",
-	//	"../shader/font_frag.glsl",
-	//	"text"
-	//);
-	//ResourceManager::LoadShader(
-	//	"../shader/sprite_vert_shader.glsl",
-	//	"../shader/sprite_frag_shader.glsl",
-	//	"sprite"
-	//);
-	//ResourceManager::LoadTextRenderer(
-	//	ResourceManager::GetShader("text"),
-	//	window.GetWidth(),
-	//	window.GetHeight(),
-	//	64,
-	//	"../fonts/Nosifer-Regular.ttf",
-	//	"Nosifier"
-	//);
-	//ResourceManager::LoadTextRenderer(
-	//	ResourceManager::GetShader("text"),
-	//	window.GetWidth(),
-	//	window.GetHeight(),
-	//	32,
-	//	"../fonts/PermanentMarker-Regular.ttf",
-	//	"PermanentMarker"
-	//);
-	//ResourceManager::LoadTextRenderer(
-	//	ResourceManager::GetShader("text"),
-	//	window.GetWidth(),
-	//	window.GetHeight(),
-	//	20,
-	//	"../fonts/Wallpoet-Regular.ttf",
-	//	"Wallpoet"
-	//);
-	//ResourceManager::LoadTexture(
-	//	ResourceManager::GetShader("sprite"), "../textures/tux.png", "tux"
-	//);
-	//std::shared_ptr<SpriteRenderer> first_sprite = std::make_shared<SpriteRenderer>(
-	//	ResourceManager::GetShader("sprite"),
-	//	window.GetWidth(),
-	//	window.GetHeight()
-	//	);
+	ResourceManager::LoadShader(
+		FileSystem::GetPathString("shader")+"font_vert.glsl",
+		FileSystem::GetPathString("shader")+"font_frag.glsl",
+		"text"
+	);
+	ResourceManager::LoadShader(
+		FileSystem::GetPathString("shader")+"sprite_vert_shader.glsl",
+		FileSystem::GetPathString("shader")+"sprite_frag_shader.glsl",
+		"sprite"
+	);
+	ResourceManager::LoadTextRenderer(
+		ResourceManager::GetShader("text"),
+		window.GetWidth(),
+		window.GetHeight(),
+		64,
+		FileSystem::GetPathString("fonts")+"Nosifer-Regular.ttf",
+		"Nosifier"
+	);
+	ResourceManager::LoadTextRenderer(
+		ResourceManager::GetShader("text"),
+		window.GetWidth(),
+		window.GetHeight(),
+		32,
+		FileSystem::GetPathString("fonts")+"PermanentMarker-Regular.ttf",
+		"PermanentMarker"
+	);
+	ResourceManager::LoadTextRenderer(
+		ResourceManager::GetShader("text"),
+		window.GetWidth(),
+		window.GetHeight(),
+		20,
+		FileSystem::GetPathString("fonts")+"Wallpoet-Regular.ttf",
+		"Wallpoet"
+	);
+	ResourceManager::LoadTexture(
+		ResourceManager::GetShader("sprite"),
+		FileSystem::GetPathString("textures")+"tux.png",
+		"tux"
+	);
+	std::shared_ptr<SpriteRenderer> first_sprite = std::make_shared<SpriteRenderer>(
+		ResourceManager::GetShader("sprite"),
+		window.GetWidth(),
+		window.GetHeight()
+	);
 
 	while (!window) {
 		//Update(glfwGetTime() - previous_time);
@@ -224,13 +222,19 @@ int main(int argc, const char **argv) {
 		//textures[0]->BindTextureUnit("tex_sampler", 0);
 		//meshes[0]->Draw();
 		//textures[0]->UnbindTextureUnit(0);
-		//ResourceManager::GetTextRenderer("Wallpoet")->Draw(
-		//	"Framerate: "+std::to_string(window.GetFrameRate(2)),
-		//	0.0f,
-		//	0.0f,
-		//	1.2f,
-		//	glm::vec3{ .3f,.7f,.6f }
-		//);
+		ResourceManager::GetTextRenderer("Wallpoet")->Draw(
+			"Framerate: "+std::to_string(window.GetFrameRate(2)),
+			0.0f,
+			0.0f,
+			1.2f,
+			glm::vec3{ .3f,.7f,.6f }
+		);
+
+		first_sprite->Draw(
+			ResourceManager::GetTexture("tux"),
+			glm::vec2{ 0.0f, 0.0f },
+			glm::vec2{ 160.0f, 160.0f }
+		);
 
 		//glDepthFunc(GL_LEQUAL);
 

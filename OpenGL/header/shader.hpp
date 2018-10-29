@@ -9,13 +9,14 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
+#include <filesystem.hpp>
+
 class Shader {
 private:
 	GLuint handle_{};
 	std::map<std::string, GLint> uniform_locs_;
 	enum class Type { VERTEX, FRAGMENT, PROGRAM };
 
-	std::string LoadFile(const std::string&);
 	GLint GetUniformLocation(const std::string &name);
 	bool CheckCompileErrors(GLuint, Type) const;
 

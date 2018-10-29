@@ -16,8 +16,8 @@ GLint Shader::GetUniformLocation(const std::string &name) {
 }
 
 Shader::Shader(const std::string &vert_file, const std::string &frag_file) {
-	std::string vertex_string = LoadFile(vert_file);
-	std::string fragment_string = LoadFile(frag_file);
+	std::string vertex_string = FileSystem::GetContent(vert_file);
+	std::string fragment_string = FileSystem::GetContent(frag_file);
 
 	const GLchar* vertex_src = vertex_string.c_str();
 	const GLchar* fragment_src = fragment_string.c_str();
@@ -40,26 +40,6 @@ Shader::Shader(const std::string &vert_file, const std::string &frag_file) {
 
 	glDeleteShader(vert_shader);
 	glDeleteShader(frag_shader);
-}
-
-std::string Shader::LoadFile(const std::string& file) {
-	std::ifstream ifs;
-	std::stringstream ss;
-
-	try {
-		ifs.open(file, std::ifstream::in);
-
-		if (!ifs.fail()) {
-			ss << ifs.rdbuf();
-		}
-
-		ifs.close();
-	}
-	catch (std::exception ex) {
-		std::cout << "EXCEPTION: LOADING SHADER SOURCE" << std::endl;
-		std::cout << ex.what() << std::endl;
-	}
-	return ss.str();
 }
 
 // shader uniform methods

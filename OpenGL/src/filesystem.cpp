@@ -50,3 +50,9 @@ const bf::path& FileSystem::SetResourceSubDir(const std::string &name) {
 	assert(Exists(directories[name]) && IsDirectory(directories[name]));
 	return directories[name];
 }
+
+void FileSystem::InitSubDirs(const std::vector<std::string> &sub_dir_list) {
+	for (const std::string &subdir : sub_dir_list) {
+		SetResourceSubDir(subdir);
+	}
+}
