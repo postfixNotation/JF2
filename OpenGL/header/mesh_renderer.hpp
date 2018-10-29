@@ -12,14 +12,14 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
-#include <shader.hpp>
+#include <renderer.hpp>
 
 constexpr size_t kVerticesPerQuad{ 6 };
 
 struct Vertex {
-	glm::vec3 position{};
-	glm::vec3 normal{};
-	glm::vec2 tex_coords{};
+	glm::vec3 position;
+	glm::vec3 normal;
+	glm::vec2 tex_coords;
 };
 
 enum class ObjLoadingType {
@@ -38,13 +38,14 @@ enum class FaceType {
 class MeshRenderer {
 private:
 	ObjLoadingType obj_loading_type_;
-	std::shared_ptr<Shader> shader_;
 	std::vector<Vertex> vertices_;
 	std::vector<GLuint> indices_;
-	// vbo as member variable actually unnecessary
-	GLuint vbo_, vao_, ibo_;
 	size_t number_quads_;
 	bool loaded_;
+
+	std::shared_ptr<Shader> shader_;
+	std::shared_ptr<IndexBuffer> ib_;
+	std::shared_ptr<VertexArray> va_;
 
 	static FaceType EvalSplitRes(
 		const std::vector<GLuint>& input_vec,

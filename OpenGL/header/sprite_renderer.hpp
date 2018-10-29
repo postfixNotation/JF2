@@ -8,12 +8,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <vertex_buffer_layout.hpp>
-#include <vertex_buffer.hpp>
-#include <vertex_array.hpp>
-#include <index_buffer.hpp>
 #include <texture2d.hpp>
-#include <shader.hpp>
+#include <renderer.hpp>
 
 class SpriteRenderer {
 private:

@@ -12,8 +12,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <renderer.hpp>
-#include <vertex_buffer.hpp>
-#include <vertex_buffer_layout.hpp>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H

@@ -3,11 +3,7 @@
 MeshRenderer::MeshRenderer(std::shared_ptr<Shader> shader) :
 	shader_{ shader }, loaded_{ false }, number_quads_{}, indices_{ 0, 1, 2, 0, 2, 3 } {}
 
-MeshRenderer::~MeshRenderer() {
-	glDeleteVertexArrays(1, &vao_);
-	glDeleteBuffers(1, &vbo_);
-	if (obj_loading_type_ == ObjLoadingType::QUADS) { glDeleteBuffers(1, &ibo_); }
-}
+MeshRenderer::~MeshRenderer() {}
 
 std::vector<GLuint> MeshRenderer::Split(std::string value, char delimiter) {
 	std::vector<GLuint> result{};
@@ -178,81 +174,39 @@ void MeshRenderer::InitIBO() {
 }
 
 void MeshRenderer::InitBuffers() {
-	glGenVertexArrays(1, &vao_);
-	glGenBuffers(1, &vbo_);
-	if (obj_loading_type_ == ObjLoadingType::QUADS) { glGenBuffers(1, &ibo_); }
-
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_);
-	glBufferData(
-		GL_ARRAY_BUFFER,
-		vertices_.size() * sizeof(Vertex),
+	VertexBuffer vb{
 		vertices_.data(),
-		GL_STATIC_DRAW
-	);
+		vertices_.size() * sizeof(Vertex)
+	};
 
+	VertexBufferLayout vbl{};
 	// vertex positions
-	glBindVertexArray(vao_);
-	glVertexAttribPointer(
-		0,
-		3,
-		GL_FLOAT,
-		GL_FALSE,
-		sizeof(Vertex),
-		nullptr
-	);
-	glEnableVertexArrayAttrib(vao_, 0);
-
+	vbl.Push<GLfloat>(3);
 	// normals attribute
-	glVertexAttribPointer(
-		1,
-		3,
-		GL_FLOAT,
-		GL_FALSE,
-		sizeof(Vertex),
-		reinterpret_cast<const GLvoid*>(3 * sizeof(GLfloat))
-	);
-	glEnableVertexArrayAttrib(vao_, 1);
-
+	vbl.Push<GLfloat>(3);
 	// vertex texture coordinates
-	glVertexAttribPointer(
-		2,
-		2,
-		GL_FLOAT,
-		GL_FALSE,
-		sizeof(Vertex),
-		reinterpret_cast<const GLvoid*>(6 * sizeof(GLfloat))
-	);
-	glEnableVertexArrayAttrib(vao_, 2);
+	vbl.Push<GLfloat>(2);
+
+	va_ = std::make_shared<VertexArray>(vb, vbl);
 
 	if (obj_loading_type_ == ObjLoadingType::QUADS) {
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_);
-		glBufferData(
-			GL_ELEMENT_ARRAY_BUFFER,
-			indices_.size() * sizeof(GLuint),
-			indices_.data(),
-			GL_STATIC_DRAW
-		);
+		ib_ = std::make_shared<IndexBuffer>(indices_.data(), indices_.size());
+		ib_->Unbind();
 	}
-
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	if (obj_loading_type_ == ObjLoadingType::QUADS) { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); }
+	vb.Unbind();
+	va_->Unbind();
 }
 
 void MeshRenderer::Draw(std::shared_ptr<Shader> shader) const {
 	if (!loaded_) return;
-
-	glBindVertexArray(vao_);
-	if (shader.get() != nullptr) { shader->Bind(); }
-	else { shader_->Bind(); }
-
+	// continue refactoring here -> triangulated mesh also uses glDrawElements(...)
 	if (obj_loading_type_ == ObjLoadingType::QUADS) {
-		glDrawElements(
-			GL_TRIANGLES,
-			number_quads_ * kVerticesPerQuad,
-			GL_UNSIGNED_INT,
-			nullptr
-		);
+		if (shader.get() != nullptr) {
+			Renderer::Render(*va_, *ib_, *shader);
+		}
+		else {
+			Renderer::Render(*va_, *ib_, *shader_);
+		}
 	}
 	else {
 		glDrawArrays(

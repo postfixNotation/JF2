@@ -37,17 +37,7 @@ void SpriteRenderer::Draw(
     shader_->SetVec3("sprite_color", color);
 
     texture->BindTextureUnit("image_sampler", 0);
-    va_->Bind();
-    ib_->Bind();
-    shader_->Bind();
-    glDrawElements(
-        GL_TRIANGLES,
-        ib_->GetCount(),
-        GL_UNSIGNED_INT,
-        nullptr
-    );
-    ib_->Unbind();
-    va_->Unbind();
+    Renderer::Render(*va_, *ib_, *shader_);
     texture->UnbindTextureUnit(0);
 }
 
