@@ -42,10 +42,14 @@ namespace camera {
 }
 
 Context window;
+
 int main(int argc, const char **argv) {
-	bf::path temp = FileSystem::GetShaderPath();
-	std::cout << temp.generic_string() << std::endl;
-	std::cout << (temp/=bf::path("font_vert.glsl")).generic_string() << std::endl;
+	FileSystem::SetResourceRootDir("Resources");
+	FileSystem::SetResourceSubDir("fonts");
+	FileSystem::SetResourceSubDir("audio");
+	FileSystem::SetResourceSubDir("models");
+	FileSystem::SetResourceSubDir("shader");
+	FileSystem::SetResourceSubDir("textures");
 
 	context::Config config;
 	config.opengl_major = 3;
@@ -61,7 +65,7 @@ int main(int argc, const char **argv) {
 	opengl::Init();
 	opengl::SetDefaultSetting();
 	opengl::SetViewport(0, 0, window.GetWidth(), window.GetHeight());
-	opengl::SetColor(0.7f, 0.9f, 0.8f, 1.0f);
+	opengl::SetColor(1.0f, 0.9f, 0.8f, 1.0f);
 
 	//GLint flags;
 	//glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
@@ -161,48 +165,48 @@ int main(int argc, const char **argv) {
 	//double previous_time{ glfwGetTime() }, delta_time{};
 	//camera::orbit_camera.SetLookAt(glm::vec3{ 0.0f,0.0f,0.0f });
 
-	ResourceManager::LoadShader(
-		"../shader/font_vert.glsl",
-		"../shader/font_frag.glsl",
-		"text"
-	);
-	ResourceManager::LoadShader(
-		"../shader/sprite_vert_shader.glsl",
-		"../shader/sprite_frag_shader.glsl",
-		"sprite"
-	);
-	ResourceManager::LoadTextRenderer(
-		ResourceManager::GetShader("text"),
-		window.GetWidth(),
-		window.GetHeight(),
-		64,
-		"../fonts/Nosifer-Regular.ttf",
-		"Nosifier"
-	);
-	ResourceManager::LoadTextRenderer(
-		ResourceManager::GetShader("text"),
-		window.GetWidth(),
-		window.GetHeight(),
-		32,
-		"../fonts/PermanentMarker-Regular.ttf",
-		"PermanentMarker"
-	);
-	ResourceManager::LoadTextRenderer(
-		ResourceManager::GetShader("text"),
-		window.GetWidth(),
-		window.GetHeight(),
-		20,
-		"../fonts/Wallpoet-Regular.ttf",
-		"Wallpoet"
-	);
-	ResourceManager::LoadTexture(
-		ResourceManager::GetShader("sprite"), "../textures/tux.png", "tux"
-	);
-	std::shared_ptr<SpriteRenderer> first_sprite = std::make_shared<SpriteRenderer>(
-		ResourceManager::GetShader("sprite"),
-		window.GetWidth(),
-		window.GetHeight()
-		);
+	//ResourceManager::LoadShader(
+	//	"../shader/font_vert.glsl",
+	//	"../shader/font_frag.glsl",
+	//	"text"
+	//);
+	//ResourceManager::LoadShader(
+	//	"../shader/sprite_vert_shader.glsl",
+	//	"../shader/sprite_frag_shader.glsl",
+	//	"sprite"
+	//);
+	//ResourceManager::LoadTextRenderer(
+	//	ResourceManager::GetShader("text"),
+	//	window.GetWidth(),
+	//	window.GetHeight(),
+	//	64,
+	//	"../fonts/Nosifer-Regular.ttf",
+	//	"Nosifier"
+	//);
+	//ResourceManager::LoadTextRenderer(
+	//	ResourceManager::GetShader("text"),
+	//	window.GetWidth(),
+	//	window.GetHeight(),
+	//	32,
+	//	"../fonts/PermanentMarker-Regular.ttf",
+	//	"PermanentMarker"
+	//);
+	//ResourceManager::LoadTextRenderer(
+	//	ResourceManager::GetShader("text"),
+	//	window.GetWidth(),
+	//	window.GetHeight(),
+	//	20,
+	//	"../fonts/Wallpoet-Regular.ttf",
+	//	"Wallpoet"
+	//);
+	//ResourceManager::LoadTexture(
+	//	ResourceManager::GetShader("sprite"), "../textures/tux.png", "tux"
+	//);
+	//std::shared_ptr<SpriteRenderer> first_sprite = std::make_shared<SpriteRenderer>(
+	//	ResourceManager::GetShader("sprite"),
+	//	window.GetWidth(),
+	//	window.GetHeight()
+	//	);
 
 	while (!window) {
 		//Update(glfwGetTime() - previous_time);
@@ -220,26 +224,13 @@ int main(int argc, const char **argv) {
 		//textures[0]->BindTextureUnit("tex_sampler", 0);
 		//meshes[0]->Draw();
 		//textures[0]->UnbindTextureUnit(0);
-
-		first_sprite->Draw(
-			ResourceManager::GetTexture("tux"),
-			glm::vec2{ 0.0f, 0.0f },
-			glm::vec2{ 160.0f, 160.0f }
-		);
-		ResourceManager::GetTextRenderer("Nosifier")->Draw(
-			"Welcome to OpenGL ©",
-			0.0f,
-			static_cast<GLfloat>(window.GetHeight()) / 2,
-			1.2f,
-			glm::vec3{ .3f,.7f,.6f }
-		);
-		ResourceManager::GetTextRenderer("Wallpoet")->Draw(
-			std::to_string(window.GetFrameRate(2)),
-			0.0f,
-			static_cast<GLfloat>(window.GetHeight()) / 3.0f,
-			1.2f,
-			glm::vec3{ .6f,.8f,.9f }
-		);
+		//ResourceManager::GetTextRenderer("Wallpoet")->Draw(
+		//	"Framerate: "+std::to_string(window.GetFrameRate(2)),
+		//	0.0f,
+		//	0.0f,
+		//	1.2f,
+		//	glm::vec3{ .3f,.7f,.6f }
+		//);
 
 		//glDepthFunc(GL_LEQUAL);
 

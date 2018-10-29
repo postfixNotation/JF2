@@ -1,21 +1,18 @@
 #include <filesystem.hpp>
 
-bool FileSystem::IsDirectory(bf::path path) { return bf::is_directory(path); }
-bool FileSystem::IsDirectory(const std::string &path) { return bf::is_directory(bf::path(path)); }
+std::map<std::string, bf::path> FileSystem::directories;
+bf::path FileSystem::resource_root_dir{ bf::current_path().parent_path() };
 
-bool FileSystem::IsFile(bf::path path) { return bf::is_regular_file(path); }
-bool FileSystem::IsFile(const std::string &path) { return bf::is_regular_file(bf::path(path)); }
-
-bool FileSystem::Exists(bf::path path) { return bf::exists(path); }
-bool FileSystem::Exists(const std::string &path) { return bf::exists(bf::path(path)); }
-
-bf::path FileSystem::GetShaderPath() {
-	bf::path path = bf::current_path().parent_path();
-	path /=bf::path("shader"); 
-	return path;
+bf::path FileSystem::GetPath(const std::string &subdirname) {
+	assert(directories.find(subdirname) != directories.end());
+	return directories[subdirname];
 }
 
-std::string FileSystem::GetString(bf::path path) {
+std::string FileSystem::GetPathString(const std::string &subdirname) {
+	return GetPath(subdirname).generic_string();
+}
+
+std::string FileSystem::GetContent(bf::path path) {
 	if (IsFile(path) && Exists(path)) {
 		std::ifstream ifs;
 		std::ostringstream ss;
@@ -35,4 +32,21 @@ std::string FileSystem::GetString(bf::path path) {
 		return ss.str();
 	}
 	return "";
+}
+
+std::string FileSystem::GetContent(const std::string &path) {
+	return GetContent(bf::path(path));
+}
+
+const bf::path& FileSystem::SetResourceRootDir(bf::path path) {
+	resource_root_dir /= path;
+	assert(Exists(resource_root_dir) && IsDirectory(resource_root_dir));
+	return resource_root_dir;
+}
+
+const bf::path& FileSystem::SetResourceSubDir(const std::string &name) {
+	directories[name] = resource_root_dir;
+	directories[name] /= (bf::path(name)+="/");
+	assert(Exists(directories[name]) && IsDirectory(directories[name]));
+	return directories[name];
 }

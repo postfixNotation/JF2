@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <map>
 
 #define BOOST_FILESYSTEM_NO_DEPRECATED
 #include <boost/filesystem.hpp>
@@ -11,17 +12,30 @@ namespace bf = boost::filesystem;
 
 class FileSystem {
 protected:
-	static bool IsDirectory(bf::path path);
-	static bool IsDirectory(const std::string &path);
+	static std::map<std::string, bf::path> directories;
+	static bf::path resource_root_dir;
 
-	static bool IsFile(bf::path path);
-	static bool IsFile(const std::string &path);
+	static bool IsDirectory(const bf::path &path) {
+		return bf::is_directory(path);
+	}
 
-	static bool Exists(bf::path path);
-	static bool Exists(const std::string &path);
+	static bool IsFile(const bf::path &path) {
+		return bf::is_regular_file(path);
+	}
+
+	static bool Exists(const bf::path &path) {
+		return bf::exists(path);
+	}
+
 public:
 	FileSystem() = delete;
-	static bf::path GetShaderPath();
-	static std::string GetString(bf::path path);
+	static bf::path GetPath(const std::string &subdirname);
+	static std::string GetPathString(const std::string &subdirname);
+
+	static std::string GetContent(bf::path path);
+	static std::string GetContent(const std::string &path);
+
+	static const bf::path& SetResourceRootDir(bf::path path);
+	static const bf::path& SetResourceSubDir(const std::string &name);
 };
 #endif // FILESYSTEM_HPP_
