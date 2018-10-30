@@ -20,8 +20,8 @@ void Renderer::Clear(ClearBufferBit mask) {
 void Renderer::Render(
 	const VertexArray& va,
 	const IndexBuffer& ib,
-	const Shader& shader
-) {
+	const Shader& shader) {
+
 	shader.Bind();
 	va.Bind();
 	ib.Bind();

@@ -1,7 +1,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <texture2d.hpp>
 
-bool Texture2D::LoadTexture(const std::string& file_name, bool gen_mipmaps) {
+bool Texture2D::Load(const std::string& file_name, bool gen_mipmaps) {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -60,7 +60,8 @@ bool Texture2D::LoadTexture(const std::string& file_name, bool gen_mipmaps) {
 	return true;
 }
 
-bool Texture2D::LoadCubemap(const std::vector<std::string>& faces) {
+bool Texture2D::Load(const std::vector<std::string>& faces) {
+	is_cube_map_ = true;
 	glGenTextures(1, &handle_);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, handle_);
 
@@ -113,7 +114,7 @@ bool Texture2D::LoadCubemap(const std::vector<std::string>& faces) {
 	return true;
 }
 
-void Texture2D::BindTextureUnit(const GLchar* uniform, GLuint texunit) const {
+void Texture2D::Bind(const GLchar* uniform, GLuint texunit) const {
 	GLint loc = glGetUniformLocation(shader_->GetHandle(), uniform);
 	glUniform1i(loc, texunit);
 
@@ -122,23 +123,13 @@ void Texture2D::BindTextureUnit(const GLchar* uniform, GLuint texunit) const {
 	glBindTexture(GL_TEXTURE_2D, handle_);
 }
 
-void Texture2D::BindCubeTextureUnit(const GLchar* uniform, GLuint texunit) const {
-	GLint loc = glGetUniformLocation(shader_->GetHandle(), uniform);
-	glUniform1i(loc, texunit);
-
+void Texture2D::Unbind(GLuint texunit) const {
 	assert(texunit >= 0 && texunit < MAX_NUMBER_TEX_UNITS);
 	glActiveTexture(GL_TEXTURE0 + texunit);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, handle_);
-}
-
-void Texture2D::UnbindTextureUnit(GLuint texunit) const {
-	assert(texunit >= 0 && texunit < MAX_NUMBER_TEX_UNITS);
-	glActiveTexture(GL_TEXTURE0 + texunit);
-	glBindTexture(GL_TEXTURE_2D, 0);
-}
-
-void Texture2D::UnbindCubeTextureUnit(GLuint texunit) const {
-	assert(texunit >= 0 && texunit < MAX_NUMBER_TEX_UNITS);
-	glActiveTexture(GL_TEXTURE0 + texunit);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+	if (is_cube_map_) {
+		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+	}
+	else {
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
 }

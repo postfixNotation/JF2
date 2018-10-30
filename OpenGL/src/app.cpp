@@ -25,7 +25,7 @@
 float near = 0.1f;
 float far = 100.0f;
 
-glm::mat4 proj{}, model{}, view{};
+glm::mat4 projection{}, model_mat{}, view{};
 
 void Update(double);
 void SetCallbacks();
@@ -84,10 +84,6 @@ int main(int argc, const char **argv) {
 
 	SetCallbacks();
 
-	//model_shader = std::make_shared<Shader>(
-	//	"../shader/mesh_vert_shader.glsl",
-	//	"../shader/mesh_frag_shader.glsl"
-	//);
 	//cubemap_shader = std::make_shared<Shader>(
 	//	"../shader/cubemap_vert_shader.glsl",
 	//	"../shader/cubemap_frag_shader.glsl"
@@ -134,14 +130,6 @@ int main(int argc, const char **argv) {
 	//	return -1;
 	//music.play();
 
-	//std::vector<std::shared_ptr<MeshRenderer>> meshes(2);
-	//std::vector<std::shared_ptr<Texture2D>> textures(3);
-
-	//meshes[0] = std::make_shared<MeshRenderer>(model_shader);
-	//meshes[0]->LoadObj("../models/robot.obj", ObjLoadingType::TRIANGLES);
-	//textures[0] = std::make_shared<Texture2D>(model_shader);
-	//textures[0]->LoadTexture("../textures/robot.jpg");
-
 	//std::vector<std::string> faces{
 	//	"../textures/skybox/right.jpg",
 	//	"../textures/skybox/left.jpg",
@@ -155,93 +143,97 @@ int main(int argc, const char **argv) {
 	//textures[1] = std::make_shared<Texture2D>(cubemap_shader);
 	//textures[1]->LoadCubemap(faces);
 
-	//model_shader->SetMat4("model", model);
 	//cubemap_shader->SetInt("skybox", 0);
 
-	//double previous_time{ glfwGetTime() }, delta_time{};
-	//camera::orbit_camera.SetLookAt(glm::vec3{ 0.0f,0.0f,0.0f });
+	ResourceManager::LoadShader(
+		FileSystem::GetPathString("shader")+"mesh_vert_shader.glsl",
+		FileSystem::GetPathString("shader")+"mesh_frag_shader.glsl",
+		"model");
+	std::shared_ptr<MeshRenderer> model;
+	model = std::make_shared<MeshRenderer>(ResourceManager::GetShader("model"));
+	model->Load(FileSystem::GetPathString("models")+"robot.obj", false);
+	std::shared_ptr<Texture2D> texture;
+	texture = std::make_shared<Texture2D>(ResourceManager::GetShader("model"));
+	texture->Load(FileSystem::GetPathString("textures")+"robot.jpg");
+	ResourceManager::GetShader("model")->SetMat4("model", model_mat);
 
 	ResourceManager::LoadShader(
 		FileSystem::GetPathString("shader")+"font_vert.glsl",
 		FileSystem::GetPathString("shader")+"font_frag.glsl",
-		"text"
-	);
+		"text");
 	ResourceManager::LoadShader(
 		FileSystem::GetPathString("shader")+"sprite_vert_shader.glsl",
 		FileSystem::GetPathString("shader")+"sprite_frag_shader.glsl",
-		"sprite"
-	);
+		"sprite");
 	ResourceManager::LoadTextRenderer(
 		ResourceManager::GetShader("text"),
 		window.GetWidth(),
 		window.GetHeight(),
 		64,
 		FileSystem::GetPathString("fonts")+"Nosifer-Regular.ttf",
-		"Nosifier"
-	);
+		"Nosifier");
 	ResourceManager::LoadTextRenderer(
 		ResourceManager::GetShader("text"),
 		window.GetWidth(),
 		window.GetHeight(),
 		32,
 		FileSystem::GetPathString("fonts")+"PermanentMarker-Regular.ttf",
-		"PermanentMarker"
-	);
+		"PermanentMarker");
 	ResourceManager::LoadTextRenderer(
 		ResourceManager::GetShader("text"),
 		window.GetWidth(),
 		window.GetHeight(),
 		20,
 		FileSystem::GetPathString("fonts")+"Wallpoet-Regular.ttf",
-		"Wallpoet"
-	);
+		"Wallpoet");
 	ResourceManager::LoadTexture(
 		ResourceManager::GetShader("sprite"),
 		FileSystem::GetPathString("textures")+"tux.png",
-		"tux"
-	);
+		"tux");
 	std::shared_ptr<SpriteRenderer> first_sprite = std::make_shared<SpriteRenderer>(
 		ResourceManager::GetShader("sprite"),
 		window.GetWidth(),
-		window.GetHeight()
-	);
+		window.GetHeight());
+
+	double previous_time{ glfwGetTime() }, delta_time{};
+	camera::orbit_camera.SetLookAt(glm::vec3{ 0.0f,0.0f,0.0f });
 
 	while (!window) {
-		//Update(glfwGetTime() - previous_time);
-		//previous_time = glfwGetTime();
+		Update(glfwGetTime() - previous_time);
+		previous_time = glfwGetTime();
 
 		Renderer::Clear();
 
-		//view = camera::orbit_camera.GetViewMatrix();
-		//view = camera::fps_camera.GetViewMatrix();
-		//proj = glm::perspective(glm::radians(camera::fps_camera.GetFov()), ratio, near, far);
+		view = camera::orbit_camera.GetViewMatrix();
+		view = camera::fps_camera.GetViewMatrix();
+		projection = glm::perspective(glm::radians(camera::fps_camera.GetFov()), window.GetRatio(), near, far);
 
-		//model_shader->SetMat4("view", view);
-		//model_shader->SetMat4("projection", proj);
+		ResourceManager::GetShader("model")->SetMat4("view", view);
+		ResourceManager::GetShader("model")->SetMat4("projection", projection);
 
-		//textures[0]->BindTextureUnit("tex_sampler", 0);
-		//meshes[0]->Draw();
-		//textures[0]->UnbindTextureUnit(0);
-		ResourceManager::GetTextRenderer("Wallpoet")->Draw(
-			"Framerate: "+std::to_string(window.GetFrameRate(2)),
-			0.0f,
-			0.0f,
-			1.2f,
-			glm::vec3{ .3f,.7f,.6f }
-		);
+		texture->Bind("tex_sampler", 0);
+		model->Draw();
+		texture->Unbind(0);
 
-		first_sprite->Draw(
-			ResourceManager::GetTexture("tux"),
-			glm::vec2{ 0.0f, 0.0f },
-			glm::vec2{ 160.0f, 160.0f }
-		);
+		//ResourceManager::GetTextRenderer("Wallpoet")->Draw(
+		//	"Framerate: "+std::to_string(window.GetFrameRate(2)),
+		//	0.0f,
+		//	0.0f,
+		//	1.2f,
+		//	glm::vec3{ .3f,.7f,.6f }
+		//);
+		//first_sprite->Draw(
+		//	ResourceManager::GetTexture("tux"),
+		//	glm::vec2{ 0.0f, 0.0f },
+		//	glm::vec2{ 160.0f, 160.0f }
+		//);
 
 		//glDepthFunc(GL_LEQUAL);
 
 		//view = glm::mat4(glm::mat3(camera::fps_camera.GetViewMatrix()));
 
 		//cubemap_shader->SetMat4("view", view);
-		//cubemap_shader->SetMat4("projection", proj);
+		//cubemap_shader->SetMat4("projection", projection);
 
 		//glFrontFace(GL_CW);
 
@@ -261,36 +253,36 @@ int main(int argc, const char **argv) {
 }
 
 void Update(double elapsed_time) {
-	//double mouse_x, mouse_y;
+	double mouse_x, mouse_y;
 
-	//glfwGetCursorPos(window.Get(), &mouse_x, &mouse_y);
-	//camera::fps_camera.Rotate(
-	//	static_cast<float>(window.GetWidth() / 2.0 - mouse_x) * camera::kMouseSensitivity,
-	//	static_cast<float>(window.GetHeight() / 2.0 - mouse_y) * camera::kMouseSensitivity
-	//);
-	//glfwSetCursorPos(
-	//	window.Get(),
-	//	window.GetWidth() / 2.0,
-	//	window.GetHeight() / 2.0
-	//);
+	glfwGetCursorPos(window.Get(), &mouse_x, &mouse_y);
+	camera::fps_camera.Rotate(
+		static_cast<float>(window.GetWidth() / 2.0 - mouse_x) * camera::kMouseSensitivity,
+		static_cast<float>(window.GetHeight() / 2.0 - mouse_y) * camera::kMouseSensitivity
+	);
+	glfwSetCursorPos(
+		window.Get(),
+		window.GetWidth() / 2.0,
+		window.GetHeight() / 2.0
+	);
 
-	//if (glfwGetKey(window.Get(), GLFW_KEY_W) == GLFW_PRESS)
-	//	camera::fps_camera.Move(
-	//		camera::kMoveSpeed * static_cast<float>(elapsed_time) * camera::fps_camera.GetLook()
-	//	);
-	//else if (glfwGetKey(window.Get(), GLFW_KEY_S) == GLFW_PRESS)
-	//	camera::fps_camera.Move(
-	//		camera::kMoveSpeed * static_cast<float>(elapsed_time) * -camera::fps_camera.GetLook()
-	//	);
+	if (glfwGetKey(window.Get(), GLFW_KEY_W) == GLFW_PRESS)
+		camera::fps_camera.Move(
+			camera::kMoveSpeed * static_cast<float>(elapsed_time) * camera::fps_camera.GetLook()
+		);
+	else if (glfwGetKey(window.Get(), GLFW_KEY_S) == GLFW_PRESS)
+		camera::fps_camera.Move(
+			camera::kMoveSpeed * static_cast<float>(elapsed_time) * -camera::fps_camera.GetLook()
+		);
 
-	//if (glfwGetKey(window.Get(), GLFW_KEY_A) == GLFW_PRESS)
-	//	camera::fps_camera.Move(
-	//		camera::kMoveSpeed * static_cast<float>(elapsed_time) * -camera::fps_camera.GetRight()
-	//	);
-	//else if (glfwGetKey(window.Get(), GLFW_KEY_D) == GLFW_PRESS)
-	//	camera::fps_camera.Move(
-	//		camera::kMoveSpeed * static_cast<float>(elapsed_time) * camera::fps_camera.GetRight()
-	//	);
+	if (glfwGetKey(window.Get(), GLFW_KEY_A) == GLFW_PRESS)
+		camera::fps_camera.Move(
+			camera::kMoveSpeed * static_cast<float>(elapsed_time) * -camera::fps_camera.GetRight()
+		);
+	else if (glfwGetKey(window.Get(), GLFW_KEY_D) == GLFW_PRESS)
+		camera::fps_camera.Move(
+			camera::kMoveSpeed * static_cast<float>(elapsed_time) * camera::fps_camera.GetRight()
+		);
 }
 
 void SetCallbacks() {
@@ -308,25 +300,25 @@ void SetCallbacks() {
 		}
 	});
 
-	//glfwSetScrollCallback(window, [](GLFWwindow* win, double xoffset, double yoffset) {
-	//	//	// FPS camera
-	//	if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE) {
-	//		double fov = camera::fps_camera.GetFov() + yoffset * camera::kZoomSensitivity;
-	//		fov = glm::clamp(fov, 1.0, 120.0);
-	//		camera::fps_camera.SetFov(static_cast<float>(fov));
+	glfwSetScrollCallback(window.Get(), [](GLFWwindow* win, double xoffset, double yoffset) {
+		//	// FPS camera
+		if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE) {
+			double fov = camera::fps_camera.GetFov() + yoffset * camera::kZoomSensitivity;
+			fov = glm::clamp(fov, 1.0, 120.0);
+			camera::fps_camera.SetFov(static_cast<float>(fov));
 
-	//		proj = glm::perspective(
-	//			glm::radians(camera::fps_camera.GetFov()),
-	//			ratio,
-	//			near,
-	//			far
-	//		);
-	//	}
-	//	// Orbit camera
-	//	else if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
-	//		camera::orbit_camera.SetRadius(static_cast<float>(yoffset) * camera::kZoomSensitivity);
-	//	}
-	//});
+			projection = glm::perspective(
+				glm::radians(camera::fps_camera.GetFov()),
+				window.GetRatio(),
+				near,
+				far
+			);
+		}
+		// Orbit camera
+		else if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
+			camera::orbit_camera.SetRadius(static_cast<float>(yoffset) * camera::kZoomSensitivity);
+		}
+	});
 
 	////// Orbit camera
 	//glfwSetCursorPosCallback(window, [](GLFWwindow* win, double xpos, double ypos) {
@@ -344,13 +336,13 @@ void SetCallbacks() {
 	glfwSetFramebufferSizeCallback(window.Get(), [](GLFWwindow* win, int width, int height) {
 		glViewport(0, 0, width, height);
 		window.UpdateDimensions();
-		//	proj = glm::perspective(
-		//		glm::radians(camera::fps_camera.GetFov()),
-		//		ratio,
-		//		near,
-		//		far
-		//	);
+			projection = glm::perspective(
+				glm::radians(camera::fps_camera.GetFov()),
+				window.GetRatio(),
+				near,
+				far
+			);
 
-		//	model_shader->SetMat4("projection", proj);
+			ResourceManager::GetShader("model")->SetMat4("projection", projection);
 	});
 }

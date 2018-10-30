@@ -36,9 +36,9 @@ void SpriteRenderer::Draw(
     shader_->SetMat4("projection", projection_);
     shader_->SetVec3("sprite_color", color);
 
-    texture->BindTextureUnit("image_sampler", 0);
+    texture->Bind("image_sampler", 0);
     Renderer::Render(*va_, *ib_, *shader_);
-    texture->UnbindTextureUnit(0);
+    texture->Unbind(0);
 }
 
 void SpriteRenderer::InitRenderData() {

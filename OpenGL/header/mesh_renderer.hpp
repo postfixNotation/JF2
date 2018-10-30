@@ -6,6 +6,7 @@
 #include <memory>
 #include <sstream>
 #include <fstream>
+#include <utility>
 #include <iostream>
 #include <algorithm>
 
@@ -14,17 +15,10 @@
 
 #include <renderer.hpp>
 
-constexpr size_t kVerticesPerQuad{ 6 };
-
 struct Vertex {
 	glm::vec3 position;
 	glm::vec3 normal;
 	glm::vec2 tex_coords;
-};
-
-enum class ObjLoadingType {
-	TRIANGLES = 3,
-	QUADS = 4
 };
 
 enum class FaceType {
@@ -34,13 +28,16 @@ enum class FaceType {
 	NOT_DEFINED
 };
 
-// inherit from abstract class
 class MeshRenderer {
 private:
-	ObjLoadingType obj_loading_type_;
+	static constexpr GLuint kVerticesPerQuad{ 6 };
+	static constexpr GLuint kTriangleStride{ 3 };
+	static constexpr GLuint kQuadStride{ 4 };
+
 	std::vector<Vertex> vertices_;
 	std::vector<GLuint> indices_;
-	size_t number_quads_;
+	size_t face_count_;
+	bool is_face_quad_;
 	bool loaded_;
 
 	std::shared_ptr<Shader> shader_;
@@ -49,22 +46,19 @@ private:
 
 	static FaceType EvalSplitRes(
 		const std::vector<GLuint>& input_vec,
-		const ObjLoadingType& olt = ObjLoadingType::QUADS
-	);
+		bool is_face_quad = true);
 	static std::vector<GLuint> Split(
 		std::string value,
-		char delimiter = '/'
-	);
-	void InitIBO();
+		char delimiter = '/');
+	void InitIndices();
 	void InitBuffers();
 public:
 	MeshRenderer(std::shared_ptr<Shader>);
 	~MeshRenderer();
 
-	bool LoadObj(
+	bool Load(
 		const std::string& filename,
-		const ObjLoadingType& obj_loading_type = ObjLoadingType::QUADS
-	);
+		bool is_face_quad = true);
 	void Draw(std::shared_ptr<Shader> shader = std::shared_ptr<Shader>{nullptr}) const;
 };
 

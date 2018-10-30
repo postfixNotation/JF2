@@ -15,8 +15,9 @@
 
 class Texture2D {
 private:
-	std::shared_ptr<Shader> shader_;
 	GLuint handle_{};
+	bool is_cube_map_{ false };
+	std::shared_ptr<Shader> shader_;
 public:
 	Texture2D(std::shared_ptr<Shader> shader) : shader_{ shader } {}
 	Texture2D() : Texture2D{ nullptr } {}
@@ -24,17 +25,15 @@ public:
 		std::shared_ptr<Shader> shader,
 		const std::string& file_name,
 		bool gen_mipmaps = true
-	) : Texture2D(shader) { LoadTexture(file_name, gen_mipmaps); }
+	) : Texture2D(shader) { Load(file_name, gen_mipmaps); }
 	Texture2D(const Texture2D&) = delete;
 	~Texture2D() { glDeleteTextures(1, &handle_); }
 
-	bool LoadTexture(const std::string& file_name, bool gen_mipmaps = true);
-	bool LoadCubemap(const std::vector<std::string>&);
+	bool Load(const std::string& file_name, bool gen_mipmaps = true);
+	bool Load(const std::vector<std::string>&);
 
-	void BindTextureUnit(const GLchar* uniform, GLuint texunit = 0) const;
-	void BindCubeTextureUnit(const GLchar* uniform, GLuint texunit = 0) const;
-	void UnbindTextureUnit(GLuint texunit = 0) const;
-	void UnbindCubeTextureUnit(GLuint texunit = 0) const;
+	void Bind(const GLchar* uniform, GLuint texunit = 0) const;
+	void Unbind(GLuint texunit = 0) const;
 };
 
 #endif // TEXTURE_2D_HPP_
