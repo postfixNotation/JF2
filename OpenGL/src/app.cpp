@@ -215,13 +215,13 @@ int main(int argc, const char **argv) {
 		model->Draw();
 		texture->Unbind(0);
 
-		//ResourceManager::GetTextRenderer("Wallpoet")->Draw(
-		//	"Framerate: "+std::to_string(window.GetFrameRate(2)),
-		//	0.0f,
-		//	0.0f,
-		//	1.2f,
-		//	glm::vec3{ .3f,.7f,.6f }
-		//);
+		ResourceManager::GetTextRenderer("Wallpoet")->Draw(
+			"Framerate: "+std::to_string(window.GetFrameRate(2)),
+			0.0f,
+			0.0f,
+			1.2f,
+			glm::vec3{ .3f,.7f,.6f }
+		);
 		//first_sprite->Draw(
 		//	ResourceManager::GetTexture("tux"),
 		//	glm::vec2{ 0.0f, 0.0f },
