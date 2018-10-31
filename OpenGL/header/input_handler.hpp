@@ -2,6 +2,7 @@
 #define INPUT_HANDLER_HPP_
 
 #include <command.hpp>
+#include <memory>
 
 typedef enum {
 	KEY_ESCAPE			= GLFW_KEY_ESCAPE,
@@ -28,11 +29,11 @@ public:
 	void HandleInput();
 	bool IsPressed(KeyNum button);
 
-	virtual ~InputHandler();
-
 private:
-	Command* button_a_;
-	Command* button_b_;
+	std::unique_ptr<Command> button_a_;
+	std::unique_ptr<Command> button_b_;
+	std::unique_ptr<Command> button_c_;
+	std::unique_ptr<Command> button_d_;
 };
 
 #endif // INPUT_HANDLER_HPP_

@@ -18,6 +18,8 @@ namespace opengl {
 		GLclampf g,
 		GLclampf b,
 		GLclampf a);
+	void PolygonMode();
+	void FillMode();
 	void APIENTRY DebugMessageCallback(
 		GLenum source,
 		GLenum type,

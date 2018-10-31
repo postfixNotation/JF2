@@ -1,5 +1,3 @@
-#include <sstream>
-#include <sstream>
 #include <vector>
 
 #include <glm/glm.hpp>
@@ -46,10 +44,16 @@ int main(int argc, const char **argv) {
 	config.context_size = context::Size::DEBUG;
 
 	Context::Instance().Create(config);
-	Context::Instance().SetCursorPos(Context::Instance().GetWidth() / 2, Context::Instance().GetHeight() / 2);
+	Context::Instance().SetCursorPos(
+		Context::Instance().GetWidth() / 2,
+		Context::Instance().GetHeight() / 2);
 	opengl::Init();
 	opengl::SetDefaultSetting();
-	opengl::SetViewport(0, 0, Context::Instance().GetWidth(), Context::Instance().GetHeight());
+	opengl::SetViewport(
+		0,
+		0,
+		Context::Instance().GetWidth(),
+		Context::Instance().GetHeight());
 	opengl::SetColor(1.0f, 0.9f, 0.8f, 1.0f);
 
 	InputHandler input_handler;
@@ -282,17 +286,6 @@ void Update(double elapsed_time) {
 }
 
 void SetCallbacks() {
-	glfwSetKeyCallback(
-		Context::Instance().Get(),
-		[](GLFWwindow* win, int key, int scancode, int action, int mode) {
-		if (key == GLFW_KEY_L && action == GLFW_PRESS) {
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		}
-		else if (key == GLFW_KEY_K && action == GLFW_PRESS) {
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		}
-	});
-
 	glfwSetScrollCallback(Context::Instance().Get(), [](GLFWwindow* win, double xoffset, double yoffset) {
 		//	// FPS camera
 		if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE) {
