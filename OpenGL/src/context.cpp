@@ -1,8 +1,8 @@
 #include <context.hpp>
 
 Context& Context::Instance() {
-	static Context *context = new Context();
-	return *context;
+	static std::unique_ptr<Context> instance = std::unique_ptr<Context>(new Context());
+	return *instance;
 }
 
 Context::Context() {

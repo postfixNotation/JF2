@@ -32,9 +32,6 @@ namespace camera {
 	constexpr float kMouseSensitivity = 0.1f;
 }
 
-Context window = Context::Instance();
-InputHandler handler;
-
 int main(int argc, const char **argv) {
 	FileSystem::SetResourceRootDir("Resources");
 	FileSystem::InitSubDirs( {"fonts", "audio", "models", "shader", "textures"} );
@@ -48,12 +45,15 @@ int main(int argc, const char **argv) {
 	config.context_title = "JF2 - Rendering Engine";
 	config.context_size = context::Size::DEBUG;
 
-	window.Create(config);
-	window.SetCursorPos(window.GetWidth() / 2, window.GetHeight() / 2);
+	Context::Instance().Create(config);
+	Context::Instance().SetCursorPos(Context::Instance().GetWidth() / 2, Context::Instance().GetHeight() / 2);
 	opengl::Init();
 	opengl::SetDefaultSetting();
-	opengl::SetViewport(0, 0, window.GetWidth(), window.GetHeight());
+	opengl::SetViewport(0, 0, Context::Instance().GetWidth(), Context::Instance().GetHeight());
 	opengl::SetColor(1.0f, 0.9f, 0.8f, 1.0f);
+
+	InputHandler input_handler;
+	input_handler.Init();
 
 	//GLint flags;
 	//glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
@@ -141,12 +141,15 @@ int main(int argc, const char **argv) {
 		FileSystem::GetPathString("shader")+"mesh_vert_shader.glsl",
 		FileSystem::GetPathString("shader")+"mesh_frag_shader.glsl",
 		"model");
+
 	std::shared_ptr<MeshRenderer> model;
 	model = std::make_shared<MeshRenderer>(ResourceManager::GetShader("model"));
 	model->Load(FileSystem::GetPathString("models")+"cyborg.obj", false);
+
 	std::shared_ptr<Texture2D> texture;
 	texture = std::make_shared<Texture2D>(ResourceManager::GetShader("model"));
 	texture->Load(FileSystem::GetPathString("textures")+"cyborg_diffuse.png");
+
 	ResourceManager::GetShader("model")->SetMat4("model", model_mat);
 
 	ResourceManager::LoadShader(
@@ -159,22 +162,22 @@ int main(int argc, const char **argv) {
 		"sprite");
 	ResourceManager::LoadTextRenderer(
 		ResourceManager::GetShader("text"),
-		window.GetWidth(),
-		window.GetHeight(),
+		Context::Instance().GetWidth(),
+		Context::Instance().GetHeight(),
 		64,
 		FileSystem::GetPathString("fonts")+"Nosifer-Regular.ttf",
 		"Nosifier");
 	ResourceManager::LoadTextRenderer(
 		ResourceManager::GetShader("text"),
-		window.GetWidth(),
-		window.GetHeight(),
+		Context::Instance().GetWidth(),
+		Context::Instance().GetHeight(),
 		32,
 		FileSystem::GetPathString("fonts")+"PermanentMarker-Regular.ttf",
 		"PermanentMarker");
 	ResourceManager::LoadTextRenderer(
 		ResourceManager::GetShader("text"),
-		window.GetWidth(),
-		window.GetHeight(),
+		Context::Instance().GetWidth(),
+		Context::Instance().GetHeight(),
 		20,
 		FileSystem::GetPathString("fonts")+"Wallpoet-Regular.ttf",
 		"Wallpoet");
@@ -184,21 +187,21 @@ int main(int argc, const char **argv) {
 		"tux");
 	std::shared_ptr<SpriteRenderer> first_sprite = std::make_shared<SpriteRenderer>(
 		ResourceManager::GetShader("sprite"),
-		window.GetWidth(),
-		window.GetHeight());
+		Context::Instance().GetWidth(),
+		Context::Instance().GetHeight());
 
 	double previous_time{ glfwGetTime() }, delta_time{};
-	camera::orbit_camera.SetLookAt(glm::vec3{ 0.0f,0.0f,0.0f });
+	//camera::orbit_camera.SetLookAt(glm::vec3{ 0.0f,0.0f,0.0f });
 
-	while (!window) {
+	while (!Context::Instance()) {
 		Update(glfwGetTime() - previous_time);
 		previous_time = glfwGetTime();
 
 		Renderer::Clear();
 
-		view = camera::orbit_camera.GetViewMatrix();
+		//view = camera::orbit_camera.GetViewMatrix();
 		view = camera::fps_camera.GetViewMatrix();
-		projection = glm::perspective(glm::radians(camera::fps_camera.GetFov()), window.GetRatio(), near, far);
+		projection = glm::perspective(glm::radians(camera::fps_camera.GetFov()), Context::Instance().GetRatio(), near, far);
 
 		ResourceManager::GetShader("model")->SetMat4("view", view);
 		ResourceManager::GetShader("model")->SetMat4("projection", projection);
@@ -208,7 +211,7 @@ int main(int argc, const char **argv) {
 		texture->Unbind(0);
 
 		ResourceManager::GetTextRenderer("Wallpoet")->Draw(
-			"Framerate: "+std::to_string(window.GetFrameRate(2)),
+			"Framerate: "+std::to_string(Context::Instance().GetFrameRate(2)),
 			0.0f,
 			0.0f,
 			1.2f,
@@ -236,42 +239,43 @@ int main(int argc, const char **argv) {
 		//glFrontFace(GL_CCW);
 		//glDepthFunc(GL_LESS);
 
-		window.PollEvents();
-		window.SwapBuffers();
+		input_handler.HandleInput();
+		Context::Instance().PollEvents();
+		Context::Instance().SwapBuffers();
 	}
 
-	window.Terminate();
+	Context::Instance().Terminate();
 	return 0;
 }
 
 void Update(double elapsed_time) {
 	double mouse_x, mouse_y;
 
-	glfwGetCursorPos(window.Get(), &mouse_x, &mouse_y);
+	glfwGetCursorPos(Context::Instance().Get(), &mouse_x, &mouse_y);
 	camera::fps_camera.Rotate(
-		static_cast<float>(window.GetWidth() / 2.0 - mouse_x) * camera::kMouseSensitivity,
-		static_cast<float>(window.GetHeight() / 2.0 - mouse_y) * camera::kMouseSensitivity
+		static_cast<float>(Context::Instance().GetWidth() / 2.0 - mouse_x) * camera::kMouseSensitivity,
+		static_cast<float>(Context::Instance().GetHeight() / 2.0 - mouse_y) * camera::kMouseSensitivity
 	);
 	glfwSetCursorPos(
-		window.Get(),
-		window.GetWidth() / 2.0,
-		window.GetHeight() / 2.0
+		Context::Instance().Get(),
+		Context::Instance().GetWidth() / 2.0,
+		Context::Instance().GetHeight() / 2.0
 	);
 
-	if (glfwGetKey(window.Get(), GLFW_KEY_W) == GLFW_PRESS)
+	if (glfwGetKey(Context::Instance().Get(), GLFW_KEY_W) == GLFW_PRESS)
 		camera::fps_camera.Move(
 			camera::kMoveSpeed * static_cast<float>(elapsed_time) * camera::fps_camera.GetLook()
 		);
-	else if (glfwGetKey(window.Get(), GLFW_KEY_S) == GLFW_PRESS)
+	else if (glfwGetKey(Context::Instance().Get(), GLFW_KEY_S) == GLFW_PRESS)
 		camera::fps_camera.Move(
 			camera::kMoveSpeed * static_cast<float>(elapsed_time) * -camera::fps_camera.GetLook()
 		);
 
-	if (glfwGetKey(window.Get(), GLFW_KEY_A) == GLFW_PRESS)
+	if (glfwGetKey(Context::Instance().Get(), GLFW_KEY_A) == GLFW_PRESS)
 		camera::fps_camera.Move(
 			camera::kMoveSpeed * static_cast<float>(elapsed_time) * -camera::fps_camera.GetRight()
 		);
-	else if (glfwGetKey(window.Get(), GLFW_KEY_D) == GLFW_PRESS)
+	else if (glfwGetKey(Context::Instance().Get(), GLFW_KEY_D) == GLFW_PRESS)
 		camera::fps_camera.Move(
 			camera::kMoveSpeed * static_cast<float>(elapsed_time) * camera::fps_camera.GetRight()
 		);
@@ -279,12 +283,9 @@ void Update(double elapsed_time) {
 
 void SetCallbacks() {
 	glfwSetKeyCallback(
-		window.Get(),
+		Context::Instance().Get(),
 		[](GLFWwindow* win, int key, int scancode, int action, int mode) {
-		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-			window.SetCloseFlag();
-		}
-		else if (key == GLFW_KEY_L && action == GLFW_PRESS) {
+		if (key == GLFW_KEY_L && action == GLFW_PRESS) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		}
 		else if (key == GLFW_KEY_K && action == GLFW_PRESS) {
@@ -292,7 +293,7 @@ void SetCallbacks() {
 		}
 	});
 
-	glfwSetScrollCallback(window.Get(), [](GLFWwindow* win, double xoffset, double yoffset) {
+	glfwSetScrollCallback(Context::Instance().Get(), [](GLFWwindow* win, double xoffset, double yoffset) {
 		//	// FPS camera
 		if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE) {
 			double fov = camera::fps_camera.GetFov() + yoffset * camera::kZoomSensitivity;
@@ -301,7 +302,7 @@ void SetCallbacks() {
 
 			projection = glm::perspective(
 				glm::radians(camera::fps_camera.GetFov()),
-				window.GetRatio(),
+				Context::Instance().GetRatio(),
 				near,
 				far
 			);
@@ -313,7 +314,7 @@ void SetCallbacks() {
 	});
 
 	////// Orbit camera
-	//glfwSetCursorPosCallback(window, [](GLFWwindow* win, double xpos, double ypos) {
+	//glfwSetCursorPosCallback(Context::Instance(), [](GLFWwindow* win, double xpos, double ypos) {
 	//	static glm::vec2 last_mouse_pos = glm::vec2{};
 
 	//	if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
@@ -325,12 +326,12 @@ void SetCallbacks() {
 	//	last_mouse_pos = glm::vec2{ static_cast<float>(xpos), static_cast<float>(ypos) };
 	//});
 
-	glfwSetFramebufferSizeCallback(window.Get(), [](GLFWwindow* win, int width, int height) {
+	glfwSetFramebufferSizeCallback(Context::Instance().Get(), [](GLFWwindow* win, int width, int height) {
 		glViewport(0, 0, width, height);
-		window.UpdateDimensions();
+		Context::Instance().UpdateDimensions();
 			projection = glm::perspective(
 				glm::radians(camera::fps_camera.GetFov()),
-				window.GetRatio(),
+				Context::Instance().GetRatio(),
 				near,
 				far
 			);

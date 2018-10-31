@@ -4,14 +4,17 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include <non_copyable.hpp>
+#include <non_moveable.hpp>
 #include <config.hpp>
 
 #include <iostream>
 #include <cassert>
+#include <memory>
 #include <string>
 #include <cmath>
 
-struct Context {
+struct Context : public NonCopyable, public NonMoveable {
 public:
 	~Context();
 

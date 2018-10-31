@@ -24,9 +24,11 @@ typedef enum {
 
 class InputHandler {
 public:
+	void Init();
 	void HandleInput();
 	bool IsPressed(KeyNum button);
-	void Init();
+
+	virtual ~InputHandler();
 
 private:
 	Command* button_a_;

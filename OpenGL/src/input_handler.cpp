@@ -1,8 +1,8 @@
 #include <input_handler.hpp>
 
 void InputHandler::Init() {
-	Command* button_a_  = new CloseCommand;
-	Command* button_b_  = new NullCommand;
+	button_a_  = new CloseCommand();
+	button_b_  = new NullCommand();
 }
 
 void InputHandler::HandleInput() {
@@ -11,4 +11,10 @@ void InputHandler::HandleInput() {
 
 bool InputHandler::IsPressed(KeyNum button) {
 	return Context::Instance().KeyDown(button);
+}
+
+// Change to smart pointers
+InputHandler::~InputHandler() {
+	delete button_a_;
+	delete button_b_;
 }
