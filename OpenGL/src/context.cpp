@@ -1,5 +1,10 @@
 #include <context.hpp>
 
+Context& Context::Instance() {
+	static Context *context = new Context();
+	return *context;
+}
+
 Context::Context() {
 	if (!glfwInit()) {
 		std::cerr << "ERROR: COULD NOT START GLFW3" << std::endl;
@@ -12,8 +17,8 @@ Context::Context() {
 Context::~Context() { Terminate(); }
 
 void Context::Terminate() {
-	glfwDestroyWindow(window_);
-	window_ = nullptr;
+	glfwDestroyWindow(handle_);
+	handle_ = nullptr;
 	glfwTerminate();
 }
 
@@ -55,10 +60,10 @@ void Context::SetHints(
 
 void Context::SetCursorMode(bool cursor_enabled) {
 	if (cursor_enabled) {
-		glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		glfwSetInputMode(handle_, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	}
 	else {
-		glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		glfwSetInputMode(handle_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	}
 }
 
@@ -71,7 +76,7 @@ void Context::Create(const context::Config &config) {
 	);
 	switch (config.context_size) {
 		case context::Size::DEBUG:
-			window_ = glfwCreateWindow(
+			handle_ = glfwCreateWindow(
 				(width_ = width_ / 2),
 				(height_ = height_ / 2),
 				config.context_title.c_str(),
@@ -80,7 +85,7 @@ void Context::Create(const context::Config &config) {
 			);
 			break;
 		case context::Size::MAXIMIZED:
-			window_ = glfwCreateWindow(
+			handle_ = glfwCreateWindow(
 				width_,
 				height_,
 				config.context_title.c_str(),
@@ -89,7 +94,7 @@ void Context::Create(const context::Config &config) {
 			);
 			break;
 		case context::Size::FULLSCREEEN:
-			window_ = glfwCreateWindow(
+			handle_ = glfwCreateWindow(
 				width_,
 				height_,
 				config.context_title.c_str(),
@@ -99,11 +104,11 @@ void Context::Create(const context::Config &config) {
 			break;
 	}
 
-	if (!window_) {
+	if (!handle_) {
 		std::cerr << "ERROR: COULD NOT OPEN WINDOW WITH GLFW3" << std::endl;
 		glfwTerminate();
 	}
-	glfwMakeContextCurrent(window_);
+	glfwMakeContextCurrent(handle_);
 	SetCursorMode(config.cusor_enabled);
 }
 

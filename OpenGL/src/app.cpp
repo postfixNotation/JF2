@@ -11,16 +11,7 @@
 #include <SFML/Audio.hpp>
 #include <Box2D/Box2D.h>
 
-#include <resource_manager.hpp>
-#include <sprite_renderer.hpp>
-#include <mesh_renderer.hpp>
-#include <text_renderer.hpp>
-#include <filesystem.hpp>
-#include <texture2d.hpp>
-#include <context.hpp>
-#include <camera.hpp>
-#include <shader.hpp>
-#include <gl.hpp>
+#include <jf2.hpp>
 
 float near = 0.1f;
 float far = 100.0f;
@@ -41,7 +32,8 @@ namespace camera {
 	constexpr float kMouseSensitivity = 0.1f;
 }
 
-Context window;
+Context window = Context::Instance();
+InputHandler handler;
 
 int main(int argc, const char **argv) {
 	FileSystem::SetResourceRootDir("Resources");
@@ -151,10 +143,10 @@ int main(int argc, const char **argv) {
 		"model");
 	std::shared_ptr<MeshRenderer> model;
 	model = std::make_shared<MeshRenderer>(ResourceManager::GetShader("model"));
-	model->Load(FileSystem::GetPathString("models")+"robot.obj", false);
+	model->Load(FileSystem::GetPathString("models")+"cyborg.obj", false);
 	std::shared_ptr<Texture2D> texture;
 	texture = std::make_shared<Texture2D>(ResourceManager::GetShader("model"));
-	texture->Load(FileSystem::GetPathString("textures")+"robot.jpg");
+	texture->Load(FileSystem::GetPathString("textures")+"cyborg_diffuse.png");
 	ResourceManager::GetShader("model")->SetMat4("model", model_mat);
 
 	ResourceManager::LoadShader(

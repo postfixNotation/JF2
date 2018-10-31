@@ -1,13 +1,7 @@
 #ifndef COMMAND_HPP_
 #define COMMAND_HPP_
 
-#include <iostream>
-void Jump() {
-	std::cout << "JUMP" << std::endl;
-}
-void FireGun() {
-	std::cout << "FIREGUN" << std::endl;
-}
+#include <context.hpp>
 
 class Command {
 public:
@@ -15,14 +9,9 @@ public:
 	virtual void execute() = 0;
 };
 
-class JumpCommand : public Command {
+class CloseCommand : public Command {
 public:
-	virtual void execute() { Jump(); }
-};
-
-class FireCommand : public Command {
-public:
-	virtual void execute() { FireGun(); }
+	virtual void execute() { []() { Context::Instance().SetCloseFlag(); }(); }
 };
 
 class NullCommand : public Command {
