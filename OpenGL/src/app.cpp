@@ -31,8 +31,8 @@ namespace camera {
 }
 
 int main(int argc, const char **argv) {
-	FileSystem::SetResourceRootDir("Resources");
-	FileSystem::InitSubDirs( {"fonts", "audio", "models", "shader", "textures"} );
+	FileSystem::Instance().SetResourceRootDir("Resources");
+	FileSystem::Instance().InitSubDirs( {"fonts", "audio", "models", "shader", "textures"} );
 
 	context::Config config;
 	config.opengl_major = 3;
@@ -142,52 +142,52 @@ int main(int argc, const char **argv) {
 	//cubemap_shader->SetInt("skybox", 0);
 
 	ResourceManager::LoadShader(
-		FileSystem::GetPathString("shader")+"mesh_vert_shader.glsl",
-		FileSystem::GetPathString("shader")+"mesh_frag_shader.glsl",
+		FileSystem::Instance().GetPathString("shader")+"mesh_vert_shader.glsl",
+		FileSystem::Instance().GetPathString("shader")+"mesh_frag_shader.glsl",
 		"model");
 
 	std::shared_ptr<MeshRenderer> model;
 	model = std::make_shared<MeshRenderer>(ResourceManager::GetShader("model"));
-	model->Load(FileSystem::GetPathString("models")+"cyborg.obj", false);
+	model->Load(FileSystem::Instance().GetPathString("models")+"cyborg.obj", false);
 
 	std::shared_ptr<Texture2D> texture;
 	texture = std::make_shared<Texture2D>(ResourceManager::GetShader("model"));
-	texture->Load(FileSystem::GetPathString("textures")+"cyborg_diffuse.png");
+	texture->Load(FileSystem::Instance().GetPathString("textures")+"cyborg_diffuse.png");
 
 	ResourceManager::GetShader("model")->SetMat4("model", model_mat);
 
 	ResourceManager::LoadShader(
-		FileSystem::GetPathString("shader")+"font_vert.glsl",
-		FileSystem::GetPathString("shader")+"font_frag.glsl",
+		FileSystem::Instance().GetPathString("shader")+"font_vert.glsl",
+		FileSystem::Instance().GetPathString("shader")+"font_frag.glsl",
 		"text");
 	ResourceManager::LoadShader(
-		FileSystem::GetPathString("shader")+"sprite_vert_shader.glsl",
-		FileSystem::GetPathString("shader")+"sprite_frag_shader.glsl",
+		FileSystem::Instance().GetPathString("shader")+"sprite_vert_shader.glsl",
+		FileSystem::Instance().GetPathString("shader")+"sprite_frag_shader.glsl",
 		"sprite");
 	ResourceManager::LoadTextRenderer(
 		ResourceManager::GetShader("text"),
 		Context::Instance().GetWidth(),
 		Context::Instance().GetHeight(),
 		64,
-		FileSystem::GetPathString("fonts")+"Nosifer-Regular.ttf",
+		FileSystem::Instance().GetPathString("fonts")+"Nosifer-Regular.ttf",
 		"Nosifier");
 	ResourceManager::LoadTextRenderer(
 		ResourceManager::GetShader("text"),
 		Context::Instance().GetWidth(),
 		Context::Instance().GetHeight(),
 		32,
-		FileSystem::GetPathString("fonts")+"PermanentMarker-Regular.ttf",
+		FileSystem::Instance().GetPathString("fonts")+"PermanentMarker-Regular.ttf",
 		"PermanentMarker");
 	ResourceManager::LoadTextRenderer(
 		ResourceManager::GetShader("text"),
 		Context::Instance().GetWidth(),
 		Context::Instance().GetHeight(),
 		20,
-		FileSystem::GetPathString("fonts")+"Wallpoet-Regular.ttf",
+		FileSystem::Instance().GetPathString("fonts")+"Wallpoet-Regular.ttf",
 		"Wallpoet");
 	ResourceManager::LoadTexture(
 		ResourceManager::GetShader("sprite"),
-		FileSystem::GetPathString("textures")+"tux.png",
+		FileSystem::Instance().GetPathString("textures")+"tux.png",
 		"tux");
 	std::shared_ptr<SpriteRenderer> first_sprite = std::make_shared<SpriteRenderer>(
 		ResourceManager::GetShader("sprite"),

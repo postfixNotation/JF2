@@ -12,33 +12,32 @@
 namespace bf = boost::filesystem;
 
 class FileSystem {
-protected:
-	static std::map<std::string, bf::path> directories;
-	static bf::path resource_root_dir;
-
-	static bool IsDirectory(const bf::path &path) {
-		return bf::is_directory(path);
-	}
-
-	static bool IsFile(const bf::path &path) {
-		return bf::is_regular_file(path);
-	}
-
-	static bool Exists(const bf::path &path) {
-		return bf::exists(path);
-	}
-
 public:
-	FileSystem() = delete;
-	static bf::path GetPath(const std::string &subdirname);
-	static std::string GetPathString(const std::string &subdirname);
+	static FileSystem& Instance() {
+		static FileSystem* instance = new FileSystem();
+		return *instance;
+	}
+	bf::path GetPath(const std::string &subdirname);
+	std::string GetPathString(const std::string &subdirname);
 
-	static std::string GetContent(bf::path path);
-	static std::string GetContent(const std::string &path);
+	std::string GetContent(bf::path path);
+	std::string GetContent(const std::string &path);
 
-	static const bf::path& SetResourceRootDir(bf::path path);
-	static const bf::path& SetResourceSubDir(const std::string &name);
+	const bf::path& SetResourceRootDir(bf::path path);
+	const bf::path& SetResourceSubDir(const std::string &name);
 
-	static void InitSubDirs(const std::vector<std::string> &sub_dir_list);
+	void InitSubDirs(const std::vector<std::string> &sub_dir_list);
+
+private:
+	FileSystem() {}
+	std::map<std::string, bf::path> directories_;
+	bf::path resource_root_dir_{ bf::current_path().parent_path() };
+
+	bool IsDirectory(const bf::path &path) { return bf::is_directory(path); }
+
+	bool IsFile(const bf::path &path) { return bf::is_regular_file(path); }
+
+	bool Exists(const bf::path &path) { return bf::exists(path); }
+
 };
 #endif // FILESYSTEM_HPP_

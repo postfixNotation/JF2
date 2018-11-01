@@ -16,8 +16,8 @@ GLint Shader::GetUniformLocation(const std::string &name) {
 }
 
 Shader::Shader(const std::string &vert_file, const std::string &frag_file) {
-	std::string vertex_string = FileSystem::GetContent(vert_file);
-	std::string fragment_string = FileSystem::GetContent(frag_file);
+	std::string vertex_string = FileSystem::Instance().GetContent(vert_file);
+	std::string fragment_string = FileSystem::Instance().GetContent(frag_file);
 
 	const GLchar* vertex_src = vertex_string.c_str();
 	const GLchar* fragment_src = fragment_string.c_str();

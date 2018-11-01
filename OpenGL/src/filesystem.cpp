@@ -1,11 +1,8 @@
 #include <filesystem.hpp>
 
-std::map<std::string, bf::path> FileSystem::directories;
-bf::path FileSystem::resource_root_dir{ bf::current_path().parent_path() };
-
 bf::path FileSystem::GetPath(const std::string &subdirname) {
-	assert(directories.find(subdirname) != directories.end());
-	return directories[subdirname];
+	assert(directories_.find(subdirname) != directories_.end());
+	return directories_[subdirname];
 }
 
 std::string FileSystem::GetPathString(const std::string &subdirname) {
@@ -39,16 +36,16 @@ std::string FileSystem::GetContent(const std::string &path) {
 }
 
 const bf::path& FileSystem::SetResourceRootDir(bf::path path) {
-	resource_root_dir /= path;
-	assert(Exists(resource_root_dir) && IsDirectory(resource_root_dir));
-	return resource_root_dir;
+	resource_root_dir_ /= path;
+	assert(Exists(resource_root_dir_) && IsDirectory(resource_root_dir_));
+	return resource_root_dir_;
 }
 
 const bf::path& FileSystem::SetResourceSubDir(const std::string &name) {
-	directories[name] = resource_root_dir;
-	directories[name] /= (bf::path(name)+="/");
-	assert(Exists(directories[name]) && IsDirectory(directories[name]));
-	return directories[name];
+	directories_[name] = resource_root_dir_;
+	directories_[name] /= (bf::path(name)+="/");
+	assert(Exists(directories_[name]) && IsDirectory(directories_[name]));
+	return directories_[name];
 }
 
 void FileSystem::InitSubDirs(const std::vector<std::string> &sub_dir_list) {
