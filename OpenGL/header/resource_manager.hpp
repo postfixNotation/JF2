@@ -30,6 +30,11 @@ struct ResourceManager {
 		std::string name,
 		bool gen_mipmaps = true
 	);
+    static const std::shared_ptr<Texture2D>& LoadTexture(
+		const std::shared_ptr<Shader>& shader,
+		const std::vector<std::string>& faces,
+		std::string name
+	);
     static const std::shared_ptr<TextRenderer>& LoadTextRenderer(
 		const std::shared_ptr<Shader>& shader,
 		size_t width,

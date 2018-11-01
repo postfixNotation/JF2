@@ -59,31 +59,26 @@ int main(int argc, const char **argv) {
 	InputHandler input_handler;
 	input_handler.Init();
 
-	//GLint flags;
-	//glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-	//if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
-	//	glEnable(GL_DEBUG_OUTPUT);
-	//	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-	//	glDebugMessageCallback(
-	//		opengl::DebugMessageCallback,
-	//		nullptr);
+	GLint flags;
+	glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+	if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
+		glEnable(GL_DEBUG_OUTPUT);
+		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+		glDebugMessageCallback(
+			opengl::DebugMessageCallback,
+			nullptr);
 
-	//	glDebugMessageControl(
-	//		GL_DONT_CARE,
-	//		GL_DONT_CARE,
-	//		GL_DONT_CARE,
-	//		0,
-	//		nullptr,
-	//		GL_TRUE
-	//	);
-	//}
+		glDebugMessageControl(
+			GL_DONT_CARE,
+			GL_DONT_CARE,
+			GL_DONT_CARE,
+			0,
+			nullptr,
+			GL_TRUE
+		);
+	}
 
 	SetCallbacks();
-
-	//cubemap_shader = std::make_shared<Shader>(
-	//	"../shader/cubemap_vert_shader.glsl",
-	//	"../shader/cubemap_frag_shader.glsl"
-	//);
 
 	//std::string filename{};
 	//GLFWimage images[2];
@@ -126,58 +121,48 @@ int main(int argc, const char **argv) {
 	//	return -1;
 	//music.play();
 
-	//std::vector<std::string> faces{
-	//	"../textures/skybox/right.jpg",
-	//	"../textures/skybox/left.jpg",
-	//	"../textures/skybox/bottom.jpg",
-	//	"../textures/skybox/top.jpg",
-	//	"../textures/skybox/front.jpg",
-	//	"../textures/skybox/back.jpg"
-	//};
-	//meshes[1] = std::make_shared<MeshRenderer>(cubemap_shader);
-	//meshes[1]->LoadObj("../models/cube.obj", ObjLoadingType::QUADS);
-	//textures[1] = std::make_shared<Texture2D>(cubemap_shader);
-	//textures[1]->LoadCubemap(faces);
+	std::vector<std::string> faces{
+		FileSystem::Instance().GetPathString("textures")+"skybox/right.jpg",
+		FileSystem::Instance().GetPathString("textures")+"skybox/left.jpg",
+		FileSystem::Instance().GetPathString("textures")+"skybox/top.jpg",
+		FileSystem::Instance().GetPathString("textures")+"skybox/bottom.jpg",
+		FileSystem::Instance().GetPathString("textures")+"skybox/front.jpg",
+		FileSystem::Instance().GetPathString("textures")+"skybox/back.jpg"
+	};
 
-	//cubemap_shader->SetInt("skybox", 0);
+	ResourceManager::LoadShader(
+		FileSystem::Instance().GetPathString("shader")+"cubemap_vert_shader.glsl",
+		FileSystem::Instance().GetPathString("shader")+"cubemap_frag_shader.glsl",
+		"cubemap");
+	ResourceManager::GetShader("cubemap")->SetInt("skybox", 0);
+
+	ResourceManager::LoadTexture(
+		ResourceManager::GetShader("cubemap"),
+		faces,
+		"faces");
 
 	ResourceManager::LoadShader(
 		FileSystem::Instance().GetPathString("shader")+"mesh_vert_shader.glsl",
 		FileSystem::Instance().GetPathString("shader")+"mesh_frag_shader.glsl",
 		"model");
-
-	std::shared_ptr<MeshRenderer> model;
-	model = std::make_shared<MeshRenderer>(ResourceManager::GetShader("model"));
-	model->Load(FileSystem::Instance().GetPathString("models")+"cyborg.obj", false);
-
-	std::shared_ptr<Texture2D> texture;
-	texture = std::make_shared<Texture2D>(ResourceManager::GetShader("model"));
-	texture->Load(FileSystem::Instance().GetPathString("textures")+"cyborg_diffuse.png");
-
 	ResourceManager::GetShader("model")->SetMat4("model", model_mat);
+
+	ResourceManager::LoadTexture(
+		ResourceManager::GetShader("model"),
+		FileSystem::Instance().GetPathString("textures")+"cyborg_diffuse.png",
+		"cyborg"
+	);
 
 	ResourceManager::LoadShader(
 		FileSystem::Instance().GetPathString("shader")+"font_vert.glsl",
 		FileSystem::Instance().GetPathString("shader")+"font_frag.glsl",
 		"text");
+
 	ResourceManager::LoadShader(
 		FileSystem::Instance().GetPathString("shader")+"sprite_vert_shader.glsl",
 		FileSystem::Instance().GetPathString("shader")+"sprite_frag_shader.glsl",
 		"sprite");
-	ResourceManager::LoadTextRenderer(
-		ResourceManager::GetShader("text"),
-		Context::Instance().GetWidth(),
-		Context::Instance().GetHeight(),
-		64,
-		FileSystem::Instance().GetPathString("fonts")+"Nosifer-Regular.ttf",
-		"Nosifier");
-	ResourceManager::LoadTextRenderer(
-		ResourceManager::GetShader("text"),
-		Context::Instance().GetWidth(),
-		Context::Instance().GetHeight(),
-		32,
-		FileSystem::Instance().GetPathString("fonts")+"PermanentMarker-Regular.ttf",
-		"PermanentMarker");
+
 	ResourceManager::LoadTextRenderer(
 		ResourceManager::GetShader("text"),
 		Context::Instance().GetWidth(),
@@ -185,14 +170,27 @@ int main(int argc, const char **argv) {
 		20,
 		FileSystem::Instance().GetPathString("fonts")+"Wallpoet-Regular.ttf",
 		"Wallpoet");
+
 	ResourceManager::LoadTexture(
 		ResourceManager::GetShader("sprite"),
 		FileSystem::Instance().GetPathString("textures")+"tux.png",
 		"tux");
-	std::shared_ptr<SpriteRenderer> first_sprite = std::make_shared<SpriteRenderer>(
-		ResourceManager::GetShader("sprite"),
-		Context::Instance().GetWidth(),
-		Context::Instance().GetHeight());
+
+	std::shared_ptr<MeshRenderer> model{
+		std::make_shared<MeshRenderer>(ResourceManager::GetShader("model")) };
+	model->Load(
+		FileSystem::Instance().GetPathString("models")+"cyborg.obj",
+		false);
+
+	std::shared_ptr<MeshRenderer> cube_map_mesh{
+		std::make_shared<MeshRenderer>(ResourceManager::GetShader("cubemap")) };
+	cube_map_mesh->Load(
+		FileSystem::Instance().GetPathString("models")+"cube.obj");
+
+	//std::shared_ptr<SpriteRenderer> first_sprite = std::make_shared<SpriteRenderer>(
+	//	ResourceManager::GetShader("sprite"),
+	//	Context::Instance().GetWidth(),
+	//	Context::Instance().GetHeight());
 
 	double previous_time{ glfwGetTime() }, delta_time{};
 	//camera::orbit_camera.SetLookAt(glm::vec3{ 0.0f,0.0f,0.0f });
@@ -210,9 +208,9 @@ int main(int argc, const char **argv) {
 		ResourceManager::GetShader("model")->SetMat4("view", view);
 		ResourceManager::GetShader("model")->SetMat4("projection", projection);
 
-		texture->Bind("tex_sampler", 0);
+		ResourceManager::GetTexture("cyborg")->Bind("tex_sampler", 0);
 		model->Draw();
-		texture->Unbind(0);
+		ResourceManager::GetTexture("cyborg")->Unbind(0);
 
 		ResourceManager::GetTextRenderer("Wallpoet")->Draw(
 			"Framerate: "+std::to_string(Context::Instance().GetFrameRate(2)),
@@ -227,21 +225,21 @@ int main(int argc, const char **argv) {
 		//	glm::vec2{ 160.0f, 160.0f }
 		//);
 
-		//glDepthFunc(GL_LEQUAL);
+		glDepthFunc(GL_LEQUAL);
 
-		//view = glm::mat4(glm::mat3(camera::fps_camera.GetViewMatrix()));
+		view = glm::mat4(glm::mat3(camera::fps_camera.GetViewMatrix()));
 
-		//cubemap_shader->SetMat4("view", view);
-		//cubemap_shader->SetMat4("projection", projection);
+		ResourceManager::GetShader("cubemap")->SetMat4("view", view);
+		ResourceManager::GetShader("cubemap")->SetMat4("projection", projection);
 
-		//glFrontFace(GL_CW);
+		glFrontFace(GL_CW);
 
-		//textures[1]->BindCubeTextureUnit("skybox", 0);
-		//meshes[1]->Draw();
-		//textures[1]->UnbindCubeTextureUnit(0);
+		ResourceManager::GetTexture("faces")->Bind("skybox", 0);
+		cube_map_mesh->Draw();
+		ResourceManager::GetTexture("faces")->Unbind(0);
 
-		//glFrontFace(GL_CCW);
-		//glDepthFunc(GL_LESS);
+		glFrontFace(GL_CCW);
+		glDepthFunc(GL_LESS);
 
 		input_handler.HandleInput();
 		Context::Instance().PollEvents();

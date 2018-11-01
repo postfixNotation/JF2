@@ -14,4 +14,3 @@ void main() {
 	vec4 temp_pos = projection * view * vec4(vert_pos, 1.0);
 	gl_Position = temp_pos.xyww;
 }
-

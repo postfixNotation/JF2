@@ -120,7 +120,12 @@ void Texture2D::Bind(const GLchar* uniform, GLuint texunit) const {
 
 	assert(texunit >= 0 && texunit < MAX_NUMBER_TEX_UNITS);
 	glActiveTexture(GL_TEXTURE0 + texunit);
-	glBindTexture(GL_TEXTURE_2D, handle_);
+	if (is_cube_map_) {
+		glBindTexture(GL_TEXTURE_CUBE_MAP, handle_);
+	}
+	else {
+		glBindTexture(GL_TEXTURE_2D, handle_);
+	}
 }
 
 void Texture2D::Unbind(GLuint texunit) const {
