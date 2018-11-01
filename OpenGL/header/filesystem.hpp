@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <memory>
 #include <map>
 
 #define BOOST_FILESYSTEM_NO_DEPRECATED
@@ -14,7 +15,7 @@ namespace bf = boost::filesystem;
 class FileSystem {
 public:
 	static FileSystem& Instance() {
-		static FileSystem* instance = new FileSystem();
+		static std::unique_ptr<FileSystem> instance { std::unique_ptr<FileSystem>(new FileSystem()) };
 		return *instance;
 	}
 	bf::path GetPath(const std::string &subdirname);
