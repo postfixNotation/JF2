@@ -1,23 +1,10 @@
 #include <camera.hpp>
 
-constexpr float kDefFov = 45.0f; // degrees
-
-Camera::Camera() :
-	position_{ glm::vec3{0.0f,0.0f,0.0f} },
-	target_{ glm::vec3{0.0f,0.0f,0.0f} },
-	kWorldUp{ 0.0f, 1.0f, 0.0f },
-	up_{ glm::vec3{0.0f,1.0f,0.0f} },
-	yaw_{ 0.0f },
-	pitch_{ 0.0f },
-	fov_{ kDefFov }
-{}
-
 glm::mat4 Camera::GetViewMatrix() const {
 	return glm::lookAt(position_, target_, up_);
 }
 
-FPSCamera::FPSCamera(glm::vec3 position, float yaw, float pitch) :
-	right_{ 1.0f,0.0f,0.0f } {
+FPSCamera::FPSCamera(glm::vec3 position, float yaw, float pitch) {
 	position_ = position;
 	yaw_ = yaw;
 	pitch_ = pitch;
@@ -29,15 +16,15 @@ void FPSCamera::Rotate(float yaw, float pitch) {
 	float lower_bound = -glm::pi<float>() / 2.0f + 0.1f;
 	float upper_bound = glm::pi<float>() / 2.0f - 0.1f;
 	pitch_ = glm::clamp(pitch_, lower_bound, upper_bound);
-	UpdateCameraVectors();
+	UpdateVectors();
 }
 
-void FPSCamera::Move(const glm::vec3& offset_position) {
-	position_ += offset_position;
-	UpdateCameraVectors();
+void FPSCamera::Move(const glm::vec3& delta) {
+	position_ += delta;
+	UpdateVectors();
 }
 
-void FPSCamera::UpdateCameraVectors() {
+void FPSCamera::UpdateVectors() {
 	glm::vec3 look;
 	look.x = cosf(pitch_) * sinf(yaw_);
 	look.y = sinf(pitch_);
@@ -50,17 +37,15 @@ void FPSCamera::UpdateCameraVectors() {
 	target_ = position_ + look_;
 }
 
-OrbitCamera::OrbitCamera() : radius_{ 10.0f } {}
-
 void OrbitCamera::SetLookAt(const glm::vec3& target) {
 	target_ = target;
-	UpdateCameraVectors();
+	UpdateVectors();
 }
 
-void OrbitCamera::SetRadius(float offset_radius) {
-	radius_ += offset_radius;
+void OrbitCamera::SetRadius(float delta) {
+	radius_ += delta;
 	radius_ = glm::clamp(radius_, 2.0f, 80.0f);
-	UpdateCameraVectors();
+	UpdateVectors();
 }
 
 void OrbitCamera::Rotate(float yaw, float pitch) {
@@ -69,10 +54,10 @@ void OrbitCamera::Rotate(float yaw, float pitch) {
 	float lower_bound = -glm::pi<float>() / 2.0f + 0.1f;
 	float upper_bound = glm::pi<float>() / 2.0f - 0.1f;
 	pitch_ = glm::clamp(pitch_, lower_bound, upper_bound);
-	UpdateCameraVectors();
+	UpdateVectors();
 }
 
-void OrbitCamera::UpdateCameraVectors() {
+void OrbitCamera::UpdateVectors() {
 	position_.x = target_.x + radius_ * cosf(pitch_) * sinf(yaw_);
 	position_.y = target_.y + radius_ * sinf(pitch_);
 	position_.z = target_.z + radius_ * cosf(pitch_) * cosf(yaw_);

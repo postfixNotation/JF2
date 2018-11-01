@@ -59,24 +59,24 @@ int main(int argc, const char **argv) {
 	InputHandler input_handler;
 	input_handler.Init();
 
-	GLint flags;
-	glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-	if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
-		glEnable(GL_DEBUG_OUTPUT);
-		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-		glDebugMessageCallback(
-			opengl::DebugMessageCallback,
-			nullptr);
+	//GLint flags;
+	//glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+	//if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
+	//	glEnable(GL_DEBUG_OUTPUT);
+	//	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+	//	glDebugMessageCallback(
+	//		opengl::DebugMessageCallback,
+	//		nullptr);
 
-		glDebugMessageControl(
-			GL_DONT_CARE,
-			GL_DONT_CARE,
-			GL_DONT_CARE,
-			0,
-			nullptr,
-			GL_TRUE
-		);
-	}
+	//	glDebugMessageControl(
+	//		GL_DONT_CARE,
+	//		GL_DONT_CARE,
+	//		GL_DONT_CARE,
+	//		0,
+	//		nullptr,
+	//		GL_TRUE
+	//	);
+	//}
 
 	SetCallbacks();
 
@@ -176,14 +176,14 @@ int main(int argc, const char **argv) {
 		FileSystem::Instance().GetPathString("textures")+"tux.png",
 		"tux");
 
-	std::shared_ptr<MeshRenderer> model{
-		std::make_shared<MeshRenderer>(ResourceManager::GetShader("model")) };
+	std::unique_ptr<MeshRenderer> model{
+		std::unique_ptr<MeshRenderer>(new MeshRenderer(ResourceManager::GetShader("model"))) };
 	model->Load(
 		FileSystem::Instance().GetPathString("models")+"cyborg.obj",
 		false);
 
-	std::shared_ptr<MeshRenderer> cube_map_mesh{
-		std::make_shared<MeshRenderer>(ResourceManager::GetShader("cubemap")) };
+	std::unique_ptr<MeshRenderer> cube_map_mesh{
+		std::unique_ptr<MeshRenderer>(new MeshRenderer(ResourceManager::GetShader("cubemap"))) };
 	cube_map_mesh->Load(
 		FileSystem::Instance().GetPathString("models")+"cube.obj");
 

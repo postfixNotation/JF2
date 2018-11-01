@@ -1,29 +1,32 @@
 #ifndef CAMERA_HPP_
 #define CAMERA_HPP_
 
+#include <utility>
+
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 
-// abstract camera class
+constexpr float kDefFov = 45.0f; // degrees
+constexpr float kInitOrbitRadius = 10.0f;
+
 class Camera {
 private:
-	// camera parameters
-	float fov_; // degrees
+	float fov_{ kDefFov };
 
 protected:
-	Camera();
-	virtual void UpdateCameraVectors() = 0;
+	Camera() {}
+	virtual void UpdateVectors() = 0;
 
-	const glm::vec3 kWorldUp;
-	glm::vec3 up_;
-	glm::vec3 position_;
-	glm::vec3 target_;
-	// euler angles (in radians)
-	float yaw_;
-	float pitch_;
+	const glm::vec3 kWorldUp{ 0.0f, 1.0f, 0.0f };
+	glm::vec3 up_{ 0.0f, 1.0f, 0.0f };
+	glm::vec3 position_{ 0.0f };
+	glm::vec3 target_{ 0.0f };
+	// radians
+	float yaw_{ 0.0f };
+	float pitch_{ 0.0f };
 
 public:
-	virtual void Rotate(float, float) = 0; // abstract method, angles in degrees
+	virtual void Rotate(float yaw, float pitch) = 0; // in degrees
 	glm::mat4 GetViewMatrix() const;
 	float GetFov() const { return fov_; }
 	void SetFov(float fov) { fov_ = fov; } // in degrees
@@ -32,37 +35,35 @@ public:
 class FPSCamera : public Camera {
 private:
 	glm::vec3 look_;
-	glm::vec3 right_;
-	virtual void UpdateCameraVectors() override final;
+	glm::vec3 right_{ 1.0f, 0.0f, 0.0f };
+	virtual void UpdateVectors() override final;
 
 public:
 	FPSCamera(
-		glm::vec3 position = glm::vec3{ 0.0f,0.0f,0.0f },
+		glm::vec3 position = glm::vec3{ 0.0f, 0.0f, 0.0f },
 		float yaw = glm::pi<float>(),
-		float pitch = 0.0f
-	);
+		float pitch = 0.0f);
 
-	virtual void Rotate(float, float) override final;
+	virtual void Rotate(float yaw, float pitch) override final; // in degrees
 	const glm::vec3& GetLook() const { return look_; }
 	const glm::vec3& GetRight() const { return right_; }
 	const glm::vec3& GetUp() const { return up_; }
-	void SetPosition(const glm::vec3& position) { position_ = position; }
+	void SetPosition(const glm::vec3&& position) { position_ = std::move(position); }
 	const glm::vec3& GetPosition() const { return position_; }
-	void Move(const glm::vec3&);
+	void Move(const glm::vec3& delta);
 };
 
 class OrbitCamera : public Camera {
 private:
-	virtual void UpdateCameraVectors() override final;
-	// camera parameters
-	float radius_;
+	float radius_{ kInitOrbitRadius };
+	virtual void UpdateVectors() override final;
 
 public:
-	OrbitCamera();
+	OrbitCamera() {}
 
-	virtual void Rotate(float, float);
-	void SetLookAt(const glm::vec3&);
-	void SetRadius(float);
+	virtual void Rotate(float yaw, float pitch);
+	void SetLookAt(const glm::vec3& target);
+	void SetRadius(float delta);
 };
 
 #endif // CAMERA_HPP_

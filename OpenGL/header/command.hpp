@@ -12,22 +12,22 @@ public:
 
 class CloseCommand : public Command {
 public:
-	virtual void execute() { []() { Context::Instance().SetCloseFlag(); }(); }
+	virtual void execute() override final { []() { Context::Instance().SetCloseFlag(); }(); }
 };
 
 class PolygonCommand : public Command {
 public:
-	virtual void execute() { opengl::PolygonMode(); }
+	virtual void execute() override final { opengl::PolygonMode(); }
 };
 
 class FillCommand : public Command {
 public:
-	virtual void execute() { opengl::FillMode(); }
+	virtual void execute() override final { opengl::FillMode(); }
 };
 
 class NullCommand : public Command {
 public:
-	virtual void execute() {}
+	virtual void execute() override final {}
 };
 
 #endif // COMMAND_HPP_
