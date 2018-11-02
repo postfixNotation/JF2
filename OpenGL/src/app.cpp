@@ -1,12 +1,9 @@
-#include <vector>
-
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/rotate_normalized_axis.hpp>
 
-#include <SFML/Audio.hpp>
 #include <Box2D/Box2D.h>
 
 #include <jf2.hpp>
@@ -115,12 +112,6 @@ int main(int argc, const char **argv) {
 	//images[1].pixels = image_data;
 
 	//glfwSetWindowIcon(window, 2, images);
-
-	//sf::Music music;
-	//if (!music.openFromFile("../audio/throne.ogg"))
-	//	return -1;
-	//music.play();
-
 	std::vector<std::string> faces{
 		FileSystem::Instance().GetPathString("textures")+"skybox/right.jpg",
 		FileSystem::Instance().GetPathString("textures")+"skybox/left.jpg",
@@ -195,6 +186,16 @@ int main(int argc, const char **argv) {
 	double previous_time{ glfwGetTime() }, delta_time{};
 	//camera::orbit_camera.SetLookAt(glm::vec3{ 0.0f,0.0f,0.0f });
 
+	std::unique_ptr<Audio> music = std::unique_ptr<Music>(new Music());
+	music->Open(FileSystem::Instance().GetPathString("audio")+"throne.ogg");
+	music->Play(true);
+	music->Volume(10.0f);
+	music->Pitch(3);
+
+	std::unique_ptr<Audio> sound = std::unique_ptr<Sound>(new Sound());
+	sound->Open(FileSystem::Instance().GetPathString("audio")+"powerup1.ogg");
+	sound->Play();
+
 	while (!Context::Instance()) {
 		Update(glfwGetTime() - previous_time);
 		previous_time = glfwGetTime();
@@ -240,6 +241,10 @@ int main(int argc, const char **argv) {
 
 		glFrontFace(GL_CCW);
 		glDepthFunc(GL_LESS);
+
+		if (Context::Instance().KeyDown(KEY_F)) sound->Play();
+		if (Context::Instance().KeyDown(KEY_R)) sound->Open(FileSystem::Instance().GetPathString("audio")+"powerup1.ogg");
+		if (Context::Instance().KeyDown(KEY_V)) sound->Open(FileSystem::Instance().GetPathString("audio")+"powerup2.ogg");
 
 		input_handler.HandleInput();
 		Context::Instance().PollEvents();

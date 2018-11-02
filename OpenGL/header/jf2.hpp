@@ -11,6 +11,8 @@
 #include <context.hpp>
 #include <camera.hpp>
 #include <shader.hpp>
+#include <music.hpp>
+#include <sound.hpp>
 #include <gl.hpp>
 
 #endif // JF2_HPP_
