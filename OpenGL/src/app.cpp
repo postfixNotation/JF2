@@ -53,27 +53,7 @@ int main(int argc, const char **argv) {
 		Context::Instance().GetHeight());
 	opengl::SetColor(1.0f, 0.9f, 0.8f, 1.0f);
 
-	InputHandler input_handler;
-	input_handler.Init();
-
-	//GLint flags;
-	//glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-	//if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
-	//	glEnable(GL_DEBUG_OUTPUT);
-	//	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-	//	glDebugMessageCallback(
-	//		opengl::DebugMessageCallback,
-	//		nullptr);
-
-	//	glDebugMessageControl(
-	//		GL_DONT_CARE,
-	//		GL_DONT_CARE,
-	//		GL_DONT_CARE,
-	//		0,
-	//		nullptr,
-	//		GL_TRUE
-	//	);
-	//}
+	opengl::SetDebugMessageCallback(opengl::DebugMessageCallback);
 
 	SetCallbacks();
 
@@ -178,10 +158,10 @@ int main(int argc, const char **argv) {
 	cube_map_mesh->Load(
 		FileSystem::Instance().GetPathString("models")+"cube.obj");
 
-	//std::shared_ptr<SpriteRenderer> first_sprite = std::make_shared<SpriteRenderer>(
-	//	ResourceManager::GetShader("sprite"),
-	//	Context::Instance().GetWidth(),
-	//	Context::Instance().GetHeight());
+	std::unique_ptr<SpriteRenderer> sprite = std::unique_ptr<SpriteRenderer>(
+		new SpriteRenderer(ResourceManager::GetShader("sprite"),
+		Context::Instance().GetWidth(),
+		Context::Instance().GetHeight()));
 
 	double previous_time{ glfwGetTime() }, delta_time{};
 	//camera::orbit_camera.SetLookAt(glm::vec3{ 0.0f,0.0f,0.0f });
@@ -213,19 +193,6 @@ int main(int argc, const char **argv) {
 		model->Draw();
 		ResourceManager::GetTexture("cyborg")->Unbind(0);
 
-		ResourceManager::GetTextRenderer("Wallpoet")->Draw(
-			"Framerate: "+std::to_string(Context::Instance().GetFrameRate(2)),
-			0.0f,
-			0.0f,
-			1.2f,
-			glm::vec3{ .3f,.7f,.6f }
-		);
-		//first_sprite->Draw(
-		//	ResourceManager::GetTexture("tux"),
-		//	glm::vec2{ 0.0f, 0.0f },
-		//	glm::vec2{ 160.0f, 160.0f }
-		//);
-
 		glDepthFunc(GL_LEQUAL);
 
 		view = glm::mat4(glm::mat3(camera::fps_camera.GetViewMatrix()));
@@ -242,11 +209,23 @@ int main(int argc, const char **argv) {
 		glFrontFace(GL_CCW);
 		glDepthFunc(GL_LESS);
 
+		ResourceManager::GetTextRenderer("Wallpoet")->Draw(
+			"Framerate: "+std::to_string(Context::Instance().GetFrameRate(2)),
+			0.0f,
+			0.0f,
+			1.2f,
+			glm::vec3{ .3f,.7f,.6f }
+		);
+		sprite->Draw(
+			ResourceManager::GetTexture("tux"),
+			glm::vec2{ Context::Instance().GetWidth() / 2, 0.0f },
+			glm::vec2{ 160.0f, 160.0f }
+		);
+
 		if (Context::Instance().KeyDown(KEY_F)) sound->Play();
 		if (Context::Instance().KeyDown(KEY_R)) sound->Open(FileSystem::Instance().GetPathString("audio")+"powerup1.ogg");
 		if (Context::Instance().KeyDown(KEY_V)) sound->Open(FileSystem::Instance().GetPathString("audio")+"powerup2.ogg");
 
-		input_handler.HandleInput();
 		Context::Instance().PollEvents();
 		Context::Instance().SwapBuffers();
 	}

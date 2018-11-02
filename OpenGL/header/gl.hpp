@@ -20,6 +20,14 @@ namespace opengl {
 		GLclampf a);
 	void PolygonMode();
 	void FillMode();
+	void SetDebugMessageCallback(void APIENTRY (*callback)(
+		GLenum source,
+		GLenum type,
+		GLuint id,
+		GLenum severity,
+		GLsizei length,
+		const GLchar *message,
+		const void *userParam));
 	void APIENTRY DebugMessageCallback(
 		GLenum source,
 		GLenum type,
