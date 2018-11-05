@@ -1,8 +1,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/rotate_normalized_axis.hpp>
 
 #include <Box2D/Box2D.h>
 
@@ -12,19 +10,16 @@ float near = 0.1f;
 float far = 100.0f;
 
 glm::mat4 projection{}, model_mat{}, view{};
+FPSCamera fps_camera{ glm::vec3{0.0f, 0.0f, 20.0f} };
+OrbitCamera orbit_camera{};
 
-void Update(double);
+void ProcessKeyInput(double dt);
 void SetCallbacks();
 
 namespace camera {
-	FPSCamera fps_camera{ glm::vec3{0.0f, 0.0f, 20.0f} };
-	OrbitCamera orbit_camera{};
 	float yaw{ 0.0f };
 	float pitch{ 0.0f };
 	float radius{ 10.0f };
-	constexpr float kZoomSensitivity = -2.0f;
-	constexpr float kMoveSpeed = 5.0f;
-	constexpr float kMouseSensitivity = 0.1f;
 }
 
 int main(int argc, const char **argv) {
@@ -44,6 +39,9 @@ int main(int argc, const char **argv) {
 	Context::Instance().SetCursorPos(
 		Context::Instance().GetWidth() / 2,
 		Context::Instance().GetHeight() / 2);
+	Context::Instance().SetIcon(
+		FileSystem::Instance().GetPathString("textures")+"android_2.png");
+
 	opengl::Init();
 	opengl::SetDefaultSetting();
 	opengl::SetViewport(
@@ -52,46 +50,9 @@ int main(int argc, const char **argv) {
 		Context::Instance().GetWidth(),
 		Context::Instance().GetHeight());
 	opengl::SetColor(1.0f, 0.9f, 0.8f, 1.0f);
-
 	opengl::SetDebugMessageCallback(opengl::DebugMessageCallback);
 
 	SetCallbacks();
-
-	//std::string filename{};
-	//GLFWimage images[2];
-	//int width{}, height{}, components{};
-	//const size_t kBytesPerValue{ 4 };
-	//unsigned char *image_data{};
-
-	//filename = "../textures/android_1.png";
-	//image_data = stbi_load(
-	//	filename.c_str(),
-	//	&width,
-	//	&height,
-	//	&components,
-	//	0
-	//);
-	//if (image_data == NULL) return 1;
-
-	//images[0].width = width;
-	//images[0].height = height;
-	//images[0].pixels = image_data;
-
-	//filename = "../textures/android_2.png";
-	//image_data = stbi_load(
-	//	filename.c_str(),
-	//	&width,
-	//	&height,
-	//	&components,
-	//	0
-	//);
-	//if (image_data == NULL) return 1;
-
-	//images[1].width = width;
-	//images[1].height = height;
-	//images[1].pixels = image_data;
-
-	//glfwSetWindowIcon(window, 2, images);
 	std::vector<std::string> faces{
 		FileSystem::Instance().GetPathString("textures")+"skybox/right.jpg",
 		FileSystem::Instance().GetPathString("textures")+"skybox/left.jpg",
@@ -100,6 +61,14 @@ int main(int argc, const char **argv) {
 		FileSystem::Instance().GetPathString("textures")+"skybox/front.jpg",
 		FileSystem::Instance().GetPathString("textures")+"skybox/back.jpg"
 	};
+	//std::vector<std::string> stars{
+	//	FileSystem::Instance().GetPathString("textures")+"stars.jpg",
+	//	FileSystem::Instance().GetPathString("textures")+"stars.jpg",
+	//	FileSystem::Instance().GetPathString("textures")+"stars.jpg",
+	//	FileSystem::Instance().GetPathString("textures")+"stars.jpg",
+	//	FileSystem::Instance().GetPathString("textures")+"stars.jpg",
+	//	FileSystem::Instance().GetPathString("textures")+"stars.jpg"
+	//};
 
 	ResourceManager::LoadShader(
 		FileSystem::Instance().GetPathString("shader")+"cubemap_vert_shader.glsl",
@@ -111,6 +80,10 @@ int main(int argc, const char **argv) {
 		ResourceManager::GetShader("cubemap"),
 		faces,
 		"faces");
+	//ResourceManager::LoadTexture(
+	//	ResourceManager::GetShader("cubemap"),
+	//	stars,
+	//	"faces");
 
 	ResourceManager::LoadShader(
 		FileSystem::Instance().GetPathString("shader")+"mesh_vert_shader.glsl",
@@ -147,8 +120,7 @@ int main(int argc, const char **argv) {
 		FileSystem::Instance().GetPathString("textures")+"tux.png",
 		"tux");
 
-	std::unique_ptr<MeshRenderer> model{
-		std::unique_ptr<MeshRenderer>(new MeshRenderer(ResourceManager::GetShader("model"))) };
+	std::unique_ptr<MeshRenderer> model = std::make_unique<MeshRenderer>(ResourceManager::GetShader("model"));
 	model->Load(
 		FileSystem::Instance().GetPathString("models")+"cyborg.obj",
 		false);
@@ -164,27 +136,30 @@ int main(int argc, const char **argv) {
 		Context::Instance().GetHeight()));
 
 	double previous_time{ glfwGetTime() }, delta_time{};
-	//camera::orbit_camera.SetLookAt(glm::vec3{ 0.0f,0.0f,0.0f });
 
-	std::unique_ptr<Audio> music = std::unique_ptr<Music>(new Music());
+	std::unique_ptr<Audio> music = std::make_unique<Music>();
 	music->Open(FileSystem::Instance().GetPathString("audio")+"throne.ogg");
 	music->Play(true);
 	music->Volume(10.0f);
-	music->Pitch(3);
+	music->Pitch(1.2f);
 
-	std::unique_ptr<Audio> sound = std::unique_ptr<Sound>(new Sound());
+	std::unique_ptr<Audio> sound = std::make_unique<Sound>();
 	sound->Open(FileSystem::Instance().GetPathString("audio")+"powerup1.ogg");
 	sound->Play();
 
 	while (!Context::Instance()) {
-		Update(glfwGetTime() - previous_time);
+		ProcessKeyInput(glfwGetTime() - previous_time);
 		previous_time = glfwGetTime();
 
 		Renderer::Clear();
 
-		//view = camera::orbit_camera.GetViewMatrix();
-		view = camera::fps_camera.GetViewMatrix();
-		projection = glm::perspective(glm::radians(camera::fps_camera.GetFov()), Context::Instance().GetRatio(), near, far);
+		//view = orbit_camera.GetViewMatrix();
+		view = fps_camera.GetViewMatrix();
+		projection = glm::perspective(
+			glm::radians(fps_camera.GetFov()),
+			Context::Instance().GetRatio(),
+			near,
+			far);
 
 		ResourceManager::GetShader("model")->SetMat4("view", view);
 		ResourceManager::GetShader("model")->SetMat4("projection", projection);
@@ -195,7 +170,7 @@ int main(int argc, const char **argv) {
 
 		glDepthFunc(GL_LEQUAL);
 
-		view = glm::mat4(glm::mat3(camera::fps_camera.GetViewMatrix()));
+		view = glm::mat4(glm::mat3(fps_camera.GetViewMatrix()));
 
 		ResourceManager::GetShader("cubemap")->SetMat4("view", view);
 		ResourceManager::GetShader("cubemap")->SetMat4("projection", projection);
@@ -214,12 +189,12 @@ int main(int argc, const char **argv) {
 			0.0f,
 			0.0f,
 			1.2f,
-			glm::vec3{ .3f,.7f,.6f }
+			glm::vec3{ 1.0f, 1.0f, 1.0f }
 		);
 		sprite->Draw(
 			ResourceManager::GetTexture("tux"),
 			glm::vec2{ Context::Instance().GetWidth() / 2, 0.0f },
-			glm::vec2{ 160.0f, 160.0f }
+			glm::vec2{ 130.0f, 130.0f }
 		);
 
 		if (Context::Instance().KeyDown(KEY_F)) sound->Play();
@@ -234,49 +209,25 @@ int main(int argc, const char **argv) {
 	return 0;
 }
 
-void Update(double elapsed_time) {
-	double mouse_x, mouse_y;
-
-	glfwGetCursorPos(Context::Instance().Get(), &mouse_x, &mouse_y);
-	camera::fps_camera.Rotate(
-		static_cast<float>(Context::Instance().GetWidth() / 2.0 - mouse_x) * camera::kMouseSensitivity,
-		static_cast<float>(Context::Instance().GetHeight() / 2.0 - mouse_y) * camera::kMouseSensitivity
-	);
-	glfwSetCursorPos(
-		Context::Instance().Get(),
-		Context::Instance().GetWidth() / 2.0,
-		Context::Instance().GetHeight() / 2.0
-	);
-
-	if (glfwGetKey(Context::Instance().Get(), GLFW_KEY_W) == GLFW_PRESS)
-		camera::fps_camera.Move(
-			camera::kMoveSpeed * static_cast<float>(elapsed_time) * camera::fps_camera.GetLook()
-		);
-	else if (glfwGetKey(Context::Instance().Get(), GLFW_KEY_S) == GLFW_PRESS)
-		camera::fps_camera.Move(
-			camera::kMoveSpeed * static_cast<float>(elapsed_time) * -camera::fps_camera.GetLook()
-		);
-
-	if (glfwGetKey(Context::Instance().Get(), GLFW_KEY_A) == GLFW_PRESS)
-		camera::fps_camera.Move(
-			camera::kMoveSpeed * static_cast<float>(elapsed_time) * -camera::fps_camera.GetRight()
-		);
-	else if (glfwGetKey(Context::Instance().Get(), GLFW_KEY_D) == GLFW_PRESS)
-		camera::fps_camera.Move(
-			camera::kMoveSpeed * static_cast<float>(elapsed_time) * camera::fps_camera.GetRight()
-		);
+void ProcessKeyInput(double dt) {
+	if (Context::Instance().KeyDown(KEY_W))
+		fps_camera.HandleKeyboard(CameraMovement::FORWARD, dt);
+	if (Context::Instance().KeyDown(KEY_S))
+		fps_camera.HandleKeyboard(CameraMovement::BACKWARD, dt);
+	if (Context::Instance().KeyDown(KEY_A))
+		fps_camera.HandleKeyboard(CameraMovement::LEFT, dt);
+	if (Context::Instance().KeyDown(KEY_D))
+		fps_camera.HandleKeyboard(CameraMovement::RIGHT, dt);
 }
 
 void SetCallbacks() {
 	glfwSetScrollCallback(Context::Instance().Get(), [](GLFWwindow* win, double xoffset, double yoffset) {
 		//	// FPS camera
 		if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE) {
-			double fov = camera::fps_camera.GetFov() + yoffset * camera::kZoomSensitivity;
-			fov = glm::clamp(fov, 1.0, 120.0);
-			camera::fps_camera.SetFov(static_cast<float>(fov));
+			fps_camera.HandleScroll(yoffset);
 
 			projection = glm::perspective(
-				glm::radians(camera::fps_camera.GetFov()),
+				glm::radians(fps_camera.GetFov()),
 				Context::Instance().GetRatio(),
 				near,
 				far
@@ -284,33 +235,25 @@ void SetCallbacks() {
 		}
 		// Orbit camera
 		else if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
-			camera::orbit_camera.SetRadius(static_cast<float>(yoffset) * camera::kZoomSensitivity);
+			orbit_camera.HandleScroll(yoffset);
 		}
 	});
 
-	////// Orbit camera
-	//glfwSetCursorPosCallback(Context::Instance(), [](GLFWwindow* win, double xpos, double ypos) {
-	//	static glm::vec2 last_mouse_pos = glm::vec2{};
+	glfwSetCursorPosCallback(Context::Instance().Get(), [](GLFWwindow* win, double xpos, double ypos) {
+		fps_camera.HandleMouseCursor(xpos, ypos);
+		//// Orbit camera
+		//	static glm::vec2 last_mouse_pos = glm::vec2{};
 
-	//	if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-	//		camera::yaw -= (static_cast<float>(xpos) - last_mouse_pos.x) * camera::kMouseSensitivity;
-	//		camera::pitch += (static_cast<float>(ypos) - last_mouse_pos.y) * camera::kMouseSensitivity;
-	//		camera::orbit_camera.Rotate(camera::yaw, camera::pitch);
-	//	}
+		//	if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+		//		camera::yaw -= (static_cast<float>(xpos) - last_mouse_pos.x) * camera::kMouseSensitivity;
+		//		camera::pitch += (static_cast<float>(ypos) - last_mouse_pos.y) * camera::kMouseSensitivity;
+		//		orbit_camera.Rotate(camera::yaw, camera::pitch);
+		//	}
 
-	//	last_mouse_pos = glm::vec2{ static_cast<float>(xpos), static_cast<float>(ypos) };
-	//});
+		//	last_mouse_pos = glm::vec2{ static_cast<float>(xpos), static_cast<float>(ypos) };
+	});
 
-	glfwSetFramebufferSizeCallback(Context::Instance().Get(), [](GLFWwindow* win, int width, int height) {
-		glViewport(0, 0, width, height);
-		Context::Instance().UpdateDimensions();
-			projection = glm::perspective(
-				glm::radians(camera::fps_camera.GetFov()),
-				Context::Instance().GetRatio(),
-				near,
-				far
-			);
-
-			ResourceManager::GetShader("model")->SetMat4("projection", projection);
+	glfwSetFramebufferSizeCallback(Context::Instance().Get(), [](GLFWwindow*, int width, int height) {
+		opengl::SetViewport(0, 0, width, height);
 	});
 }

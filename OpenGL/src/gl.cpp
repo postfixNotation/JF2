@@ -27,7 +27,7 @@ namespace opengl {
 		GLint ypos,
 		GLsizei width,
 		GLsizei height) {
-		glViewport(0, 0, width, height);
+		glViewport(xpos, ypos, width, height);
 	}
 
 	void SetColor(

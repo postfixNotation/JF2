@@ -15,7 +15,7 @@ LIBDIR=-L$(BOX2DLIB) -L$(BOOSTLIB)
 LIBS=-lGL -lGLEW -lglfw3 -lrt -lm -ldl -lXrandr -lXinerama -lXxf86vm -lXext -lXcursor -lXrender -lXfixes -lX11 -lpthread -lxcb -lXau -lXdmcp -lsfml-system -lsfml-audio -lfreetype -lBox2D -lboost_filesystem -lboost_system
 
 CC=g++
-FLAGS=-std=c++11
+FLAGS=-std=c++14
 TARGET=../bin/
 
 opengl: $(SOURCE)

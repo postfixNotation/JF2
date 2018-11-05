@@ -136,3 +136,24 @@ float Context::GetFrameRate(size_t precision) const {
 	fps = static_cast<int>(fps * pow(10, precision) + 0.5) / pow(10, precision);
 	return static_cast<float>(fps);
 }
+
+void Context::SetIcon(const std::string& file) const {
+	std::unique_ptr<GLFWimage> image{ new GLFWimage() };
+	int width, height, components;
+	unsigned char *image_data;
+
+	image_data = stbi_load(
+		file.c_str(),
+		&width,
+		&height,
+		&components,
+		0
+	);
+	if (image_data == nullptr) return;
+
+	image->width = width;
+	image->height = height;
+	image->pixels = image_data;
+
+	glfwSetWindowIcon(handle_, 1, image.get());
+}
