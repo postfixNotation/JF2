@@ -174,21 +174,17 @@ int main(int argc, const char **argv) {
 		model->Draw();
 		ResourceManager::GetTexture("cyborg")->Unbind(0);
 
-		glDepthFunc(GL_LEQUAL);
-
 		view = glm::mat4(glm::mat3(camera->GetViewMatrix()));
-
 		ResourceManager::GetShader("cubemap")->SetMat4("view", view);
 		ResourceManager::GetShader("cubemap")->SetMat4("projection", projection);
 
-		glFrontFace(GL_CW);
-
 		ResourceManager::GetTexture("faces")->Bind("skybox", 0);
+		glDepthFunc(GL_LEQUAL);
+		glFrontFace(GL_CW);
 		cube_map_mesh->Draw();
-		ResourceManager::GetTexture("faces")->Unbind(0);
-
 		glFrontFace(GL_CCW);
 		glDepthFunc(GL_LESS);
+		ResourceManager::GetTexture("faces")->Unbind(0);
 
 		ResourceManager::GetTextRenderer("Wallpoet")->Draw(
 			"Framerate: "+std::to_string(Context::Instance().GetFrameRate(2)),
