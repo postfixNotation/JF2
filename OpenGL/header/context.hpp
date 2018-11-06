@@ -9,6 +9,7 @@
 #include <non_copyable.hpp>
 #include <non_moveable.hpp>
 #include <config.hpp>
+#include <keys.hpp>
 
 #include <iostream>
 #include <memory>
@@ -37,7 +38,12 @@ public:
 	void UpdateVideoMode();
 	void UpdateDimensions();
 
-	bool KeyDown(int key) { return (glfwGetKey(handle_, key) == GLFW_PRESS); }
+	bool KeyDown(KeyNum key) {
+		return (glfwGetKey(handle_, static_cast<int>(key)) == GLFW_PRESS);
+	}
+	bool KeyDown(MouseButton button) {
+		return (glfwGetMouseButton(handle_, static_cast<int>(button)) == GLFW_PRESS);
+	}
 	void SwapBuffers() const { glfwSwapBuffers(handle_); }
 	void PollEvents() const { glfwPollEvents(); }
 	void Terminate();

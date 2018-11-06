@@ -3,7 +3,7 @@
 
 #include <GLFW/glfw3.h>
 
-typedef enum {
+enum class KeyNum {
 	KEY_ESCAPE			= GLFW_KEY_ESCAPE,
 	KEY_TAB				= GLFW_KEY_TAB,
 	KEY_A				= GLFW_KEY_A,
@@ -32,6 +32,11 @@ typedef enum {
 	KEY_X				= GLFW_KEY_X,
 	KEY_Y				= GLFW_KEY_Y,
 	KEY_Z				= GLFW_KEY_Z,
-} KeyNum;
+};
+
+enum class MouseButton {
+	MOUSE_LEFT			= GLFW_MOUSE_BUTTON_LEFT,
+	MOUSE_RIGHT			= GLFW_MOUSE_BUTTON_RIGHT,
+};
 
 #endif // KEYS_HPP_

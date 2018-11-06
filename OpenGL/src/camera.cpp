@@ -77,6 +77,14 @@ void OrbitCamera::SetRadius(float delta) {
 	UpdateVectors();
 }
 
+void OrbitCamera::HandleScroll(double delta_scroll) {
+	SetRadius(static_cast<float>(kZoomSensitivity * delta_scroll));
+}
+
+void OrbitCamera::HandleMouseCursor(double xpos, double ypos) {}
+
+void OrbitCamera::HandleKeyboard(const CameraMovement &m, double dt) {}
+
 void OrbitCamera::Rotate(float delta_yaw, float delta_pitch) {
 	yaw_ = glm::radians(delta_yaw);
 	pitch_ = glm::radians(delta_pitch);
@@ -94,8 +102,4 @@ void OrbitCamera::UpdateVectors() {
 	glm::vec3 look{ target_ - position_ };
 	glm::vec3 right{ glm::normalize(glm::cross(look, kWorldUp)) };
 	up_ = glm::normalize(glm::cross(right, look));
-}
-
-void OrbitCamera::HandleScroll(double delta_scroll) {
-	SetRadius(static_cast<float>(kZoomSensitivity * delta_scroll));
 }

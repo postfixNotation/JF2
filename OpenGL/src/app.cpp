@@ -6,12 +6,15 @@
 
 #include <jf2.hpp>
 
+#define FPS 0
 float near = 0.1f;
 float far = 100.0f;
 
 glm::mat4 projection{}, model_mat{}, view{};
-FPSCamera fps_camera{ glm::vec3{0.0f, 0.0f, 20.0f} };
-OrbitCamera orbit_camera{};
+std::unique_ptr<Camera> fps = std::make_unique<FPSCamera>(glm::vec3{0.0f, 0.0f, 20.0f});
+std::unique_ptr<Camera> orbit = std::make_unique<OrbitCamera>();
+std::unique_ptr<Audio> music = std::make_unique<Music>();
+std::unique_ptr<Audio> sound = std::make_unique<Sound>();
 
 void ProcessKeyInput(double dt);
 void SetCallbacks();
@@ -59,8 +62,7 @@ int main(int argc, const char **argv) {
 		FileSystem::Instance().GetPathString("textures")+"skybox/top.jpg",
 		FileSystem::Instance().GetPathString("textures")+"skybox/bottom.jpg",
 		FileSystem::Instance().GetPathString("textures")+"skybox/front.jpg",
-		FileSystem::Instance().GetPathString("textures")+"skybox/back.jpg"
-	};
+		FileSystem::Instance().GetPathString("textures")+"skybox/back.jpg"};
 	//std::vector<std::string> stars{
 	//	FileSystem::Instance().GetPathString("textures")+"stars.jpg",
 	//	FileSystem::Instance().GetPathString("textures")+"stars.jpg",
@@ -94,8 +96,7 @@ int main(int argc, const char **argv) {
 	ResourceManager::LoadTexture(
 		ResourceManager::GetShader("model"),
 		FileSystem::Instance().GetPathString("textures")+"cyborg_diffuse.png",
-		"cyborg"
-	);
+		"cyborg");
 
 	ResourceManager::LoadShader(
 		FileSystem::Instance().GetPathString("shader")+"font_vert.glsl",
@@ -135,17 +136,14 @@ int main(int argc, const char **argv) {
 		Context::Instance().GetWidth(),
 		Context::Instance().GetHeight()));
 
-	double previous_time{ glfwGetTime() }, delta_time{};
-
-	std::unique_ptr<Audio> music = std::make_unique<Music>();
 	music->Open(FileSystem::Instance().GetPathString("audio")+"throne.ogg");
 	music->Play(true);
 	music->Volume(10.0f);
 	music->Pitch(1.2f);
-
-	std::unique_ptr<Audio> sound = std::make_unique<Sound>();
 	sound->Open(FileSystem::Instance().GetPathString("audio")+"powerup1.ogg");
 	sound->Play();
+
+	double previous_time{ glfwGetTime() };
 
 	while (!Context::Instance()) {
 		ProcessKeyInput(glfwGetTime() - previous_time);
@@ -153,10 +151,13 @@ int main(int argc, const char **argv) {
 
 		Renderer::Clear();
 
-		//view = orbit_camera.GetViewMatrix();
-		view = fps_camera.GetViewMatrix();
+	#if FPS == 1
+		view = fps->GetViewMatrix();
+	#else
+		view = orbit->GetViewMatrix();
+	#endif
 		projection = glm::perspective(
-			glm::radians(fps_camera.GetFov()),
+			glm::radians(fps->GetFov()),
 			Context::Instance().GetRatio(),
 			near,
 			far);
@@ -170,7 +171,7 @@ int main(int argc, const char **argv) {
 
 		glDepthFunc(GL_LEQUAL);
 
-		view = glm::mat4(glm::mat3(fps_camera.GetViewMatrix()));
+		view = glm::mat4(glm::mat3(fps->GetViewMatrix()));
 
 		ResourceManager::GetShader("cubemap")->SetMat4("view", view);
 		ResourceManager::GetShader("cubemap")->SetMat4("projection", projection);
@@ -189,17 +190,11 @@ int main(int argc, const char **argv) {
 			0.0f,
 			0.0f,
 			1.2f,
-			glm::vec3{ 1.0f, 1.0f, 1.0f }
-		);
+			glm::vec3{ 0.5f, 0.5f, 0.5f });
 		sprite->Draw(
 			ResourceManager::GetTexture("tux"),
-			glm::vec2{ Context::Instance().GetWidth() / 2, 0.0f },
-			glm::vec2{ 130.0f, 130.0f }
-		);
-
-		if (Context::Instance().KeyDown(KEY_F)) sound->Play();
-		if (Context::Instance().KeyDown(KEY_R)) sound->Open(FileSystem::Instance().GetPathString("audio")+"powerup1.ogg");
-		if (Context::Instance().KeyDown(KEY_V)) sound->Open(FileSystem::Instance().GetPathString("audio")+"powerup2.ogg");
+			glm::vec2{ Context::Instance().GetWidth() - 100.0f, Context::Instance().GetHeight() - 100.0f },
+			glm::vec2{ 100.0f, 100.0f });
 
 		Context::Instance().PollEvents();
 		Context::Instance().SwapBuffers();
@@ -210,50 +205,66 @@ int main(int argc, const char **argv) {
 }
 
 void ProcessKeyInput(double dt) {
-	if (Context::Instance().KeyDown(KEY_W))
-		fps_camera.HandleKeyboard(CameraMovement::FORWARD, dt);
-	if (Context::Instance().KeyDown(KEY_S))
-		fps_camera.HandleKeyboard(CameraMovement::BACKWARD, dt);
-	if (Context::Instance().KeyDown(KEY_A))
-		fps_camera.HandleKeyboard(CameraMovement::LEFT, dt);
-	if (Context::Instance().KeyDown(KEY_D))
-		fps_camera.HandleKeyboard(CameraMovement::RIGHT, dt);
+	if (Context::Instance().KeyDown(KeyNum::KEY_ESCAPE))
+		Context::Instance().SetCloseFlag();
+
+	if (Context::Instance().KeyDown(KeyNum::KEY_E))
+		opengl::PolygonMode();
+	if (Context::Instance().KeyDown(KeyNum::KEY_Q))
+		opengl::FillMode();
+
+	if (Context::Instance().KeyDown(KeyNum::KEY_W))
+		fps->HandleKeyboard(CameraMovement::FORWARD, dt);
+	if (Context::Instance().KeyDown(KeyNum::KEY_S))
+		fps->HandleKeyboard(CameraMovement::BACKWARD, dt);
+	if (Context::Instance().KeyDown(KeyNum::KEY_A))
+		fps->HandleKeyboard(CameraMovement::LEFT, dt);
+	if (Context::Instance().KeyDown(KeyNum::KEY_D))
+		fps->HandleKeyboard(CameraMovement::RIGHT, dt);
+
+	if (Context::Instance().KeyDown(MouseButton::MOUSE_LEFT))
+		sound->Play();
+	if (Context::Instance().KeyDown(KeyNum::KEY_F))
+		sound->Play();
+	if (Context::Instance().KeyDown(KeyNum::KEY_R))
+		sound->Open(FileSystem::Instance().GetPathString("audio")+"powerup1.ogg");
+	if (Context::Instance().KeyDown(KeyNum::KEY_V))
+		sound->Open(FileSystem::Instance().GetPathString("audio")+"powerup2.ogg");
 }
 
 void SetCallbacks() {
 	glfwSetScrollCallback(Context::Instance().Get(), [](GLFWwindow* win, double xoffset, double yoffset) {
-		//	// FPS camera
-		if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE) {
-			fps_camera.HandleScroll(yoffset);
+#if FPS == 1
+	fps->HandleScroll(yoffset);
 
-			projection = glm::perspective(
-				glm::radians(fps_camera.GetFov()),
-				Context::Instance().GetRatio(),
-				near,
-				far
-			);
-		}
-		// Orbit camera
-		else if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
-			orbit_camera.HandleScroll(yoffset);
-		}
+	projection = glm::perspective(
+		glm::radians(fps->GetFov()),
+		Context::Instance().GetRatio(),
+		near,
+		far
+	);
+#else
+	orbit->HandleScroll(yoffset);
+#endif
 	});
 
 	glfwSetCursorPosCallback(Context::Instance().Get(), [](GLFWwindow* win, double xpos, double ypos) {
-		fps_camera.HandleMouseCursor(xpos, ypos);
-		//// Orbit camera
-		//	static glm::vec2 last_mouse_pos = glm::vec2{};
+#if FPS == 1
+	fps->HandleMouseCursor(xpos, ypos);
+#else
+	static glm::vec2 last_mouse_pos = glm::vec2{ xpos, ypos };
 
-		//	if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-		//		camera::yaw -= (static_cast<float>(xpos) - last_mouse_pos.x) * camera::kMouseSensitivity;
-		//		camera::pitch += (static_cast<float>(ypos) - last_mouse_pos.y) * camera::kMouseSensitivity;
-		//		orbit_camera.Rotate(camera::yaw, camera::pitch);
-		//	}
+	camera::yaw -= (static_cast<float>(xpos) - last_mouse_pos.x) * kMouseSensitivity;
+	camera::pitch += (static_cast<float>(ypos) - last_mouse_pos.y) * kMouseSensitivity;
+	orbit->Rotate(camera::yaw, camera::pitch);
 
-		//	last_mouse_pos = glm::vec2{ static_cast<float>(xpos), static_cast<float>(ypos) };
+	last_mouse_pos = std::move(glm::vec2{ xpos, ypos });
+	orbit->HandleMouseCursor(xpos, ypos);
+#endif
 	});
 
-	glfwSetFramebufferSizeCallback(Context::Instance().Get(), [](GLFWwindow*, int width, int height) {
+	glfwSetFramebufferSizeCallback(
+		Context::Instance().Get(), [](GLFWwindow*, int width, int height) {
 		opengl::SetViewport(0, 0, width, height);
 	});
 }

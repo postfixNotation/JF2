@@ -84,15 +84,6 @@ void Context::Create(const context::Config &config) {
 				nullptr
 			);
 			break;
-		case context::Size::MAXIMIZED:
-			handle_ = glfwCreateWindow(
-				width_,
-				height_,
-				config.context_title.c_str(),
-				nullptr,
-				nullptr
-			);
-			break;
 		case context::Size::FULLSCREEEN:
 			handle_ = glfwCreateWindow(
 				width_,

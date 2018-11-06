@@ -11,8 +11,7 @@ SpriteRenderer::SpriteRenderer(
         height,
         0.0f,
         -1.0f,
-        1.0f
-    );
+        1.0f);
     InitRenderData();
 }
 

@@ -41,6 +41,8 @@ protected:
 public:
 	virtual void Rotate(float delta_yaw, float delta_pitch) = 0; // in degrees
 	virtual void HandleScroll(double delta_scroll) = 0;
+	virtual void HandleMouseCursor(double xpos, double ypos) = 0;
+	virtual void HandleKeyboard(const CameraMovement &m, double dt) = 0;
 	float GetFov() const { return fov_; }
 	void SetFov(float fov) { fov_ = fov; } // in degrees
 	glm::mat4 GetViewMatrix() const;
@@ -65,8 +67,8 @@ public:
 	void SetPosition(const glm::vec3&& position) { position_ = std::move(position); }
 	const glm::vec3& GetPosition() const { return position_; }
 	void Move(const glm::vec3& delta);
-	void HandleKeyboard(const CameraMovement &m, double dt);
-	void HandleMouseCursor(double xpos, double ypos);
+	void HandleKeyboard(const CameraMovement &m, double dt) override final;
+	void HandleMouseCursor(double xpos, double ypos) override final;
 	void HandleScroll(double delta_scroll) override final;
 };
 
@@ -79,6 +81,8 @@ public:
 	OrbitCamera() { UpdateVectors(); }
 
 	void Rotate(float delta_yaw, float delta_pitch) override final;
+	void HandleKeyboard(const CameraMovement &m, double dt) override final;
+	void HandleMouseCursor(double xpos, double ypos) override final;
 	void HandleScroll(double delta_scroll) override final;
 	void SetLookAt(const glm::vec3& target);
 	void SetRadius(float delta);

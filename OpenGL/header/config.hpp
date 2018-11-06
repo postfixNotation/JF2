@@ -6,7 +6,6 @@
 namespace context {
 	enum class Size {
 		DEBUG,
-		MAXIMIZED,
 		FULLSCREEEN
 	};
 
