@@ -4,19 +4,25 @@ glm::mat4 Camera::GetViewMatrix() const {
 	return glm::lookAt(position_, target_, up_);
 }
 
-FPSCamera::FPSCamera(glm::vec3 position, float yaw, float pitch) {
-	position_ = position;
-	yaw_ = yaw;
-	pitch_ = pitch;
-}
-
-void FPSCamera::Rotate(float delta_yaw, float delta_pitch) {
+void Camera::Rotate(float delta_yaw, float delta_pitch) {
 	yaw_ += glm::radians(kMouseSensitivity * delta_yaw);
 	pitch_ += glm::radians(kMouseSensitivity * delta_pitch);
 	float lower_bound = -glm::pi<float>() / 2.0f + 0.1f;
 	float upper_bound = glm::pi<float>() / 2.0f - 0.1f;
 	pitch_ = glm::clamp(pitch_, lower_bound, upper_bound);
 	UpdateVectors();
+}
+
+void Camera::HandleMouseCursor(double xpos, double ypos) {
+	static glm::vec2 last_pos{ xpos, ypos };
+	Rotate(last_pos.x - xpos, last_pos.y - ypos);
+	last_pos = std::move(glm::vec2{ xpos, ypos });
+}
+
+FPSCamera::FPSCamera(glm::vec3 position, float yaw, float pitch) {
+	position_ = position;
+	yaw_ = yaw;
+	pitch_ = pitch;
 }
 
 void FPSCamera::Move(const glm::vec3& delta) {
@@ -42,12 +48,6 @@ void FPSCamera::HandleKeyboard(const CameraMovement &m, double dt) {
 	}
 }
 
-void FPSCamera::HandleMouseCursor(double xpos, double ypos) {
-	static glm::vec2 last_pos{ xpos, ypos };
-	Rotate(last_pos.x - xpos, last_pos.y - ypos);
-	last_pos = std::move(glm::vec2{ xpos, ypos });
-}
-
 void FPSCamera::HandleScroll(double delta_scroll) {
 	double fov = GetFov() + delta_scroll * kZoomSensitivity;
 	SetFov(static_cast<float>(glm::clamp(fov, kMinFOV, kMaxFOV)));
@@ -71,28 +71,17 @@ void OrbitCamera::SetLookAt(const glm::vec3& target) {
 	UpdateVectors();
 }
 
-void OrbitCamera::SetRadius(float delta) {
-	radius_ += delta;
+void OrbitCamera::SetRadius(double delta) {
+	radius_ += static_cast<float>(delta);
 	radius_ = glm::clamp(radius_, 2.0f, 80.0f);
 	UpdateVectors();
 }
 
 void OrbitCamera::HandleScroll(double delta_scroll) {
-	SetRadius(static_cast<float>(kZoomSensitivity * delta_scroll));
+	SetRadius(kZoomSensitivity * delta_scroll);
 }
-
-void OrbitCamera::HandleMouseCursor(double xpos, double ypos) {}
 
 void OrbitCamera::HandleKeyboard(const CameraMovement &m, double dt) {}
-
-void OrbitCamera::Rotate(float delta_yaw, float delta_pitch) {
-	yaw_ = glm::radians(delta_yaw);
-	pitch_ = glm::radians(delta_pitch);
-	float lower_bound = -glm::pi<float>() / 2.0f + 0.1f;
-	float upper_bound = glm::pi<float>() / 2.0f - 0.1f;
-	pitch_ = glm::clamp(pitch_, lower_bound, upper_bound);
-	UpdateVectors();
-}
 
 void OrbitCamera::UpdateVectors() {
 	position_.x = target_.x + radius_ * cosf(pitch_) * sinf(yaw_);

@@ -6,24 +6,23 @@
 
 #include <jf2.hpp>
 
-#define FPS 0
-float near = 0.1f;
-float far = 100.0f;
+#define FPS 1
+constexpr float near = 0.1f;
+constexpr float far = 100.0f;
+
+std::unique_ptr<Camera> camera =
+#if FPS == 1
+	std::make_unique<FPSCamera>(glm::vec3{0.0f, 0.0f, 20.0f});
+#else
+	std::make_unique<OrbitCamera>();
+#endif
 
 glm::mat4 projection{}, model_mat{}, view{};
-std::unique_ptr<Camera> fps = std::make_unique<FPSCamera>(glm::vec3{0.0f, 0.0f, 20.0f});
-std::unique_ptr<Camera> orbit = std::make_unique<OrbitCamera>();
 std::unique_ptr<Audio> music = std::make_unique<Music>();
 std::unique_ptr<Audio> sound = std::make_unique<Sound>();
 
 void ProcessKeyInput(double dt);
 void SetCallbacks();
-
-namespace camera {
-	float yaw{ 0.0f };
-	float pitch{ 0.0f };
-	float radius{ 10.0f };
-}
 
 int main(int argc, const char **argv) {
 	FileSystem::Instance().SetResourceRootDir("Resources");
@@ -145,25 +144,31 @@ int main(int argc, const char **argv) {
 
 	double previous_time{ glfwGetTime() };
 
+	#if FPS == 0
+		projection = glm::perspective(
+			glm::radians(camera->GetFov()),
+			Context::Instance().GetRatio(),
+			near,
+			far);
+		ResourceManager::GetShader("model")->SetMat4("projection", projection);
+	#endif
+
 	while (!Context::Instance()) {
 		ProcessKeyInput(glfwGetTime() - previous_time);
 		previous_time = glfwGetTime();
 
 		Renderer::Clear();
 
-	#if FPS == 1
-		view = fps->GetViewMatrix();
-	#else
-		view = orbit->GetViewMatrix();
-	#endif
-		projection = glm::perspective(
-			glm::radians(fps->GetFov()),
-			Context::Instance().GetRatio(),
-			near,
-			far);
-
+		view = camera->GetViewMatrix();
+		#if FPS == 1
+			projection = glm::perspective(
+				glm::radians(camera->GetFov()),
+				Context::Instance().GetRatio(),
+				near,
+				far);
+			ResourceManager::GetShader("model")->SetMat4("projection", projection);
+		#endif
 		ResourceManager::GetShader("model")->SetMat4("view", view);
-		ResourceManager::GetShader("model")->SetMat4("projection", projection);
 
 		ResourceManager::GetTexture("cyborg")->Bind("tex_sampler", 0);
 		model->Draw();
@@ -171,7 +176,7 @@ int main(int argc, const char **argv) {
 
 		glDepthFunc(GL_LEQUAL);
 
-		view = glm::mat4(glm::mat3(fps->GetViewMatrix()));
+		view = glm::mat4(glm::mat3(camera->GetViewMatrix()));
 
 		ResourceManager::GetShader("cubemap")->SetMat4("view", view);
 		ResourceManager::GetShader("cubemap")->SetMat4("projection", projection);
@@ -214,13 +219,13 @@ void ProcessKeyInput(double dt) {
 		opengl::FillMode();
 
 	if (Context::Instance().KeyDown(KeyNum::KEY_W))
-		fps->HandleKeyboard(CameraMovement::FORWARD, dt);
+		camera->HandleKeyboard(CameraMovement::FORWARD, dt);
 	if (Context::Instance().KeyDown(KeyNum::KEY_S))
-		fps->HandleKeyboard(CameraMovement::BACKWARD, dt);
+		camera->HandleKeyboard(CameraMovement::BACKWARD, dt);
 	if (Context::Instance().KeyDown(KeyNum::KEY_A))
-		fps->HandleKeyboard(CameraMovement::LEFT, dt);
+		camera->HandleKeyboard(CameraMovement::LEFT, dt);
 	if (Context::Instance().KeyDown(KeyNum::KEY_D))
-		fps->HandleKeyboard(CameraMovement::RIGHT, dt);
+		camera->HandleKeyboard(CameraMovement::RIGHT, dt);
 
 	if (Context::Instance().KeyDown(MouseButton::MOUSE_LEFT))
 		sound->Play();
@@ -234,33 +239,19 @@ void ProcessKeyInput(double dt) {
 
 void SetCallbacks() {
 	glfwSetScrollCallback(Context::Instance().Get(), [](GLFWwindow* win, double xoffset, double yoffset) {
-#if FPS == 1
-	fps->HandleScroll(yoffset);
-
-	projection = glm::perspective(
-		glm::radians(fps->GetFov()),
-		Context::Instance().GetRatio(),
-		near,
-		far
-	);
-#else
-	orbit->HandleScroll(yoffset);
-#endif
+		camera->HandleScroll(yoffset);
+		#if FPS == 1
+			projection = glm::perspective(
+				glm::radians(camera->GetFov()),
+				Context::Instance().GetRatio(),
+				near,
+				far
+			);
+		#endif
 	});
 
 	glfwSetCursorPosCallback(Context::Instance().Get(), [](GLFWwindow* win, double xpos, double ypos) {
-#if FPS == 1
-	fps->HandleMouseCursor(xpos, ypos);
-#else
-	static glm::vec2 last_mouse_pos = glm::vec2{ xpos, ypos };
-
-	camera::yaw -= (static_cast<float>(xpos) - last_mouse_pos.x) * kMouseSensitivity;
-	camera::pitch += (static_cast<float>(ypos) - last_mouse_pos.y) * kMouseSensitivity;
-	orbit->Rotate(camera::yaw, camera::pitch);
-
-	last_mouse_pos = std::move(glm::vec2{ xpos, ypos });
-	orbit->HandleMouseCursor(xpos, ypos);
-#endif
+		camera->HandleMouseCursor(xpos, ypos);
 	});
 
 	glfwSetFramebufferSizeCallback(
