@@ -8,10 +8,14 @@ uniform mat4 u_model;
 uniform mat4 u_view;
 uniform mat4 u_projection;
 
+out vec3 out_frag_pos;
+out vec3 out_normal;
 out vec2 out_tex_coord;
 
-void main () {
+void main() {
+	out_frag_pos = vec3(u_model * vec4(position, 1.0f));
+	out_normal = mat3(transpose(inverse(u_model))) * normal;
 	out_tex_coord = tex_coord;
 
-	gl_Position = u_projection * u_view * u_model * vec4(position, 1.0f);
+	gl_Position = u_projection * u_view *  u_model * vec4(position, 1.0f);
 }
