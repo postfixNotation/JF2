@@ -217,12 +217,14 @@ void MeshRenderer::InitBuffers() {
 	vb.Unbind();
 }
 
-void MeshRenderer::Draw(std::shared_ptr<Shader> shader) const {
+void MeshRenderer::Draw(
+	GLsizei count,
+	std::shared_ptr<Shader> shader) const {
 	if (!loaded_) return;
 	if (shader.get() != nullptr) {
-		Renderer::Render(*va_, *ib_, *shader);
+		Renderer::Render(*va_, *ib_, *shader, count);
 	}
 	else {
-		Renderer::Render(*va_, *ib_, *shader_);
+		Renderer::Render(*va_, *ib_, *shader_, count);
 	}
 }

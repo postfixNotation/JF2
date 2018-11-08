@@ -59,7 +59,9 @@ public:
 	bool Load(
 		const std::string& filename,
 		bool is_face_quad = true);
-	void Draw(std::shared_ptr<Shader> shader = std::shared_ptr<Shader>{nullptr}) const;
+	void Draw(
+		GLsizei count = 1,
+		std::shared_ptr<Shader> shader = std::shared_ptr<Shader>{nullptr}) const;
 };
 
 #endif //MESH_HPP_

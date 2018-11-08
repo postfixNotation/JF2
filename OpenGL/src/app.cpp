@@ -6,8 +6,10 @@
 
 #include <jf2.hpp>
 
-#define FPS 1
-#define DEV 1
+#define FPS 0
+#define PHONG 1
+#define STARS 1
+
 constexpr float near = 0.1f;
 constexpr float far = 100.0f;
 
@@ -19,7 +21,7 @@ std::unique_ptr<Camera> camera =
 #endif
 
 glm::vec3 light_position;
-glm::mat4 projection, model, view;
+glm::mat4 projection, view, model;
 std::unique_ptr<Audio> music = std::make_unique<Music>();
 std::unique_ptr<Audio> sound = std::make_unique<Sound>();
 
@@ -59,38 +61,44 @@ int main(int argc, const char **argv) {
 		179/255,
 		1.0f);
 	opengl::SetDebugMessageCallback(opengl::DebugMessageCallback);
-
 	SetCallbacks();
-	std::vector<std::string> faces{
-		FileSystem::Instance().GetPathString("textures")+"skybox/right.jpg",
-		FileSystem::Instance().GetPathString("textures")+"skybox/left.jpg",
-		FileSystem::Instance().GetPathString("textures")+"skybox/top.jpg",
-		FileSystem::Instance().GetPathString("textures")+"skybox/bottom.jpg",
-		FileSystem::Instance().GetPathString("textures")+"skybox/front.jpg",
-		FileSystem::Instance().GetPathString("textures")+"skybox/back.jpg"};
-	//std::vector<std::string> stars{
-	//	FileSystem::Instance().GetPathString("textures")+"stars.jpg",
-	//	FileSystem::Instance().GetPathString("textures")+"stars.jpg",
-	//	FileSystem::Instance().GetPathString("textures")+"stars.jpg",
-	//	FileSystem::Instance().GetPathString("textures")+"stars.jpg",
-	//	FileSystem::Instance().GetPathString("textures")+"stars.jpg",
-	//	FileSystem::Instance().GetPathString("textures")+"stars.jpg"};
+
+	#if STARS == 0
+		std::vector<std::string> faces{
+			FileSystem::Instance().GetPathString("textures")+"skybox/right.jpg",
+			FileSystem::Instance().GetPathString("textures")+"skybox/left.jpg",
+			FileSystem::Instance().GetPathString("textures")+"skybox/top.jpg",
+			FileSystem::Instance().GetPathString("textures")+"skybox/bottom.jpg",
+			FileSystem::Instance().GetPathString("textures")+"skybox/front.jpg",
+			FileSystem::Instance().GetPathString("textures")+"skybox/back.jpg"};
+	#else
+		std::vector<std::string> stars{
+			FileSystem::Instance().GetPathString("textures")+"stars.jpg",
+			FileSystem::Instance().GetPathString("textures")+"stars.jpg",
+			FileSystem::Instance().GetPathString("textures")+"stars.jpg",
+			FileSystem::Instance().GetPathString("textures")+"stars.jpg",
+			FileSystem::Instance().GetPathString("textures")+"stars.jpg",
+			FileSystem::Instance().GetPathString("textures")+"stars.jpg"};
+	#endif
 
 	ResourceManager::LoadShader(
 		FileSystem::Instance().GetPathString("shader")+"cubemap_vert_shader.glsl",
 		FileSystem::Instance().GetPathString("shader")+"cubemap_frag_shader.glsl",
 		"cubemap");
 
-	ResourceManager::LoadTexture(
-		ResourceManager::GetShader("cubemap"),
-		faces,
-		"faces");
-	//ResourceManager::LoadTexture(
-	//	ResourceManager::GetShader("cubemap"),
-	//	stars,
-	//	"faces");
+	#if STARS == 0
+		ResourceManager::LoadTexture(
+			ResourceManager::GetShader("cubemap"),
+			faces,
+			"faces");
+	#else
+		ResourceManager::LoadTexture(
+			ResourceManager::GetShader("cubemap"),
+			stars,
+			"faces");
+	#endif
 
-	#if DEV == 0
+	#if PHONG == 0
 		ResourceManager::LoadShader(
 			FileSystem::Instance().GetPathString("shader")+"mesh_vert_shader.glsl",
 			FileSystem::Instance().GetPathString("shader")+"mesh_frag_shader.glsl",
@@ -108,8 +116,11 @@ int main(int argc, const char **argv) {
 		near,
 		far);
 
-	ResourceManager::GetShader("model")->SetMat4("u_projection", projection);
+	ResourceManager::GetShader("model")->SetFloat("xoffset[0]", -3.0f);
+	ResourceManager::GetShader("model")->SetFloat("xoffset[1]", 3.0f);
+	ResourceManager::GetShader("model")->SetFloat("xoffset[2]", 0.0f);
 	ResourceManager::GetShader("model")->SetMat4("u_model", model);
+	ResourceManager::GetShader("model")->SetMat4("u_projection", projection);
 	ResourceManager::GetShader("model")->SetVec3("u_light_color", glm::vec3{1.0f, 1.0f, 1.0f});
 	ResourceManager::GetShader("model")->SetVec3("u_view_pos", camera->GetPosition());
 
@@ -168,8 +179,8 @@ int main(int argc, const char **argv) {
 
 	while (!Context::Instance()) {
 		ProcessKeyInput(Context::Instance().GetTimePerFrame());
-		light_position.x = 3 * sin(Context::Instance().GetTime() * 3);
-		light_position.z = 3 * cos(Context::Instance().GetTime() * 3);
+		light_position.x = 3 * sin(Context::Instance().GetTime() * 4);
+		light_position.z = 3 * cos(Context::Instance().GetTime() * 4);
 
 		Renderer::Clear();
 
@@ -179,7 +190,7 @@ int main(int argc, const char **argv) {
 		ResourceManager::GetShader("model")->SetVec3("u_light_pos", light_position);
 
 		ResourceManager::GetTexture("cyborg")->Bind("u_tex_sampler", 0);
-		cyborg->Draw();
+		cyborg->Draw(3);
 		ResourceManager::GetTexture("cyborg")->Unbind(0);
 
 		view = glm::mat4(glm::mat3(camera->GetViewMatrix()));

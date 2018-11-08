@@ -20,15 +20,17 @@ void Renderer::Clear(ClearBufferBit mask) {
 void Renderer::Render(
 	const VertexArray& va,
 	const IndexBuffer& ib,
-	const Shader& shader) {
+	const Shader& shader,
+	GLsizei count) {
 
+	assert(count >= 1);
 	shader.Bind();
 	va.Bind();
 	ib.Bind();
-	glDrawElements(
+	glDrawElementsInstanced(
 		GL_TRIANGLES,
 		ib.GetCount(),
 		GL_UNSIGNED_INT,
-		nullptr
-	);
+		nullptr,
+		count);
 }

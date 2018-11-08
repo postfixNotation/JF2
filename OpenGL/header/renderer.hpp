@@ -21,7 +21,8 @@ public:
 	static void Render(
 		const VertexArray& va,
 		const IndexBuffer& ib,
-		const Shader& shader
+		const Shader& shader,
+		GLsizei count = 1
 	);
 };
 
