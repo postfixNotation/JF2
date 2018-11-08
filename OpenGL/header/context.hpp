@@ -35,6 +35,8 @@ public:
 	size_t GetHeight() const { return height_; }
 	float GetRatio() { return ratio_; }
 	float GetFrameRate(size_t precision) const;
+	double GetTime() const { return glfwGetTime(); }
+	double GetTimePerFrame() const;
 	void UpdateVideoMode();
 	void UpdateDimensions();
 

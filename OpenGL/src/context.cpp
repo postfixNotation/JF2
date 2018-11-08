@@ -110,6 +110,13 @@ void Context::UpdateDimensions() {
 	ratio_ = static_cast<float>(width_) / height_;
 }
 
+double Context::GetTimePerFrame() const {
+	static double last_time{ glfwGetTime() };
+	double dt = glfwGetTime() - last_time;
+	last_time = glfwGetTime(); 
+	return dt;
+}
+
 float Context::GetFrameRate(size_t precision) const {
 	static size_t number_of_frames;
 	static double time_elapsed;

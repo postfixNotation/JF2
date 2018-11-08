@@ -17,6 +17,7 @@ class Camera {
 public:
 	void HandleMouseCursor(double xpos, double ypos);
 	float GetFov() const { return fov_; }
+	glm::vec3 GetPosition() const { return position_; }
 	glm::mat4 GetViewMatrix() const;
 	virtual void HandleScroll(double delta_scroll) = 0;
 	virtual void HandleKeyboard(const CameraMovement &m, double dt) = 0;

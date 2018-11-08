@@ -12,6 +12,5 @@ out vec2 out_tex_coord;
 
 void main () {
 	out_tex_coord = tex_coord;
-
 	gl_Position = u_projection * u_view * u_model * vec4(position, 1.0f);
 }

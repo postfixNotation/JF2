@@ -7,6 +7,7 @@
 #include <jf2.hpp>
 
 #define FPS 1
+#define DEV 1
 constexpr float near = 0.1f;
 constexpr float far = 100.0f;
 
@@ -17,7 +18,8 @@ std::unique_ptr<Camera> camera =
 	std::make_unique<OrbitCamera>();
 #endif
 
-glm::mat4 projection{}, model_mat{}, view{};
+glm::vec3 light_position;
+glm::mat4 projection, model, view;
 std::unique_ptr<Audio> music = std::make_unique<Music>();
 std::unique_ptr<Audio> sound = std::make_unique<Sound>();
 
@@ -51,7 +53,11 @@ int main(int argc, const char **argv) {
 		0,
 		Context::Instance().GetWidth(),
 		Context::Instance().GetHeight());
-	opengl::SetColor(1.0f, 0.9f, 0.8f, 1.0f);
+	opengl::SetColor(
+		179/255,
+		255/255,
+		179/255,
+		1.0f);
 	opengl::SetDebugMessageCallback(opengl::DebugMessageCallback);
 
 	SetCallbacks();
@@ -68,14 +74,12 @@ int main(int argc, const char **argv) {
 	//	FileSystem::Instance().GetPathString("textures")+"stars.jpg",
 	//	FileSystem::Instance().GetPathString("textures")+"stars.jpg",
 	//	FileSystem::Instance().GetPathString("textures")+"stars.jpg",
-	//	FileSystem::Instance().GetPathString("textures")+"stars.jpg"
-	//};
+	//	FileSystem::Instance().GetPathString("textures")+"stars.jpg"};
 
 	ResourceManager::LoadShader(
 		FileSystem::Instance().GetPathString("shader")+"cubemap_vert_shader.glsl",
 		FileSystem::Instance().GetPathString("shader")+"cubemap_frag_shader.glsl",
 		"cubemap");
-	ResourceManager::GetShader("cubemap")->SetInt("skybox", 0);
 
 	ResourceManager::LoadTexture(
 		ResourceManager::GetShader("cubemap"),
@@ -86,11 +90,31 @@ int main(int argc, const char **argv) {
 	//	stars,
 	//	"faces");
 
-	ResourceManager::LoadShader(
-		FileSystem::Instance().GetPathString("shader")+"mesh_vert_shader.glsl",
-		FileSystem::Instance().GetPathString("shader")+"mesh_frag_shader.glsl",
-		"model");
-	ResourceManager::GetShader("model")->SetMat4("model", model_mat);
+	#if DEV == 0
+		ResourceManager::LoadShader(
+			FileSystem::Instance().GetPathString("shader")+"mesh_vert_shader.glsl",
+			FileSystem::Instance().GetPathString("shader")+"mesh_frag_shader.glsl",
+			"model");
+	#else
+		ResourceManager::LoadShader(
+			FileSystem::Instance().GetPathString("shader")+"mesh_vert_phong.glsl",
+			FileSystem::Instance().GetPathString("shader")+"mesh_frag_phong.glsl",
+			"model");
+	#endif
+
+	projection = glm::perspective(
+		glm::radians(camera->GetFov()),
+		Context::Instance().GetRatio(),
+		near,
+		far);
+
+	ResourceManager::GetShader("model")->SetMat4("u_projection", projection);
+	ResourceManager::GetShader("model")->SetMat4("u_model", model);
+	ResourceManager::GetShader("model")->SetVec3("u_light_color", glm::vec3{1.0f, 1.0f, 1.0f});
+	ResourceManager::GetShader("model")->SetVec3("u_view_pos", camera->GetPosition());
+
+	ResourceManager::GetShader("cubemap")->SetInt("skybox", 0);
+	ResourceManager::GetShader("cubemap")->SetMat4("projection", projection);
 
 	ResourceManager::LoadTexture(
 		ResourceManager::GetShader("model"),
@@ -120,14 +144,14 @@ int main(int argc, const char **argv) {
 		FileSystem::Instance().GetPathString("textures")+"tux.png",
 		"tux");
 
-	std::unique_ptr<MeshRenderer> model = std::make_unique<MeshRenderer>(ResourceManager::GetShader("model"));
-	model->Load(
+	std::unique_ptr<MeshRenderer> cyborg = std::make_unique<MeshRenderer>(ResourceManager::GetShader("model"));
+	cyborg->Load(
 		FileSystem::Instance().GetPathString("models")+"cyborg.obj",
 		false);
 
-	std::unique_ptr<MeshRenderer> cube_map_mesh{
+	std::unique_ptr<MeshRenderer> cube_map{
 		std::unique_ptr<MeshRenderer>(new MeshRenderer(ResourceManager::GetShader("cubemap"))) };
-	cube_map_mesh->Load(
+	cube_map->Load(
 		FileSystem::Instance().GetPathString("models")+"cube.obj");
 
 	std::unique_ptr<SpriteRenderer> sprite = std::unique_ptr<SpriteRenderer>(
@@ -142,52 +166,35 @@ int main(int argc, const char **argv) {
 	sound->Open(FileSystem::Instance().GetPathString("audio")+"powerup1.ogg");
 	sound->Play();
 
-	double previous_time{ glfwGetTime() };
-
-	#if FPS == 0
-		projection = glm::perspective(
-			glm::radians(camera->GetFov()),
-			Context::Instance().GetRatio(),
-			near,
-			far);
-		ResourceManager::GetShader("model")->SetMat4("projection", projection);
-	#endif
-
 	while (!Context::Instance()) {
-		ProcessKeyInput(glfwGetTime() - previous_time);
-		previous_time = glfwGetTime();
+		ProcessKeyInput(Context::Instance().GetTimePerFrame());
+		light_position.x = 3 * sin(Context::Instance().GetTime() * 3);
+		light_position.z = 3 * cos(Context::Instance().GetTime() * 3);
 
 		Renderer::Clear();
 
 		view = camera->GetViewMatrix();
-		#if FPS == 1
-			projection = glm::perspective(
-				glm::radians(camera->GetFov()),
-				Context::Instance().GetRatio(),
-				near,
-				far);
-			ResourceManager::GetShader("model")->SetMat4("projection", projection);
-		#endif
-		ResourceManager::GetShader("model")->SetMat4("view", view);
+		ResourceManager::GetShader("model")->SetMat4("u_view", view);
+		ResourceManager::GetShader("model")->SetVec3("u_view_pos", camera->GetPosition());
+		ResourceManager::GetShader("model")->SetVec3("u_light_pos", light_position);
 
-		ResourceManager::GetTexture("cyborg")->Bind("tex_sampler", 0);
-		model->Draw();
+		ResourceManager::GetTexture("cyborg")->Bind("u_tex_sampler", 0);
+		cyborg->Draw();
 		ResourceManager::GetTexture("cyborg")->Unbind(0);
 
 		view = glm::mat4(glm::mat3(camera->GetViewMatrix()));
 		ResourceManager::GetShader("cubemap")->SetMat4("view", view);
-		ResourceManager::GetShader("cubemap")->SetMat4("projection", projection);
 
 		ResourceManager::GetTexture("faces")->Bind("skybox", 0);
 		glDepthFunc(GL_LEQUAL);
 		glFrontFace(GL_CW);
-		cube_map_mesh->Draw();
+		cube_map->Draw();
 		glFrontFace(GL_CCW);
 		glDepthFunc(GL_LESS);
 		ResourceManager::GetTexture("faces")->Unbind(0);
 
 		ResourceManager::GetTextRenderer("Wallpoet")->Draw(
-			"Framerate: "+std::to_string(Context::Instance().GetFrameRate(2)),
+			"Framerate: "+std::to_string(Context::Instance().GetFrameRate(2)).substr(0,5),
 			0.0f,
 			0.0f,
 			1.2f,
@@ -241,8 +248,9 @@ void SetCallbacks() {
 				glm::radians(camera->GetFov()),
 				Context::Instance().GetRatio(),
 				near,
-				far
-			);
+				far);
+			ResourceManager::GetShader("model")->SetMat4("u_projection", projection);
+			ResourceManager::GetShader("cubemap")->SetMat4("projection", projection);
 		#endif
 	});
 
