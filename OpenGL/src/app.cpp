@@ -6,7 +6,7 @@
 
 #include <jf2.hpp>
 
-#define FPS 0
+#define FPS 1
 #define PHONG 1
 #define STARS 1
 
@@ -118,7 +118,6 @@ int main(int argc, const char **argv) {
 
 	ResourceManager::GetShader("model")->SetFloat("xoffset[0]", -3.0f);
 	ResourceManager::GetShader("model")->SetFloat("xoffset[1]", 3.0f);
-	ResourceManager::GetShader("model")->SetFloat("xoffset[2]", 0.0f);
 	ResourceManager::GetShader("model")->SetMat4("u_model", model);
 	ResourceManager::GetShader("model")->SetMat4("u_projection", projection);
 	ResourceManager::GetShader("model")->SetVec3("u_light_color", glm::vec3{1.0f, 1.0f, 1.0f});
@@ -213,6 +212,7 @@ int main(int argc, const char **argv) {
 		sprite->Draw(
 			ResourceManager::GetTexture("tux"),
 			glm::vec2{ Context::Instance().GetWidth() - 100.0f, Context::Instance().GetHeight() - 100.0f },
+			{ glm::vec2{ -100.0f, 0.0f }, glm::vec2{ -200.0f, 0.0f } },
 			glm::vec2{ 100.0f, 100.0f });
 
 		Context::Instance().PollEvents();

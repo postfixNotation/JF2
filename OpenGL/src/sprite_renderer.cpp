@@ -9,9 +9,7 @@ SpriteRenderer::SpriteRenderer(
         0.0f,
         width,
         height,
-        0.0f,
-        -1.0f,
-        1.0f);
+        0.0f);
     InitRenderData();
 }
 
@@ -19,7 +17,7 @@ SpriteRenderer::~SpriteRenderer() {}
 
 void SpriteRenderer::Draw(
 	const std::shared_ptr<Texture2D> &texture,
-	glm::vec2 position,
+	const glm::vec2 &position,
 	glm::vec2 size,
 	GLfloat rotate,
 	glm::vec3 color) {
@@ -37,6 +35,35 @@ void SpriteRenderer::Draw(
 
     texture->Bind("image_sampler", 0);
     Renderer::Render(*va_, *ib_, *shader_);
+    texture->Unbind(0);
+}
+
+void SpriteRenderer::Draw(
+	const std::shared_ptr<Texture2D> &texture,
+	const glm::vec2 &position,
+    const std::vector<glm::vec2> &offsets,
+	glm::vec2 size,
+	GLfloat rotate,
+	glm::vec3 color) {
+
+    size_t i{};
+    for (const glm::vec2 &offset : offsets) {
+        shader_->SetVec2("offset["+std::to_string(i++)+"]", offset);
+    }
+
+    glm::mat4 model{};
+    model = glm::translate(model, glm::vec3(position, 0.0f));
+    model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.0f));
+    model = glm::rotate(model, glm::radians(rotate), glm::vec3(0.0f, 0.0f, 1.0f));
+    model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.0f));
+    model = glm::scale(model, glm::vec3(size, 1.0f));
+
+    shader_->SetMat4("model", model);
+    shader_->SetMat4("projection", projection_);
+    shader_->SetVec3("sprite_color", color);
+
+    texture->Bind("image_sampler", 0);
+    Renderer::Render(*va_, *ib_, *shader_, offsets.size() + 1);
     texture->Unbind(0);
 }
 
