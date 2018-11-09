@@ -24,11 +24,16 @@ void main() {
 	float n_dot_l = max(dot(normal, light_dir), 0.0f);
 	vec3 diffuse = u_light_color * n_dot_l;
 
-	// Specular - Phong
+	// Specular
 	vec3 view_dir = normalize(u_view_pos - out_frag_pos);
-	vec3 reflect_dir = reflect(-light_dir, normal);
-	float r_dot_v = max(dot(reflect_dir, view_dir), 0.0f);
-	vec3 specular = u_light_color * kSpecularFactor * pow(r_dot_v, kShininess);
+	// Following lines correspond to *Phong* light shading
+	// vec3 reflect_dir = reflect(-light_dir, normal);
+	// float r_dot_v = max(dot(reflect_dir, view_dir), 0.0f);
+	// vec3 specular = u_light_color * kSpecularFactor * pow(r_dot_v, kShininess);
+	// Following lines correspond to *Blinn-Phong* light shading
+	vec3 half_dir = normalize(light_dir + view_dir);
+	float n_dot_h = max(dot(normal, half_dir), 0.0f);
+	vec3 specular = u_light_color * kSpecularFactor * pow(n_dot_h, kShininess);
 
 	vec4 texel = texture(u_tex_sampler, out_tex_coord);
 	frag_color = vec4(ambient + diffuse + specular, 1.0f) * texel;
