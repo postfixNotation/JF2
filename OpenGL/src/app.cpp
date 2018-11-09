@@ -8,7 +8,7 @@
 
 #define FPS 1
 #define PHONG 1
-#define STARS 1
+#define STARS 0
 
 constexpr float near = 0.1f;
 constexpr float far = 100.0f;
@@ -130,6 +130,10 @@ int main(int argc, const char **argv) {
 		ResourceManager::GetShader("model"),
 		FileSystem::Instance().GetPathString("textures")+"cyborg_diffuse.png",
 		"cyborg");
+	ResourceManager::LoadTexture(
+		ResourceManager::GetShader("model"),
+		FileSystem::Instance().GetPathString("textures")+"floor.jpg",
+		"floor");
 
 	ResourceManager::LoadShader(
 		FileSystem::Instance().GetPathString("shader")+"font_vert.glsl",
@@ -151,23 +155,27 @@ int main(int argc, const char **argv) {
 
 	ResourceManager::LoadTexture(
 		ResourceManager::GetShader("sprite"),
-		FileSystem::Instance().GetPathString("textures")+"tux.png",
-		"tux");
+		FileSystem::Instance().GetPathString("textures")+"donut_icon.png",
+		"donut");
 
 	std::unique_ptr<MeshRenderer> cyborg = std::make_unique<MeshRenderer>(ResourceManager::GetShader("model"));
 	cyborg->Load(
 		FileSystem::Instance().GetPathString("models")+"cyborg.obj",
 		false);
 
-	std::unique_ptr<MeshRenderer> cube_map{
-		std::unique_ptr<MeshRenderer>(new MeshRenderer(ResourceManager::GetShader("cubemap"))) };
+	std::unique_ptr<MeshRenderer> ground = std::make_unique<MeshRenderer>(ResourceManager::GetShader("model"));
+	ground->Load(
+		FileSystem::Instance().GetPathString("models")+"floor.obj",
+		false);
+
+	std::unique_ptr<MeshRenderer> cube_map = std::make_unique<MeshRenderer>(ResourceManager::GetShader("cubemap"));
 	cube_map->Load(
 		FileSystem::Instance().GetPathString("models")+"cube.obj");
 
-	std::unique_ptr<SpriteRenderer> sprite = std::unique_ptr<SpriteRenderer>(
-		new SpriteRenderer(ResourceManager::GetShader("sprite"),
+	std::unique_ptr<SpriteRenderer> sprite = std::make_unique<SpriteRenderer>(
+		ResourceManager::GetShader("sprite"),
 		Context::Instance().GetWidth(),
-		Context::Instance().GetHeight()));
+		Context::Instance().GetHeight());
 
 	music->Open(FileSystem::Instance().GetPathString("audio")+"throne.ogg");
 	music->Play(true);
@@ -178,8 +186,8 @@ int main(int argc, const char **argv) {
 
 	while (!Context::Instance()) {
 		ProcessKeyInput(Context::Instance().GetTimePerFrame());
-		light_position.x = 3 * sin(Context::Instance().GetTime() * 4);
-		light_position.z = 3 * cos(Context::Instance().GetTime() * 4);
+		light_position.x = 4 * sin(Context::Instance().GetTime() * 3);
+		light_position.z = 4 * cos(Context::Instance().GetTime() * 3);
 
 		Renderer::Clear();
 
@@ -187,6 +195,10 @@ int main(int argc, const char **argv) {
 		ResourceManager::GetShader("model")->SetMat4("u_view", view);
 		ResourceManager::GetShader("model")->SetVec3("u_view_pos", camera->GetPosition());
 		ResourceManager::GetShader("model")->SetVec3("u_light_pos", light_position);
+
+		ResourceManager::GetTexture("floor")->Bind("u_tex_sampler", 0);
+		ground->Draw(3);
+		ResourceManager::GetTexture("floor")->Unbind(0);
 
 		ResourceManager::GetTexture("cyborg")->Bind("u_tex_sampler", 0);
 		cyborg->Draw(3);
@@ -210,7 +222,7 @@ int main(int argc, const char **argv) {
 			1.2f,
 			glm::vec3{ 0.5f, 0.5f, 0.5f });
 		sprite->Draw(
-			ResourceManager::GetTexture("tux"),
+			ResourceManager::GetTexture("donut"),
 			glm::vec2{ Context::Instance().GetWidth() - 100.0f, Context::Instance().GetHeight() - 100.0f },
 			{ glm::vec2{ -100.0f, 0.0f }, glm::vec2{ -200.0f, 0.0f } },
 			glm::vec2{ 100.0f, 100.0f });

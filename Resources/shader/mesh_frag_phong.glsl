@@ -10,7 +10,7 @@ uniform vec3 u_light_pos;		// diffuse
 uniform vec3 u_light_color;		// diffuse
 uniform vec3 u_view_pos;		// specular
 
-const float kAmbientFactor = 0.1f;
+const float kAmbientFactor = 0.2f;
 const float kSpecularFactor = 0.8f;
 const float kShininess = 32.0f;
 
