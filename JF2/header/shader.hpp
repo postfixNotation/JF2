@@ -31,18 +31,18 @@ public:
 	GLuint GetHandle() const { return handle_; }
 
 	// shader uniform methods
-	void SetBool(const std::string &name, GLboolean value) const;
-	void SetInt(const std::string &name, GLint value) const;
-	void SetFloat(const std::string &name, GLfloat value) const;
-	void SetVec2(const std::string &name, const glm::vec2 &value) const;
-	void SetVec2(const std::string &name, GLfloat x, GLfloat y) const;
-	void SetVec3(const std::string &name, const glm::vec3 &value) const;
-	void SetVec3(const std::string &name, GLfloat x, GLfloat y, GLfloat z) const;
-	void SetVec4(const std::string &name, const glm::vec4 &value) const;
-	void SetVec4(const std::string &name, GLfloat x, GLfloat y, GLfloat z, GLfloat w) const;
-	void SetMat2(const std::string &name, const glm::mat2 &mat) const;
-	void SetMat3(const std::string &name, const glm::mat3 &mat) const;
-	void SetMat4(const std::string &name, const glm::mat4 &mat) const;
+	void SetBool(const std::string &name, GLboolean value);
+	void SetInt(const std::string &name, GLint value);
+	void SetFloat(const std::string &name, GLfloat value);
+	void SetVec2(const std::string &name, const glm::vec2 &value);
+	void SetVec2(const std::string &name, GLfloat x, GLfloat y);
+	void SetVec3(const std::string &name, const glm::vec3 &value);
+	void SetVec3(const std::string &name, GLfloat x, GLfloat y, GLfloat z);
+	void SetVec4(const std::string &name, const glm::vec4 &value);
+	void SetVec4(const std::string &name, GLfloat x, GLfloat y, GLfloat z, GLfloat w);
+	void SetMat2(const std::string &name, const glm::mat2 &mat);
+	void SetMat3(const std::string &name, const glm::mat3 &mat);
+	void SetMat4(const std::string &name, const glm::mat4 &mat);
 };
 
 #endif // SHADER_HPP_

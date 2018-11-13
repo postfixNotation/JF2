@@ -43,87 +43,87 @@ Shader::Shader(const std::string &vert_file, const std::string &frag_file) {
 }
 
 // shader uniform methods
-void Shader::SetBool(const std::string &name, GLboolean value) const {
+void Shader::SetBool(const std::string &name, GLboolean value) {
 	Bind();
-	glUniform1i(glGetUniformLocation(handle_, name.c_str()), static_cast<GLint>(value));
+	glUniform1i(GetUniformLocation(name), static_cast<GLint>(value));
 }
 
-void Shader::SetInt(const std::string &name, GLint value) const {
+void Shader::SetInt(const std::string &name, GLint value) {
 	Bind();
-	glUniform1i(glGetUniformLocation(handle_, name.c_str()), value);
+	glUniform1i(GetUniformLocation(name), value);
 }
 
-void Shader::SetFloat(const std::string &name, GLfloat value) const {
+void Shader::SetFloat(const std::string &name, GLfloat value) {
 	Bind();
-	glUniform1f(glGetUniformLocation(handle_, name.c_str()), value);
+	glUniform1f(GetUniformLocation(name), value);
 }
 
-void Shader::SetVec2(const std::string &name, const glm::vec2 &value) const {
+void Shader::SetVec2(const std::string &name, const glm::vec2 &value) {
 	Bind();
 	glUniform2fv(
-		glGetUniformLocation(handle_, name.c_str()),
+		GetUniformLocation(name),
 		1,
 		reinterpret_cast<const GLfloat*>(glm::value_ptr(value))
 	);
 }
 
-void Shader::SetVec2(const std::string &name, GLfloat x, GLfloat y) const {
+void Shader::SetVec2(const std::string &name, GLfloat x, GLfloat y) {
 	Bind();
-	glUniform2f(glGetUniformLocation(handle_, name.c_str()), x, y);
+	glUniform2f(GetUniformLocation(name), x, y);
 }
 
-void Shader::SetVec3(const std::string &name, const glm::vec3 &value) const {
+void Shader::SetVec3(const std::string &name, const glm::vec3 &value) {
 	Bind();
 	glUniform3fv(
-		glGetUniformLocation(handle_, name.c_str()),
+		GetUniformLocation(name),
 		1,
 		glm::value_ptr(value)
 	);
 }
 
-void Shader::SetVec3(const std::string &name, GLfloat x, GLfloat y, GLfloat z) const {
+void Shader::SetVec3(const std::string &name, GLfloat x, GLfloat y, GLfloat z) {
 	Bind();
-	glUniform3f(glGetUniformLocation(handle_, name.c_str()), x, y, z);
+	glUniform3f(GetUniformLocation(name), x, y, z);
 }
 
-void Shader::SetVec4(const std::string &name, const glm::vec4 &value) const {
+void Shader::SetVec4(const std::string &name, const glm::vec4 &value) {
 	Bind();
 	glUniform4fv(
-		glGetUniformLocation(handle_, name.c_str()),
+		GetUniformLocation(name),
 		1,
 		reinterpret_cast<const GLfloat*>(glm::value_ptr(value))
 	);
 }
 
-void Shader::SetVec4(const std::string &name, GLfloat x, GLfloat y, GLfloat z, GLfloat w) const {
+void Shader::SetVec4(const std::string &name, GLfloat x, GLfloat y, GLfloat z, GLfloat w) {
 	Bind();
-	glUniform4f(glGetUniformLocation(handle_, name.c_str()), x, y, z, w);
+	glUniform4f(GetUniformLocation(name), x, y, z, w);
 }
 
-void Shader::SetMat2(const std::string &name, const glm::mat2 &mat) const {
+void Shader::SetMat2(const std::string &name, const glm::mat2 &mat) {
 	Bind();
 	glUniformMatrix2fv(
-		glGetUniformLocation(handle_, name.c_str()),
+		GetUniformLocation(name),
 		1,
 		GL_FALSE,
 		reinterpret_cast<const GLfloat*>(glm::value_ptr(mat))
 	);
 }
 
-void Shader::SetMat3(const std::string &name, const glm::mat3 &mat) const {
+void Shader::SetMat3(const std::string &name, const glm::mat3 &mat) {
 	Bind();
 	glUniformMatrix3fv(
-		glGetUniformLocation(handle_, name.c_str()),
+		GetUniformLocation(name),
 		1,
 		GL_FALSE,
 		reinterpret_cast<const GLfloat*>(glm::value_ptr(mat))
 	);
 }
 
-void Shader::SetMat4(const std::string &name, const glm::mat4 &mat) const {
+void Shader::SetMat4(const std::string &name, const glm::mat4 &mat) {
 	Bind();
 	glUniformMatrix4fv(
-		glGetUniformLocation(handle_, name.c_str()),
+		GetUniformLocation(name),
 		1,
 		GL_FALSE,
 		reinterpret_cast<const GLfloat*>(glm::value_ptr(mat))

@@ -15,9 +15,9 @@ constexpr float far = 100.0f;
 
 std::unique_ptr<Camera> camera =
 #if FPS == 1
-	std::make_unique<FPSCamera>(glm::vec3{0.0f, 0.0f, 20.0f});
+std::make_unique<FPSCamera>(glm::vec3{ 0.0f, 0.0f, 20.0f });
 #else
-	std::make_unique<OrbitCamera>();
+std::make_unique<OrbitCamera>();
 #endif
 
 glm::vec3 light_position;
@@ -30,7 +30,7 @@ void SetCallbacks();
 
 int main(int argc, const char **argv) {
 	FileSystem::Instance().SetResourceRootDir("Resources");
-	FileSystem::Instance().InitSubDirs( {"fonts", "audio", "models", "shader", "textures"} );
+	FileSystem::Instance().InitSubDirs({ "fonts", "audio", "models", "shader", "textures" });
 
 	context::Config config;
 	config.opengl_major = 3;
@@ -46,7 +46,7 @@ int main(int argc, const char **argv) {
 		Context::Instance().GetWidth() / 2,
 		Context::Instance().GetHeight() / 2);
 	Context::Instance().SetIcon(
-		FileSystem::Instance().GetPathString("textures")+"android_2.png");
+		FileSystem::Instance().GetPathString("textures") + "tux.png");
 
 	opengl::Init();
 	opengl::SetDefaultSetting();
@@ -56,59 +56,59 @@ int main(int argc, const char **argv) {
 		Context::Instance().GetWidth(),
 		Context::Instance().GetHeight());
 	opengl::SetColor(
-		179/255,
-		255/255,
-		179/255,
+		179 / 255,
+		255 / 255,
+		179 / 255,
 		1.0f);
 	opengl::SetDebugMessageCallback(opengl::DebugMessageCallback);
 	SetCallbacks();
 
-	#if STARS == 0
-		std::vector<std::string> faces{
-			FileSystem::Instance().GetPathString("textures")+"skybox/right.jpg",
-			FileSystem::Instance().GetPathString("textures")+"skybox/left.jpg",
-			FileSystem::Instance().GetPathString("textures")+"skybox/top.jpg",
-			FileSystem::Instance().GetPathString("textures")+"skybox/bottom.jpg",
-			FileSystem::Instance().GetPathString("textures")+"skybox/front.jpg",
-			FileSystem::Instance().GetPathString("textures")+"skybox/back.jpg"};
-	#else
-		std::vector<std::string> stars{
-			FileSystem::Instance().GetPathString("textures")+"stars.jpg",
-			FileSystem::Instance().GetPathString("textures")+"stars.jpg",
-			FileSystem::Instance().GetPathString("textures")+"stars.jpg",
-			FileSystem::Instance().GetPathString("textures")+"stars.jpg",
-			FileSystem::Instance().GetPathString("textures")+"stars.jpg",
-			FileSystem::Instance().GetPathString("textures")+"stars.jpg"};
-	#endif
+#if STARS == 0
+	std::vector<std::string> faces{
+		FileSystem::Instance().GetPathString("textures") + "skybox/right.jpg",
+		FileSystem::Instance().GetPathString("textures") + "skybox/left.jpg",
+		FileSystem::Instance().GetPathString("textures") + "skybox/top.jpg",
+		FileSystem::Instance().GetPathString("textures") + "skybox/bottom.jpg",
+		FileSystem::Instance().GetPathString("textures") + "skybox/front.jpg",
+		FileSystem::Instance().GetPathString("textures") + "skybox/back.jpg" };
+#else
+	std::vector<std::string> stars{
+		FileSystem::Instance().GetPathString("textures") + "stars.jpg",
+		FileSystem::Instance().GetPathString("textures") + "stars.jpg",
+		FileSystem::Instance().GetPathString("textures") + "stars.jpg",
+		FileSystem::Instance().GetPathString("textures") + "stars.jpg",
+		FileSystem::Instance().GetPathString("textures") + "stars.jpg",
+		FileSystem::Instance().GetPathString("textures") + "stars.jpg" };
+#endif
 
 	ResourceManager::LoadShader(
-		FileSystem::Instance().GetPathString("shader")+"cubemap_vert_shader.glsl",
-		FileSystem::Instance().GetPathString("shader")+"cubemap_frag_shader.glsl",
+		FileSystem::Instance().GetPathString("shader") + "cubemap_vert_shader.glsl",
+		FileSystem::Instance().GetPathString("shader") + "cubemap_frag_shader.glsl",
 		"cubemap");
 
-	#if STARS == 0
-		ResourceManager::LoadTexture(
-			ResourceManager::GetShader("cubemap"),
-			faces,
-			"faces");
-	#else
-		ResourceManager::LoadTexture(
-			ResourceManager::GetShader("cubemap"),
-			stars,
-			"faces");
-	#endif
+#if STARS == 0
+	ResourceManager::LoadTexture(
+		ResourceManager::GetShader("cubemap"),
+		faces,
+		"faces");
+#else
+	ResourceManager::LoadTexture(
+		ResourceManager::GetShader("cubemap"),
+		stars,
+		"faces");
+#endif
 
-	#if PHONG == 0
-		ResourceManager::LoadShader(
-			FileSystem::Instance().GetPathString("shader")+"mesh_vert_shader.glsl",
-			FileSystem::Instance().GetPathString("shader")+"mesh_frag_shader.glsl",
-			"model");
-	#else
-		ResourceManager::LoadShader(
-			FileSystem::Instance().GetPathString("shader")+"mesh_vert_phong.glsl",
-			FileSystem::Instance().GetPathString("shader")+"mesh_frag_phong.glsl",
-			"model");
-	#endif
+#if PHONG == 0
+	ResourceManager::LoadShader(
+		FileSystem::Instance().GetPathString("shader") + "mesh_vert_shader.glsl",
+		FileSystem::Instance().GetPathString("shader") + "mesh_frag_shader.glsl",
+		"model");
+#else
+	ResourceManager::LoadShader(
+		FileSystem::Instance().GetPathString("shader") + "mesh_vert_phong.glsl",
+		FileSystem::Instance().GetPathString("shader") + "mesh_frag_phong.glsl",
+		"model");
+#endif
 
 	projection = glm::perspective(
 		glm::radians(camera->GetFov()),
@@ -120,7 +120,7 @@ int main(int argc, const char **argv) {
 	ResourceManager::GetShader("model")->SetFloat("xoffset[1]", 3.0f);
 	ResourceManager::GetShader("model")->SetMat4("u_model", model);
 	ResourceManager::GetShader("model")->SetMat4("u_projection", projection);
-	ResourceManager::GetShader("model")->SetVec3("u_light_color", glm::vec3{1.0f, 1.0f, 1.0f});
+	ResourceManager::GetShader("model")->SetVec3("u_light_color", glm::vec3{ 1.0f, 1.0f, 1.0f });
 	ResourceManager::GetShader("model")->SetVec3("u_view_pos", camera->GetPosition());
 
 	ResourceManager::GetShader("cubemap")->SetInt("skybox", 0);
@@ -128,21 +128,21 @@ int main(int argc, const char **argv) {
 
 	ResourceManager::LoadTexture(
 		ResourceManager::GetShader("model"),
-		FileSystem::Instance().GetPathString("textures")+"cyborg_diffuse.png",
+		FileSystem::Instance().GetPathString("textures") + "cyborg_diffuse.png",
 		"cyborg");
 	ResourceManager::LoadTexture(
 		ResourceManager::GetShader("model"),
-		FileSystem::Instance().GetPathString("textures")+"floor.jpg",
+		FileSystem::Instance().GetPathString("textures") + "floor.jpg",
 		"floor");
 
 	ResourceManager::LoadShader(
-		FileSystem::Instance().GetPathString("shader")+"font_vert.glsl",
-		FileSystem::Instance().GetPathString("shader")+"font_frag.glsl",
+		FileSystem::Instance().GetPathString("shader") + "font_vert.glsl",
+		FileSystem::Instance().GetPathString("shader") + "font_frag.glsl",
 		"text");
 
 	ResourceManager::LoadShader(
-		FileSystem::Instance().GetPathString("shader")+"sprite_vert_shader.glsl",
-		FileSystem::Instance().GetPathString("shader")+"sprite_frag_shader.glsl",
+		FileSystem::Instance().GetPathString("shader") + "sprite_vert_shader.glsl",
+		FileSystem::Instance().GetPathString("shader") + "sprite_frag_shader.glsl",
 		"sprite");
 
 	ResourceManager::LoadTextRenderer(
@@ -150,38 +150,38 @@ int main(int argc, const char **argv) {
 		Context::Instance().GetWidth(),
 		Context::Instance().GetHeight(),
 		20,
-		FileSystem::Instance().GetPathString("fonts")+"Wallpoet-Regular.ttf",
+		FileSystem::Instance().GetPathString("fonts") + "Wallpoet-Regular.ttf",
 		"Wallpoet");
 
 	ResourceManager::LoadTexture(
 		ResourceManager::GetShader("sprite"),
-		FileSystem::Instance().GetPathString("textures")+"donut_icon.png",
+		FileSystem::Instance().GetPathString("textures") + "donut_icon.png",
 		"donut");
 
 	std::unique_ptr<MeshRenderer> cyborg = std::make_unique<MeshRenderer>(ResourceManager::GetShader("model"));
 	cyborg->Load(
-		FileSystem::Instance().GetPathString("models")+"cyborg.obj",
+		FileSystem::Instance().GetPathString("models") + "cyborg.obj",
 		false);
 
 	std::unique_ptr<MeshRenderer> ground = std::make_unique<MeshRenderer>(ResourceManager::GetShader("model"));
 	ground->Load(
-		FileSystem::Instance().GetPathString("models")+"floor.obj",
+		FileSystem::Instance().GetPathString("models") + "floor.obj",
 		false);
 
 	std::unique_ptr<MeshRenderer> cube_map = std::make_unique<MeshRenderer>(ResourceManager::GetShader("cubemap"));
 	cube_map->Load(
-		FileSystem::Instance().GetPathString("models")+"cube.obj");
+		FileSystem::Instance().GetPathString("models") + "cube.obj");
 
 	std::unique_ptr<SpriteRenderer> sprite = std::make_unique<SpriteRenderer>(
 		ResourceManager::GetShader("sprite"),
 		Context::Instance().GetWidth(),
 		Context::Instance().GetHeight());
 
-	music->Open(FileSystem::Instance().GetPathString("audio")+"throne.ogg");
+	music->Open(FileSystem::Instance().GetPathString("audio") + "throne.ogg");
 	music->Play(true);
 	music->Volume(10.0f);
 	music->Pitch(1.2f);
-	sound->Open(FileSystem::Instance().GetPathString("audio")+"powerup1.ogg");
+	sound->Open(FileSystem::Instance().GetPathString("audio") + "powerup1.ogg");
 	sound->Play();
 
 	while (!Context::Instance()) {
@@ -216,7 +216,7 @@ int main(int argc, const char **argv) {
 		ResourceManager::GetTexture("faces")->Unbind(0);
 
 		ResourceManager::GetTextRenderer("Wallpoet")->Draw(
-			"Framerate: "+std::to_string(Context::Instance().GetFrameRate(2)).substr(0,5),
+			"Framerate: " + std::to_string(Context::Instance().GetFrameRate(2)).substr(0, 5),
 			0.0f,
 			0.0f,
 			1.2f,
@@ -258,23 +258,23 @@ void ProcessKeyInput(double dt) {
 	if (Context::Instance().KeyDown(KeyNum::KEY_F))
 		sound->Play();
 	if (Context::Instance().KeyDown(KeyNum::KEY_R))
-		sound->Open(FileSystem::Instance().GetPathString("audio")+"powerup1.ogg");
+		sound->Open(FileSystem::Instance().GetPathString("audio") + "powerup1.ogg");
 	if (Context::Instance().KeyDown(KeyNum::KEY_V))
-		sound->Open(FileSystem::Instance().GetPathString("audio")+"powerup2.ogg");
+		sound->Open(FileSystem::Instance().GetPathString("audio") + "powerup2.ogg");
 }
 
 void SetCallbacks() {
 	glfwSetScrollCallback(Context::Instance().Get(), [](GLFWwindow* win, double xoffset, double yoffset) {
 		camera->HandleScroll(yoffset);
-		#if FPS == 1
-			projection = glm::perspective(
-				glm::radians(camera->GetFov()),
-				Context::Instance().GetRatio(),
-				near,
-				far);
-			ResourceManager::GetShader("model")->SetMat4("u_projection", projection);
-			ResourceManager::GetShader("cubemap")->SetMat4("projection", projection);
-		#endif
+#if FPS == 1
+		projection = glm::perspective(
+			glm::radians(camera->GetFov()),
+			Context::Instance().GetRatio(),
+			near,
+			far);
+		ResourceManager::GetShader("model")->SetMat4("u_projection", projection);
+		ResourceManager::GetShader("cubemap")->SetMat4("projection", projection);
+#endif
 	});
 
 	glfwSetCursorPosCallback(Context::Instance().Get(), [](GLFWwindow* win, double xpos, double ypos) {
