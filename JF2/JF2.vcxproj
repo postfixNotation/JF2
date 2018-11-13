@@ -107,6 +107,9 @@
       <AdditionalDependencies>openal32.lib;flac.lib;vorbisenc.lib;vorbisfile.lib;vorbis.lib;ogg.lib;winmm.lib;Box2D.lib;sfml-audio-s-d.lib;sfml-system-s-d.lib;libboost_filesystem-vc141-mt-gd-x64-1_67.lib;libboost_system-vc141-mt-gd-x64-1_67.lib;freetype.lib;glew32s.lib;glfw3.lib;User32.lib;Gdi32.lib;Shell32.lib;Opengl32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)vendor\SFML-2.5.1\lib;$(SolutionDir)vendor\GLFW\lib-vc2015;$(SolutionDir)vendor\GLEW\lib\Release\x64;$(SolutionDir)vendor\boost\lib\Windows\debug;$(SolutionDir)vendor\Box2D\lib\Windows\debug;$(SolutionDir)vendor\FreeType\lib\x64\Debug Static</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /y /d "$(SolutionDir)vendor\SFML-2.5.1\bin\openal32.dll" "$(OutDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -126,6 +129,9 @@
       <AdditionalDependencies>openal32.lib;flac.lib;vorbisenc.lib;vorbisfile.lib;vorbis.lib;ogg.lib;winmm.lib;sfml-audio-s.lib;sfml-system-s.lib;Box2D.lib;libboost_filesystem-vc141-mt-x64-1_67.lib;libboost_system-vc141-mt-x64-1_67.lib;freetype.lib;glew32s.lib;glfw3.lib;User32.lib;Gdi32.lib;Shell32.lib;Opengl32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)vendor\SFML-2.5.1\lib;$(SolutionDir)vendor\GLFW\lib-vc2015;$(SolutionDir)vendor\GLEW\lib\Release\x64;$(SolutionDir)vendor\boost\lib\Windows\release;$(SolutionDir)vendor\Box2D\lib\Windows\release;$(SolutionDir)vendor\FreeType\lib\x64\Release Static</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /y /d "$(SolutionDir)vendor\SFML-2.5.1\bin\openal32.dll" "$(OutDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

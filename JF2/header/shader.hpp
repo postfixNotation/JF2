@@ -16,9 +16,8 @@ private:
 	GLuint handle_{};
 	std::map<std::string, GLint> uniform_locs_;
 	enum class Type { VERTEX, FRAGMENT, PROGRAM };
-
-	GLint GetUniformLocation(const std::string &name);
 	bool CheckCompileErrors(GLuint, Type) const;
+	GLint GetUniformLocation(const std::string &name);
 
 public:
 	Shader(const std::string&, const std::string&);
@@ -27,7 +26,6 @@ public:
 
 	void Bind() const { glUseProgram(handle_); }
 	void Unbind() const { glUseProgram(0); }
-
 	GLuint GetHandle() const { return handle_; }
 
 	// shader uniform methods

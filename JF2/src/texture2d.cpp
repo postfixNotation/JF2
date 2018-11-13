@@ -115,10 +115,8 @@ bool Texture2D::Load(const std::vector<std::string>& faces) {
 }
 
 void Texture2D::Bind(const GLchar* uniform, GLuint texunit) const {
-	GLint loc = glGetUniformLocation(shader_->GetHandle(), uniform);
-	glUniform1i(loc, texunit);
-
 	assert(texunit >= 0 && texunit < MAX_NUMBER_TEX_UNITS);
+	shader_->SetInt(uniform, texunit);
 	glActiveTexture(GL_TEXTURE0 + texunit);
 	if (is_cube_map_) {
 		glBindTexture(GL_TEXTURE_CUBE_MAP, handle_);
