@@ -33,8 +33,8 @@ public:
 	void SetCursorPos(double xpos, double ypos) { glfwSetCursorPos(handle_, xpos, ypos); }
 	size_t GetWidth() const { return width_; }
 	size_t GetHeight() const { return height_; }
-	float GetRatio() { return ratio_; }
 	float GetFrameRate(size_t precision) const;
+	double GetRatio() { return ratio_; }
 	double GetTime() const { return glfwGetTime(); }
 	double GetTimePerFrame() const;
 	void UpdateVideoMode();
@@ -62,9 +62,9 @@ private:
 	GLFWmonitor *monitor_;
 	GLFWvidmode *video_mode_;
 
-	size_t height_;
-	size_t width_;
-	float ratio_;
+	int height_;
+	int width_;
+	double ratio_;
 };
 
 #endif // CONTEXT_HPP_

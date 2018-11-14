@@ -4,12 +4,14 @@
 
 #include <Box2D/Box2D.h>
 
+#define VSDEBUG 1
 #include <jf2.hpp>
 
 #define FPS 1
 #define PHONG 1
 #define STARS 0
 
+// Put into camera-class
 constexpr double near = 0.1f;
 constexpr double far = 100.0f;
 
@@ -51,15 +53,15 @@ int main(int argc, const char **argv) {
 	opengl::Init();
 	opengl::SetDefaultSetting();
 	opengl::SetViewport(
-		0,
-		0,
-		Context::Instance().GetWidth(),
-		Context::Instance().GetHeight());
+		0, 0,
+		static_cast<GLsizei>(Context::Instance().GetWidth()),
+		static_cast<GLsizei>(Context::Instance().GetHeight()));
 	opengl::SetColor(
 		179 / 255,
 		255 / 255,
 		179 / 255,
 		1.0f);
+
 	opengl::SetDebugMessageCallback(opengl::DebugMessageCallback);
 	SetCallbacks();
 
@@ -110,7 +112,10 @@ int main(int argc, const char **argv) {
 		"model");
 #endif
 
-	projection = camera->GetProjectionMatrix(Context::Instance().GetRatio(), near, far);
+	projection = camera->GetProjectionMatrix(
+		Context::Instance().GetRatio(),
+		near,
+		far);
 
 	ResourceManager::GetShader("model")->SetFloat("xoffset[0]", -3.0f);
 	ResourceManager::GetShader("model")->SetFloat("xoffset[1]", 3.0f);
@@ -204,11 +209,9 @@ int main(int argc, const char **argv) {
 		ResourceManager::GetShader("cubemap")->SetMat4("view", view);
 
 		ResourceManager::GetTexture("faces")->Bind("skybox", 0);
-		glDepthFunc(GL_LEQUAL);
-		glFrontFace(GL_CW);
+		opengl::SetCubeMapMode();
 		cube_map->Draw();
-		glFrontFace(GL_CCW);
-		glDepthFunc(GL_LESS);
+		opengl::ResetCubeMapMode();
 		ResourceManager::GetTexture("faces")->Unbind(0);
 
 		ResourceManager::GetTextRenderer("Wallpoet")->Draw(

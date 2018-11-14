@@ -34,16 +34,17 @@ protected:
 	glm::vec3 position_{ 0.0f };
 	glm::vec3 target_{ 0.0f };
 	// radians
-	float yaw_{ 0.0f };
-	float pitch_{ 0.0f };
+	double yaw_{ 0.0f };
+	double pitch_{ 0.0f };
 	// degrees
 	static constexpr double kDefFov = 45.0;
-	static constexpr float kMoveSpeed = 5.0;
 	static constexpr double kInitOrbitRadius = 10.0;
 	static constexpr double kZoomSensitivity = -2.0;
 	static constexpr double kMouseSensitivity = 0.1;
 	static constexpr double kMaxFOV = 120.0;
 	static constexpr double kMinFOV = 1.0;
+	static constexpr float kMoveSpeed = 5.0f;
+
 private:
 	double fov_{ kDefFov };
 };
@@ -52,8 +53,8 @@ class FPSCamera final : public Camera {
 public:
 	FPSCamera(
 		glm::vec3 position = glm::vec3{ 0.0f, 0.0f, 0.0f },
-		float yaw = glm::pi<float>(),
-		float pitch = 0.0f);
+		double yaw = glm::pi<double>(),
+		double pitch = 0.0f);
 	const glm::vec3& GetLook() const { return look_; }
 	const glm::vec3& GetRight() const { return right_; }
 	const glm::vec3& GetUp() const { return up_; }
@@ -76,7 +77,7 @@ public:
 	void SetLookAt(const glm::vec3& target);
 	void SetRadius(double delta);
 private:
-	float radius_{ kInitOrbitRadius };
+	double radius_{ kInitOrbitRadius };
 	virtual void UpdateVectors() override final;
 };
 

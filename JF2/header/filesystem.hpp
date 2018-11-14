@@ -15,7 +15,7 @@ namespace bf = boost::filesystem;
 class FileSystem {
 public:
 	static FileSystem& Instance() {
-		static std::unique_ptr<FileSystem> instance { std::unique_ptr<FileSystem>(new FileSystem()) };
+		static std::unique_ptr<FileSystem> instance{ std::unique_ptr<FileSystem>(new FileSystem()) };
 		return *instance;
 	}
 	bf::path GetPath(const std::string &subdirname);
@@ -32,8 +32,11 @@ public:
 private:
 	FileSystem() {}
 	std::map<std::string, bf::path> directories_;
+#if VSDEBUG == 1
 	bf::path resource_root_dir_{ bf::current_path().parent_path() };
-
+#else
+	bf::path resource_root_dir_{ bf::current_path().parent_path().parent_path().parent_path() };
+#endif
 	bool IsDirectory(const bf::path &path) { return bf::is_directory(path); }
 
 	bool IsFile(const bf::path &path) { return bf::is_regular_file(path); }

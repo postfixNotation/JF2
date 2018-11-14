@@ -5,14 +5,14 @@ glm::mat4 Camera::GetViewMatrix() const {
 }
 
 glm::mat4 Camera::GetProjectionMatrix(double ratio, double near, double far) const {
-	return glm::perspective(fov_, ratio, near, far);
+	return glm::perspective(glm::radians(fov_), ratio, near, far);
 }
 
 void Camera::Rotate(double delta_yaw, double delta_pitch) {
 	yaw_ += glm::radians(kMouseSensitivity * delta_yaw);
 	pitch_ += glm::radians(kMouseSensitivity * delta_pitch);
-	float lower_bound = -glm::pi<float>() / 2.0f + 0.1f;
-	float upper_bound = glm::pi<float>() / 2.0f - 0.1f;
+	double lower_bound = -glm::pi<double>() / 2.0f + 0.1f;
+	double upper_bound = glm::pi<double>() / 2.0f - 0.1f;
 	pitch_ = glm::clamp(pitch_, lower_bound, upper_bound);
 	UpdateVectors();
 }
@@ -23,7 +23,7 @@ void Camera::HandleMouseCursor(double xpos, double ypos) {
 	last_pos = std::move(glm::vec2{ xpos, ypos });
 }
 
-FPSCamera::FPSCamera(glm::vec3 position, float yaw, float pitch) {
+FPSCamera::FPSCamera(glm::vec3 position, double yaw, double pitch) {
 	position_ = position;
 	yaw_ = yaw;
 	pitch_ = pitch;
@@ -48,20 +48,19 @@ void FPSCamera::HandleKeyboard(const CameraMovement &m, double dt) {
 	case CameraMovement::LEFT:
 		Move(kMoveSpeed * static_cast<float>(dt) * -GetRight());
 		break;
-		break;
 	}
 }
 
 void FPSCamera::HandleScroll(double delta_scroll) {
 	double fov = GetFov() + delta_scroll * kZoomSensitivity;
-	SetFov(static_cast<float>(glm::clamp(fov, kMinFOV, kMaxFOV)));
+	SetFov(glm::clamp(fov, kMinFOV, kMaxFOV));
 }
 
 void FPSCamera::UpdateVectors() {
 	glm::vec3 look;
-	look.x = cosf(pitch_) * sinf(yaw_);
-	look.y = sinf(pitch_);
-	look.z = cosf(pitch_) * cosf(yaw_);
+	look.x = cos(pitch_) * sin(yaw_);
+	look.y = sin(pitch_);
+	look.z = cos(pitch_) * cos(yaw_);
 
 	look_ = glm::normalize(look);
 	right_ = glm::normalize(glm::cross(look_, kWorldUp));
@@ -76,8 +75,8 @@ void OrbitCamera::SetLookAt(const glm::vec3& target) {
 }
 
 void OrbitCamera::SetRadius(double delta) {
-	radius_ += static_cast<float>(delta);
-	radius_ = glm::clamp(radius_, 2.0f, 80.0f);
+	radius_ += delta;
+	radius_ = glm::clamp(radius_, 2.0, 80.0);
 	UpdateVectors();
 }
 
@@ -88,9 +87,9 @@ void OrbitCamera::HandleScroll(double delta_scroll) {
 void OrbitCamera::HandleKeyboard(const CameraMovement &m, double dt) {}
 
 void OrbitCamera::UpdateVectors() {
-	position_.x = target_.x + radius_ * cosf(pitch_) * sinf(yaw_);
-	position_.y = target_.y + radius_ * sinf(pitch_);
-	position_.z = target_.z + radius_ * cosf(pitch_) * cosf(yaw_);
+	position_.x = target_.x + radius_ * cos(pitch_) * sin(yaw_);
+	position_.y = target_.y + radius_ * sin(pitch_);
+	position_.z = target_.z + radius_ * cos(pitch_) * cos(yaw_);
 
 	glm::vec3 look{ target_ - position_ };
 	glm::vec3 right{ glm::normalize(glm::cross(look, kWorldUp)) };

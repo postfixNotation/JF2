@@ -24,11 +24,7 @@ void Context::Terminate() {
 
 bool Context::Init() {
 	monitor_ = glfwGetPrimaryMonitor();
-	UpdateVideoMode();
-
-	width_ = video_mode_->width;
-	height_ = video_mode_->height;
-	ratio_ = static_cast<float>(width_) / height_;
+	UpdateDimensions();
 
 	if (monitor_ && video_mode_) return true;
 	return false;
@@ -55,7 +51,7 @@ void Context::SetHints(
 	glfwWindowHint(GLFW_REFRESH_RATE, video_mode_->refreshRate);
 
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, static_cast<size_t>(debug));
+	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, static_cast<int>(debug));
 }
 
 void Context::SetCursorMode(bool cursor_enabled) {
@@ -75,24 +71,24 @@ void Context::Create(const context::Config &config) {
 		config.debug_context
 	);
 	switch (config.context_size) {
-		case context::Size::DEBUG:
-			handle_ = glfwCreateWindow(
-				(width_ = width_ / 2),
-				(height_ = height_ / 2),
-				config.context_title.c_str(),
-				nullptr,
-				nullptr
-			);
-			break;
-		case context::Size::FULLSCREEEN:
-			handle_ = glfwCreateWindow(
-				width_,
-				height_,
-				config.context_title.c_str(),
-				monitor_,
-				nullptr
-			);
-			break;
+	case context::Size::DEBUG:
+		handle_ = glfwCreateWindow(
+			(width_ = width_ / 2),
+			(height_ = height_ / 2),
+			config.context_title.c_str(),
+			nullptr,
+			nullptr
+		);
+		break;
+	case context::Size::FULLSCREEEN:
+		handle_ = glfwCreateWindow(
+			width_,
+			height_,
+			config.context_title.c_str(),
+			monitor_,
+			nullptr
+		);
+		break;
 	}
 
 	if (!handle_) {
@@ -107,13 +103,13 @@ void Context::UpdateDimensions() {
 	UpdateVideoMode();
 	width_ = video_mode_->width;
 	height_ = video_mode_->height;
-	ratio_ = static_cast<float>(width_) / height_;
+	ratio_ = static_cast<double>(width_) / height_;
 }
 
 double Context::GetTimePerFrame() const {
 	static double last_time{ glfwGetTime() };
 	double dt = glfwGetTime() - last_time;
-	last_time = glfwGetTime(); 
+	last_time = glfwGetTime();
 	return dt;
 }
 

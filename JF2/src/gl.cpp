@@ -42,6 +42,16 @@ namespace opengl {
 
 	void FillMode() { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }
 
+	void SetCubeMapMode() {
+		glDepthFunc(GL_LEQUAL);
+		glFrontFace(GL_CW);
+	}
+
+	void ResetCubeMapMode() {
+		glFrontFace(GL_CCW);
+		glDepthFunc(GL_LESS);
+	}
+
 	void SetDebugMessageCallback(void(*callback)(GLenum source, GLenum type,
 		GLuint id, GLenum severity, GLsizei length,
 		const GLchar *message, const void *userParam)) {

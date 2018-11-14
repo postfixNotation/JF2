@@ -43,7 +43,7 @@ const bf::path& FileSystem::SetResourceRootDir(bf::path path) {
 
 const bf::path& FileSystem::SetResourceSubDir(const std::string &name) {
 	directories_[name] = resource_root_dir_;
-	directories_[name] /= (bf::path(name)+="/");
+	directories_[name] /= (bf::path(name) += "/");
 	assert(Exists(directories_[name]) && IsDirectory(directories_[name]));
 	return directories_[name];
 }

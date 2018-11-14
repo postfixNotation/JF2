@@ -20,6 +20,8 @@ namespace opengl {
 		GLclampf a);
 	void PolygonMode();
 	void FillMode();
+	void SetCubeMapMode();
+	void ResetCubeMapMode();
 	void SetDebugMessageCallback(void(*callback)(
 		GLenum source,
 		GLenum type,
