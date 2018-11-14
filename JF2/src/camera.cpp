@@ -4,7 +4,11 @@ glm::mat4 Camera::GetViewMatrix() const {
 	return glm::lookAt(position_, target_, up_);
 }
 
-void Camera::Rotate(float delta_yaw, float delta_pitch) {
+glm::mat4 Camera::GetProjectionMatrix(double ratio, double near, double far) const {
+	return glm::perspective(fov_, ratio, near, far);
+}
+
+void Camera::Rotate(double delta_yaw, double delta_pitch) {
 	yaw_ += glm::radians(kMouseSensitivity * delta_yaw);
 	pitch_ += glm::radians(kMouseSensitivity * delta_pitch);
 	float lower_bound = -glm::pi<float>() / 2.0f + 0.1f;
@@ -32,18 +36,18 @@ void FPSCamera::Move(const glm::vec3& delta) {
 
 void FPSCamera::HandleKeyboard(const CameraMovement &m, double dt) {
 	switch (m) {
-		case CameraMovement::FORWARD:
-			Move(kMoveSpeed * static_cast<float>(dt) * GetLook());
-			break;
-		case CameraMovement::BACKWARD:
-			Move(kMoveSpeed * static_cast<float>(dt) * -GetLook());
-			break;
-		case CameraMovement::RIGHT:
-			Move(kMoveSpeed * static_cast<float>(dt) * GetRight());
-			break;
-		case CameraMovement::LEFT:
-			Move(kMoveSpeed * static_cast<float>(dt) * -GetRight());
-			break;
+	case CameraMovement::FORWARD:
+		Move(kMoveSpeed * static_cast<float>(dt) * GetLook());
+		break;
+	case CameraMovement::BACKWARD:
+		Move(kMoveSpeed * static_cast<float>(dt) * -GetLook());
+		break;
+	case CameraMovement::RIGHT:
+		Move(kMoveSpeed * static_cast<float>(dt) * GetRight());
+		break;
+	case CameraMovement::LEFT:
+		Move(kMoveSpeed * static_cast<float>(dt) * -GetRight());
+		break;
 		break;
 	}
 }

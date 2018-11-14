@@ -16,16 +16,17 @@ enum class CameraMovement {
 class Camera {
 public:
 	void HandleMouseCursor(double xpos, double ypos);
-	float GetFov() const { return fov_; }
+	double GetFov() const { return fov_; }
 	glm::vec3 GetPosition() const { return position_; }
 	glm::mat4 GetViewMatrix() const;
+	glm::mat4 GetProjectionMatrix(double ratio, double near, double far) const;
 	virtual void HandleScroll(double delta_scroll) = 0;
 	virtual void HandleKeyboard(const CameraMovement &m, double dt) = 0;
 protected:
 	Camera() {}
 	// degrees
-	void Rotate(float delta_yaw, float delta_pitch);
-	void SetFov(float fov) { fov_ = fov; }
+	void Rotate(double delta_yaw, double delta_pitch);
+	void SetFov(double fov) { fov_ = fov; }
 	virtual void UpdateVectors() = 0;
 
 	const glm::vec3 kWorldUp{ 0.0f, 1.0f, 0.0f };
@@ -36,15 +37,15 @@ protected:
 	float yaw_{ 0.0f };
 	float pitch_{ 0.0f };
 	// degrees
-	static constexpr float kDefFov = 45.0f;
-	static constexpr float kMoveSpeed = 5.0f;
-	static constexpr float kInitOrbitRadius = 10.0f;
-	static constexpr float kZoomSensitivity = -2.0f;
-	static constexpr float kMouseSensitivity = 0.1f;
+	static constexpr double kDefFov = 45.0;
+	static constexpr float kMoveSpeed = 5.0;
+	static constexpr double kInitOrbitRadius = 10.0;
+	static constexpr double kZoomSensitivity = -2.0;
+	static constexpr double kMouseSensitivity = 0.1;
 	static constexpr double kMaxFOV = 120.0;
 	static constexpr double kMinFOV = 1.0;
 private:
-	float fov_{ kDefFov };
+	double fov_{ kDefFov };
 };
 
 class FPSCamera final : public Camera {
@@ -80,4 +81,3 @@ private:
 };
 
 #endif // CAMERA_HPP_
-

@@ -60,7 +60,9 @@ void SpriteRenderer::Draw(
 	shader_->SetVec3("sprite_color", color);
 
 	texture->Bind("image_sampler", 0);
-	Renderer::Render(*va_, *ib_, *shader_, offsets.size() + 1);
+	Renderer::Render(
+		*va_, *ib_,
+		*shader_, static_cast<GLsizei>(offsets.size()) + 1);
 	texture->Unbind(0);
 }
 

@@ -10,8 +10,8 @@
 #define PHONG 1
 #define STARS 0
 
-constexpr float near = 0.1f;
-constexpr float far = 100.0f;
+constexpr double near = 0.1f;
+constexpr double far = 100.0f;
 
 std::unique_ptr<Camera> camera =
 #if FPS == 1
@@ -110,11 +110,7 @@ int main(int argc, const char **argv) {
 		"model");
 #endif
 
-	projection = glm::perspective(
-		glm::radians(camera->GetFov()),
-		Context::Instance().GetRatio(),
-		near,
-		far);
+	projection = camera->GetProjectionMatrix(Context::Instance().GetRatio(), near, far);
 
 	ResourceManager::GetShader("model")->SetFloat("xoffset[0]", -3.0f);
 	ResourceManager::GetShader("model")->SetFloat("xoffset[1]", 3.0f);
@@ -267,11 +263,8 @@ void SetCallbacks() {
 	glfwSetScrollCallback(Context::Instance().Get(), [](GLFWwindow* win, double xoffset, double yoffset) {
 		camera->HandleScroll(yoffset);
 #if FPS == 1
-		projection = glm::perspective(
-			glm::radians(camera->GetFov()),
-			Context::Instance().GetRatio(),
-			near,
-			far);
+		projection = camera->GetProjectionMatrix(
+			Context::Instance().GetRatio(), near, far);
 		ResourceManager::GetShader("model")->SetMat4("u_projection", projection);
 		ResourceManager::GetShader("cubemap")->SetMat4("projection", projection);
 #endif
