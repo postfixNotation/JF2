@@ -15,18 +15,24 @@ enum class CameraMovement {
 
 class Camera {
 public:
-	void HandleMouseCursor(double xpos, double ypos);
 	double GetFov() const { return fov_; }
-	glm::vec3 GetPosition() const { return position_; }
+	double GetNear() const { return near_; }
+	double GetFar() const { return far_; }
+	void SetFov(double fov) { fov_ = fov; }
+	void SetNear(double near) { near_ = near; }
+	void SetFar(double far) { far_ = far; }
+
 	glm::mat4 GetViewMatrix() const;
-	glm::mat4 GetProjectionMatrix(double ratio, double near, double far) const;
+	glm::mat4 GetProjectionMatrix(double ratio) const;
+	const glm::vec3& GetPosition() const { return position_; }
+
+	void HandleMouseCursor(double xpos, double ypos);
 	virtual void HandleScroll(double delta_scroll) = 0;
 	virtual void HandleKeyboard(const CameraMovement &m, double dt) = 0;
 protected:
 	Camera() {}
 	// degrees
 	void Rotate(double delta_yaw, double delta_pitch);
-	void SetFov(double fov) { fov_ = fov; }
 	virtual void UpdateVectors() = 0;
 
 	const glm::vec3 kWorldUp{ 0.0f, 1.0f, 0.0f };
@@ -43,10 +49,14 @@ protected:
 	static constexpr double kMouseSensitivity = 0.1;
 	static constexpr double kMaxFOV = 120.0;
 	static constexpr double kMinFOV = 1.0;
+	static constexpr double kNear = 0.1;
+	static constexpr double kFar = 100.0;
 	static constexpr float kMoveSpeed = 5.0f;
 
 private:
 	double fov_{ kDefFov };
+	double near_{ kNear };
+	double far_{ kFar };
 };
 
 class FPSCamera final : public Camera {
@@ -58,7 +68,6 @@ public:
 	const glm::vec3& GetLook() const { return look_; }
 	const glm::vec3& GetRight() const { return right_; }
 	const glm::vec3& GetUp() const { return up_; }
-	const glm::vec3& GetPosition() const { return position_; }
 	void SetPosition(const glm::vec3&& position) { position_ = std::move(position); }
 	void Move(const glm::vec3& delta);
 	void HandleKeyboard(const CameraMovement &m, double dt) override final;

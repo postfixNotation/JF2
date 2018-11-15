@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\app.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="src\camera.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
@@ -61,6 +58,9 @@
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="src\vertex_buffer_layout.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\application.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>
@@ -132,6 +132,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="header\vertex_buffer_layout.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="header\application.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

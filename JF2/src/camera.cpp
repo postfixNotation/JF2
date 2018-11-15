@@ -4,8 +4,8 @@ glm::mat4 Camera::GetViewMatrix() const {
 	return glm::lookAt(position_, target_, up_);
 }
 
-glm::mat4 Camera::GetProjectionMatrix(double ratio, double near, double far) const {
-	return glm::perspective(glm::radians(fov_), ratio, near, far);
+glm::mat4 Camera::GetProjectionMatrix(double ratio) const {
+	return glm::perspective(glm::radians(fov_), ratio, near_, far_);
 }
 
 void Camera::Rotate(double delta_yaw, double delta_pitch) {

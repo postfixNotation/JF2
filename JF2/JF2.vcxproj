@@ -11,14 +11,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\app.cpp" />
+    <ClCompile Include="src\application.cpp" />
     <ClCompile Include="src\camera.cpp" />
     <ClCompile Include="src\context.cpp" />
     <ClCompile Include="src\filesystem.cpp" />
-    <ClCompile Include="src\game.cpp" />
     <ClCompile Include="src\gl.cpp" />
     <ClCompile Include="src\index_buffer.cpp" />
-    <ClCompile Include="src\jf2.cpp" />
     <ClCompile Include="src\mesh_renderer.cpp" />
     <ClCompile Include="src\renderer.cpp" />
     <ClCompile Include="src\resource_manager.cpp" />
@@ -36,7 +34,7 @@
     <ClInclude Include="header\config.hpp" />
     <ClInclude Include="header\context.hpp" />
     <ClInclude Include="header\filesystem.hpp" />
-    <ClInclude Include="header\game.hpp" />
+    <ClInclude Include="header\application.hpp" />
     <ClInclude Include="header\gl.hpp" />
     <ClInclude Include="header\index_buffer.hpp" />
     <ClInclude Include="header\jf2.hpp" />
