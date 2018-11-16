@@ -12,6 +12,7 @@ public:
 	void ProcessInput(double dt);
 	void Render();
 	void SetCallbacks();
+	void Run(const Context& context);
 
 private:
 	glm::vec3 light_position_;

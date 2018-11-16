@@ -216,6 +216,13 @@ void Sandbox::ProcessInput(double dt) {
 		audio_list_[1]->Open(FileSystem::Instance().GetPathString("audio") + "powerup2.ogg");
 }
 
+void Sandbox::Run(const Context& context) {
+	while (!context) {
+		ProcessInput(context.GetTimePerFrame());
+		Render();
+	}
+}
+
 void Sandbox::Render() {
 	Renderer::Clear();
 
