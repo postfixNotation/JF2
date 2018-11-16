@@ -236,8 +236,7 @@ void Sandbox::Render() {
 	meshes_[0]->Draw(5);
 	ResourceManager::GetTexture("cyborg")->Unbind(0);
 
-	// Method returning view-matrix without translation
-	view_ = glm::mat4(glm::mat3(camera_->GetViewMatrix()));
+	view_ = camera_->GetViewMatrix(false);
 	ResourceManager::GetShader("cubemap")->SetMat4("view", view_);
 
 	ResourceManager::GetTexture("faces")->Bind("skybox", 0);

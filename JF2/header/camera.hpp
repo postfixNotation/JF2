@@ -22,7 +22,7 @@ public:
 	void SetNear(double near) { near_ = near; }
 	void SetFar(double far) { far_ = far; }
 
-	glm::mat4 GetViewMatrix() const;
+	glm::mat4 GetViewMatrix(bool translation = true) const;
 	glm::mat4 GetProjectionMatrix(double ratio) const;
 	const glm::vec3& GetPosition() const { return position_; }
 

@@ -1,7 +1,8 @@
 #include <camera.hpp>
 
-glm::mat4 Camera::GetViewMatrix() const {
-	return glm::lookAt(position_, target_, up_);
+glm::mat4 Camera::GetViewMatrix(bool translation) const {
+	if (translation) return glm::lookAt(position_, target_, up_);
+	else return glm::mat4(glm::mat3(glm::lookAt(position_, target_, up_)));
 }
 
 glm::mat4 Camera::GetProjectionMatrix(double ratio) const {
