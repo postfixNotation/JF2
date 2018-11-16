@@ -35,8 +35,8 @@ void Sandbox::Init() {
 
 	Context::Instance().Create(config);
 	Context::Instance().SetCursorPos(
-		Context::Instance().GetWidth() / 2,
-		Context::Instance().GetHeight() / 2);
+		static_cast<double>(Context::Instance().GetWidth() / 2),
+		static_cast<double>(Context::Instance().GetHeight() / 2));
 	Context::Instance().SetIcon(
 		FileSystem::Instance().GetPathString("textures") + "tux.png");
 
@@ -219,8 +219,8 @@ void Sandbox::ProcessInput(double dt) {
 void Sandbox::Render() {
 	Renderer::Clear();
 
-	light_position_.x = 4 * sin(Context::Instance().GetTime() * 3);
-	light_position_.z = 4 * cos(Context::Instance().GetTime() * 3);
+	light_position_.x = static_cast<float>(4 * sin(Context::Instance().GetTime() * 3));
+	light_position_.z = static_cast<float>(4 * cos(Context::Instance().GetTime() * 3));
 
 	view_ = camera_->GetViewMatrix();
 

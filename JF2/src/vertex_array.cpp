@@ -12,7 +12,7 @@ void VertexArray::AddBuffer(const VertexBuffer& vbo, const VertexBufferLayout& l
 	vbo.Bind();
 	const auto& elements = layout.GetElements();
 	GLuint offset{ 0 };
-	for (size_t i{}; i < elements.size(); ++i) {
+	for (GLuint i{}; i < elements.size(); ++i) {
 		const auto& element = elements[i];
 		glEnableVertexAttribArray(i);
 		glVertexAttribPointer(

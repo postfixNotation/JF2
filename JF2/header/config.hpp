@@ -10,9 +10,9 @@ namespace context {
 	};
 
 	struct Config {
-		size_t opengl_major;
-		size_t opengl_minor;
-		size_t number_of_samples;
+		int opengl_major;
+		int opengl_minor;
+		int number_of_samples;
 		bool debug_context;
 		bool cusor_enabled;
 		std::string context_title;

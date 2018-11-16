@@ -53,10 +53,8 @@ private:
 	Context();
 	bool Init();
 	void SetHints(
-		size_t major,
-		size_t minor,
-		size_t samples,
-		bool debug) const;
+		int major, int minor,
+		int samples, bool debug) const;
 
 	GLFWwindow *handle_;
 	GLFWmonitor *monitor_;

@@ -12,7 +12,7 @@ std::vector<GLuint> MeshRenderer::Split(
 	std::vector<GLuint> result{};
 	std::istringstream iss{};
 	std::string str_buffer{};
-	size_t size_t_buffer{};
+	GLuint size_t_buffer{};
 
 	std::replace(
 		begin(value),
@@ -93,7 +93,7 @@ bool MeshRenderer::Load(
 			else if (type_mesh == "f") {
 				std::vector<GLuint> face = Split(iss.str());
 				FaceType face_type = EvalSplitRes(face, is_face_quad_);
-				const size_t kVertPerFace = is_face_quad_? 4 : 3;
+				const size_t kVertPerFace = is_face_quad_ ? 4 : 3;
 
 				if (face_type == FaceType::NOT_DEFINED) break;
 
@@ -199,7 +199,7 @@ void MeshRenderer::InitIndices() {
 void MeshRenderer::InitBuffers() {
 	VertexBuffer vb{
 		vertices_.data(),
-		static_cast<GLuint>(vertices_.size() * sizeof(Vertex))};
+		static_cast<GLuint>(vertices_.size() * sizeof(Vertex)) };
 
 	VertexBufferLayout vbl{};
 	// vertex positions

@@ -33,10 +33,8 @@ bool Context::Init() {
 void Context::UpdateVideoMode() { video_mode_ = const_cast<GLFWvidmode*>(glfwGetVideoMode(monitor_)); }
 
 void Context::SetHints(
-	size_t major,
-	size_t minor,
-	size_t samples,
-	bool debug) const {
+	int major, int minor,
+	int samples, bool debug) const {
 	glfwWindowHint(GLFW_SAMPLES, samples);
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, major);

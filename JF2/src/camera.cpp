@@ -58,9 +58,9 @@ void FPSCamera::HandleScroll(double delta_scroll) {
 
 void FPSCamera::UpdateVectors() {
 	glm::vec3 look;
-	look.x = cos(pitch_) * sin(yaw_);
-	look.y = sin(pitch_);
-	look.z = cos(pitch_) * cos(yaw_);
+	look.x = static_cast<float>(cos(pitch_) * sin(yaw_));
+	look.y = static_cast<float>(sin(pitch_));
+	look.z = static_cast<float>(cos(pitch_) * cos(yaw_));
 
 	look_ = glm::normalize(look);
 	right_ = glm::normalize(glm::cross(look_, kWorldUp));
@@ -87,9 +87,9 @@ void OrbitCamera::HandleScroll(double delta_scroll) {
 void OrbitCamera::HandleKeyboard(const CameraMovement &m, double dt) {}
 
 void OrbitCamera::UpdateVectors() {
-	position_.x = target_.x + radius_ * cos(pitch_) * sin(yaw_);
-	position_.y = target_.y + radius_ * sin(pitch_);
-	position_.z = target_.z + radius_ * cos(pitch_) * cos(yaw_);
+	position_.x = static_cast<float>(target_.x + radius_ * cos(pitch_) * sin(yaw_));
+	position_.y = static_cast<float>(target_.y + radius_ * sin(pitch_));
+	position_.z = static_cast<float>(target_.z + radius_ * cos(pitch_) * cos(yaw_));
 
 	glm::vec3 look{ target_ - position_ };
 	glm::vec3 right{ glm::normalize(glm::cross(look, kWorldUp)) };
