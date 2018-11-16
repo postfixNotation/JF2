@@ -1,13 +1,13 @@
-#include <sandbox.hpp>
+#include <application.hpp>
 
-Application *application = new Sandbox;
+extern Application* CreateApplication();
 
 int main(int argc, const char **argv) {
-	application->Init();
-	application->SetCallbacks();
-	application->Run(Context::Instance());
+	auto app = CreateApplication();
+	app->Init();
+	app->SetCallbacks();
+	app->Run();
 
-	delete application;
-	Context::Instance().Terminate();
+	delete app;
 	return 0;
 }

@@ -12,7 +12,9 @@ public:
 	virtual void ProcessInput(double dt) = 0;
 	virtual void Render() = 0;
 	virtual void SetCallbacks() = 0;
-	virtual void Run(const Context& context) = 0;
+	virtual void Run() = 0;
 };
+
+Application* CreateApplication();
 
 #endif // APPLICATION_HPP_

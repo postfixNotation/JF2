@@ -7,8 +7,15 @@
 glm::mat4 Sandbox::projection_;
 std::unique_ptr<Camera> Sandbox::camera_;
 
+Application* CreateApplication() {
+	return new Sandbox();
+}
+
 Sandbox::Sandbox() {}
-Sandbox::~Sandbox() {}
+
+Sandbox::~Sandbox() {
+	Context::Instance().Terminate();
+}
 
 void Sandbox::Init() {
 	camera_ =
@@ -216,9 +223,9 @@ void Sandbox::ProcessInput(double dt) {
 		audio_list_[1]->Open(FileSystem::Instance().GetPathString("audio") + "powerup2.ogg");
 }
 
-void Sandbox::Run(const Context& context) {
-	while (!context) {
-		ProcessInput(context.GetTimePerFrame());
+void Sandbox::Run() {
+	while (!Context::Instance()) {
+		ProcessInput(Context::Instance().GetTimePerFrame());
 		Render();
 	}
 }

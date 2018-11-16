@@ -46,6 +46,7 @@
     <ClInclude Include="header\non_moveable.hpp" />
     <ClInclude Include="header\renderer.hpp" />
     <ClInclude Include="header\resource_manager.hpp" />
+    <ClInclude Include="header\sandbox.hpp" />
     <ClInclude Include="header\shader.hpp" />
     <ClInclude Include="header\sound.hpp" />
     <ClInclude Include="header\sprite_renderer.hpp" />
@@ -54,7 +55,6 @@
     <ClInclude Include="header\vertex_array.hpp" />
     <ClInclude Include="header\vertex_buffer.hpp" />
     <ClInclude Include="header\vertex_buffer_layout.hpp" />
-    <ClInclude Include="sandbox.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

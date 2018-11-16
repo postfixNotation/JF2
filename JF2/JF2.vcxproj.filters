@@ -140,7 +140,7 @@
     <ClInclude Include="header\application.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="sandbox.hpp">
+    <ClInclude Include="header\sandbox.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
