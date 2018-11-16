@@ -32,11 +32,9 @@ public:
 private:
 	FileSystem() {}
 	std::map<std::string, bf::path> directories_;
-#if VSDEBUG == 1
+
 	bf::path resource_root_dir_{ bf::current_path().parent_path() };
-#else
-	bf::path resource_root_dir_{ bf::current_path().parent_path().parent_path().parent_path() };
-#endif
+
 	bool IsDirectory(const bf::path &path) { return bf::is_directory(path); }
 
 	bool IsFile(const bf::path &path) { return bf::is_regular_file(path); }

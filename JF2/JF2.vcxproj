@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\application.cpp" />
+    <ClCompile Include="src\entry_point.cpp" />
     <ClCompile Include="src\camera.cpp" />
     <ClCompile Include="src\context.cpp" />
     <ClCompile Include="src\filesystem.cpp" />
@@ -20,6 +20,7 @@
     <ClCompile Include="src\mesh_renderer.cpp" />
     <ClCompile Include="src\renderer.cpp" />
     <ClCompile Include="src\resource_manager.cpp" />
+    <ClCompile Include="src\sandbox.cpp" />
     <ClCompile Include="src\shader.cpp" />
     <ClCompile Include="src\sprite_renderer.cpp" />
     <ClCompile Include="src\texture2d.cpp" />
@@ -53,6 +54,7 @@
     <ClInclude Include="header\vertex_array.hpp" />
     <ClInclude Include="header\vertex_buffer.hpp" />
     <ClInclude Include="header\vertex_buffer_layout.hpp" />
+    <ClInclude Include="sandbox.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

@@ -1,11 +1,6 @@
-#define FPS 1
-#define PHONG 1
-#define STARS 0
-#define VSDEBUG 1
+#include <sandbox.hpp>
 
-#include <application.hpp>
-
-Application *application = new Application;
+Application *application = new Sandbox;
 
 int main(int argc, const char **argv) {
 	application->Init();
