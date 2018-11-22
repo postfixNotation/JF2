@@ -140,5 +140,8 @@
     <ClInclude Include="src\JF2\entry_point.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="src\JF2\core.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

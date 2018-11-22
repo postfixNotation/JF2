@@ -33,6 +33,7 @@
     <ClInclude Include="src\JF2\camera.hpp" />
     <ClInclude Include="src\JF2\config.hpp" />
     <ClInclude Include="src\JF2\context.hpp" />
+    <ClInclude Include="src\JF2\core.hpp" />
     <ClInclude Include="src\JF2\entry_point.hpp" />
     <ClInclude Include="src\JF2\filesystem.hpp" />
     <ClInclude Include="src\JF2\application.hpp" />
@@ -102,7 +103,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)vendor\SFML-2.5.1\include;$(SolutionDir)vendor\FreeType\include;$(SolutionDir)vendor\Box2D\include;$(SolutionDir)vendor\GLFW\include;$(SolutionDir)vendor\GLEW\include;$(SolutionDir)vendor\boost\include;$(SolutionDir)vendor</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>GLEW_STATIC</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLEW_STATIC;JF2_PLATFORM_WINDOWS;JF2_BUILD_DLL</PreprocessorDefinitions>
       <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
@@ -125,7 +126,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)vendor\SFML-2.5.1\include;$(SolutionDir)vendor\FreeType\include;$(SolutionDir)vendor\Box2D\include;$(SolutionDir)vendor\GLFW\include;$(SolutionDir)vendor\GLEW\include;$(SolutionDir)vendor\boost\include;$(SolutionDir)vendor</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>GLEW_STATIC</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLEW_STATIC;JF2_PLATFORM_WINDOWS;JF2_BUILD_DLL</PreprocessorDefinitions>
       <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>

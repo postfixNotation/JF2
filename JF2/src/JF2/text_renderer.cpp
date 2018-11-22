@@ -88,7 +88,7 @@ TextRenderer::~TextRenderer() {
 	}
 }
 
-void TextRenderer::SetFileName(std::string filename, size_t pixel_size) {
+void TextRenderer::SetFileName(std::string filename, unsigned int pixel_size) {
 	default_pixel_size_ = pixel_size;
 	filename_ = filename;
 	LoadFonts();

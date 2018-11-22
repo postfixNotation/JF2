@@ -39,7 +39,7 @@ struct ResourceManager {
 		const std::shared_ptr<Shader>& shader,
 		size_t width,
 		size_t height,
-		size_t pixel_size,
+		unsigned int pixel_size,
 		const std::string& file_name,
 		std::string name
 	);
