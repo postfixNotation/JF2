@@ -15,132 +15,129 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\camera.cpp">
+    <ClCompile Include="src\JF2\camera.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="src\context.cpp">
+    <ClCompile Include="src\JF2\context.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="src\filesystem.cpp">
+    <ClCompile Include="src\JF2\filesystem.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="src\gl.cpp">
+    <ClCompile Include="src\JF2\gl.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="src\index_buffer.cpp">
+    <ClCompile Include="src\JF2\index_buffer.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="src\mesh_renderer.cpp">
+    <ClCompile Include="src\JF2\mesh_renderer.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="src\renderer.cpp">
+    <ClCompile Include="src\JF2\renderer.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="src\resource_manager.cpp">
+    <ClCompile Include="src\JF2\resource_manager.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="src\shader.cpp">
+    <ClCompile Include="src\JF2\shader.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="src\sprite_renderer.cpp">
+    <ClCompile Include="src\JF2\sprite_renderer.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="src\text_renderer.cpp">
+    <ClCompile Include="src\JF2\text_renderer.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="src\texture2d.cpp">
+    <ClCompile Include="src\JF2\texture2d.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="src\vertex_array.cpp">
+    <ClCompile Include="src\JF2\vertex_array.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="src\vertex_buffer.cpp">
+    <ClCompile Include="src\JF2\vertex_buffer.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="src\vertex_buffer_layout.cpp">
+    <ClCompile Include="src\JF2\vertex_buffer_layout.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="src\sandbox.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="src\entry_point.cpp">
+    <ClCompile Include="src\JF2\application.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="header\audio.hpp">
+    <ClInclude Include="src\jf2.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="header\camera.hpp">
+    <ClInclude Include="src\JF2\application.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="header\config.hpp">
+    <ClInclude Include="src\JF2\audio.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="header\context.hpp">
+    <ClInclude Include="src\JF2\camera.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="header\filesystem.hpp">
+    <ClInclude Include="src\JF2\config.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="header\gl.hpp">
+    <ClInclude Include="src\JF2\context.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="header\index_buffer.hpp">
+    <ClInclude Include="src\JF2\filesystem.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="header\jf2.hpp">
+    <ClInclude Include="src\JF2\gl.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="header\keys.hpp">
+    <ClInclude Include="src\JF2\index_buffer.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="header\mesh_renderer.hpp">
+    <ClInclude Include="src\JF2\keys.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="header\music.hpp">
+    <ClInclude Include="src\JF2\mesh_renderer.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="header\non_copyable.hpp">
+    <ClInclude Include="src\JF2\music.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="header\non_moveable.hpp">
+    <ClInclude Include="src\JF2\non_copyable.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="header\renderer.hpp">
+    <ClInclude Include="src\JF2\non_moveable.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="header\resource_manager.hpp">
+    <ClInclude Include="src\JF2\renderer.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="header\shader.hpp">
+    <ClInclude Include="src\JF2\resource_manager.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="header\sound.hpp">
+    <ClInclude Include="src\JF2\shader.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="header\sprite_renderer.hpp">
+    <ClInclude Include="src\JF2\sound.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="header\text_renderer.hpp">
+    <ClInclude Include="src\JF2\sprite_renderer.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="header\texture2d.hpp">
+    <ClInclude Include="src\JF2\text_renderer.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="header\vertex_array.hpp">
+    <ClInclude Include="src\JF2\texture2d.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="header\vertex_buffer.hpp">
+    <ClInclude Include="src\JF2\vertex_array.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="header\vertex_buffer_layout.hpp">
+    <ClInclude Include="src\JF2\vertex_buffer.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="header\application.hpp">
+    <ClInclude Include="src\JF2\vertex_buffer_layout.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="header\sandbox.hpp">
+    <ClInclude Include="src\JF2\entry_point.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
