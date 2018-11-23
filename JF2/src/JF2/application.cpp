@@ -1,5 +1,7 @@
 #include "application.hpp"
 
-Application::Application() {}
+namespace jf2 {
+	Application::Application() {}
 
-Application::~Application() {}
+	Application::~Application() {}
+}

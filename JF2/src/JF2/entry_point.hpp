@@ -1,10 +1,10 @@
 #ifndef ENTRY_POINT_HPP_
 #define ENTRY_POINT_HPP_
 
-extern Application* CreateApplication();
+extern jf2::Application* jf2::CreateApplication();
 
 int main(int argc, const char **argv) {
-	auto app = CreateApplication();
+	auto app = jf2::CreateApplication();
 	app->Init();
 	app->SetCallbacks();
 	app->Run();

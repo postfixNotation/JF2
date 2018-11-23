@@ -5,274 +5,274 @@
 #define STARS 0
 
 glm::mat4 Sandbox::projection;
-std::unique_ptr<Camera> Sandbox::camera;
+std::unique_ptr<jf2::Camera> Sandbox::camera;
 
 Sandbox::Sandbox() {}
 
 Sandbox::~Sandbox() {
-	Context::Instance().Terminate();
+	jf2::Context::Instance().Terminate();
 }
 
 void Sandbox::Init() {
 	camera =
 #if FPS == 1
-		std::make_unique<FPSCamera>(glm::fvec3{ 0.0f, 0.0f, 20.0f });
+		std::make_unique<jf2::FPSCamera>(glm::fvec3{ 0.0f, 0.0f, 20.0f });
 #else
-		std::make_unique<OrbitCamera>();
+		std::make_unique<jf2::OrbitCamera>();
 #endif
 
-	FileSystem::Instance().SetResourceRootDir("Resources");
-	FileSystem::Instance().InitSubDirs({ "fonts", "audio", "models", "shader", "textures" });
+	jf2::FileSystem::Instance().SetResourceRootDir("Resources");
+	jf2::FileSystem::Instance().InitSubDirs({ "fonts", "audio", "models", "shader", "textures" });
 
-	audio_list_.push_back(std::make_unique<Music>());
-	audio_list_.push_back(std::make_unique<Sound>());
+	audio_list_.push_back(std::make_unique<jf2::Music>());
+	audio_list_.push_back(std::make_unique<jf2::Sound>());
 
-	context::Config config;
+	jf2::context::Config config;
 	config.opengl_major = 3;
 	config.opengl_minor = 3;
 	config.number_of_samples = 4;
 	config.debug_context = true;
 	config.cusor_enabled = false;
 	config.context_title = "JF2 - Rendering Engine";
-	config.context_size = context::Size::DEBUG;
+	config.context_size = jf2::context::Size::DEBUG;
 
-	Context::Instance().Create(config);
-	Context::Instance().SetCursorPos(
-		static_cast<float>(Context::Instance().GetWidth() / 2),
-		static_cast<float>(Context::Instance().GetHeight() / 2));
-	Context::Instance().SetIcon(
-		FileSystem::Instance().GetPathString("textures") + "tux.png");
+	jf2::Context::Instance().Create(config);
+	jf2::Context::Instance().SetCursorPos(
+		static_cast<float>(jf2::Context::Instance().GetWidth() / 2),
+		static_cast<float>(jf2::Context::Instance().GetHeight() / 2));
+	jf2::Context::Instance().SetIcon(
+		jf2::FileSystem::Instance().GetPathString("textures") + "tux.png");
 
-	opengl::Init();
-	opengl::SetDefaultSetting();
-	opengl::SetViewport(
+	jf2::opengl::Init();
+	jf2::opengl::SetDefaultSetting();
+	jf2::opengl::SetViewport(
 		0, 0,
-		static_cast<GLsizei>(Context::Instance().GetWidth()),
-		static_cast<GLsizei>(Context::Instance().GetHeight()));
-	opengl::SetColor(
+		static_cast<GLsizei>(jf2::Context::Instance().GetWidth()),
+		static_cast<GLsizei>(jf2::Context::Instance().GetHeight()));
+	jf2::opengl::SetColor(
 		179.0f / 255,
 		255.0f / 255,
 		179.0f / 255,
 		1.0f);
 
-	opengl::SetDebugMessageCallback(opengl::DebugMessageCallback);
+	jf2::opengl::SetDebugMessageCallback(jf2::opengl::DebugMessageCallback);
 
 #if STARS == 0
 	std::vector<std::string> cubemap_textures{
-		FileSystem::Instance().GetPathString("textures") + "skybox/right.jpg",
-		FileSystem::Instance().GetPathString("textures") + "skybox/left.jpg",
-		FileSystem::Instance().GetPathString("textures") + "skybox/top.jpg",
-		FileSystem::Instance().GetPathString("textures") + "skybox/bottom.jpg",
-		FileSystem::Instance().GetPathString("textures") + "skybox/front.jpg",
-		FileSystem::Instance().GetPathString("textures") + "skybox/back.jpg"
+		jf2::FileSystem::Instance().GetPathString("textures") + "skybox/right.jpg",
+		jf2::FileSystem::Instance().GetPathString("textures") + "skybox/left.jpg",
+		jf2::FileSystem::Instance().GetPathString("textures") + "skybox/top.jpg",
+		jf2::FileSystem::Instance().GetPathString("textures") + "skybox/bottom.jpg",
+		jf2::FileSystem::Instance().GetPathString("textures") + "skybox/front.jpg",
+		jf2::FileSystem::Instance().GetPathString("textures") + "skybox/back.jpg"
 	};
 #else
 	std::vector<std::string> cubemap_textures{
-		FileSystem::Instance().GetPathString("textures") + "stars.jpg",
-		FileSystem::Instance().GetPathString("textures") + "stars.jpg",
-		FileSystem::Instance().GetPathString("textures") + "stars.jpg",
-		FileSystem::Instance().GetPathString("textures") + "stars.jpg",
-		FileSystem::Instance().GetPathString("textures") + "stars.jpg",
-		FileSystem::Instance().GetPathString("textures") + "stars.jpg" };
+		jf2::FileSystem::Instance().GetPathString("textures") + "stars.jpg",
+		jf2::FileSystem::Instance().GetPathString("textures") + "stars.jpg",
+		jf2::FileSystem::Instance().GetPathString("textures") + "stars.jpg",
+		jf2::FileSystem::Instance().GetPathString("textures") + "stars.jpg",
+		jf2::FileSystem::Instance().GetPathString("textures") + "stars.jpg",
+		jf2::FileSystem::Instance().GetPathString("textures") + "stars.jpg" };
 #endif
 
-	ResourceManager::LoadShader(
-		FileSystem::Instance().GetPathString("shader") + "cubemap_vert_shader.glsl",
-		FileSystem::Instance().GetPathString("shader") + "cubemap_frag_shader.glsl",
+	jf2::ResourceManager::LoadShader(
+		jf2::FileSystem::Instance().GetPathString("shader") + "cubemap_vert_shader.glsl",
+		jf2::FileSystem::Instance().GetPathString("shader") + "cubemap_frag_shader.glsl",
 		"cubemap");
 
-	ResourceManager::LoadTexture(
-		ResourceManager::GetShader("cubemap"),
+	jf2::ResourceManager::LoadTexture(
+		jf2::ResourceManager::GetShader("cubemap"),
 		cubemap_textures,
 		"faces");
 
 #if PHONG == 0
-	ResourceManager::LoadShader(
-		FileSystem::Instance().GetPathString("shader") + "mesh_vert_shader.glsl",
-		FileSystem::Instance().GetPathString("shader") + "mesh_frag_shader.glsl",
+	jf2::ResourceManager::LoadShader(
+		jf2::FileSystem::Instance().GetPathString("shader") + "mesh_vert_shader.glsl",
+		jf2::FileSystem::Instance().GetPathString("shader") + "mesh_frag_shader.glsl",
 		"model");
 #else
-	ResourceManager::LoadShader(
-		FileSystem::Instance().GetPathString("shader") + "mesh_vert_phong.glsl",
-		FileSystem::Instance().GetPathString("shader") + "mesh_frag_phong.glsl",
+	jf2::ResourceManager::LoadShader(
+		jf2::FileSystem::Instance().GetPathString("shader") + "mesh_vert_phong.glsl",
+		jf2::FileSystem::Instance().GetPathString("shader") + "mesh_frag_phong.glsl",
 		"model");
 #endif
-	projection = camera->GetProjectionMatrix(Context::Instance().GetRatio());
+	projection = camera->GetProjectionMatrix(jf2::Context::Instance().GetRatio());
 
-	ResourceManager::GetShader("model")->SetFloat("xoffset[0]", -10.0f);
-	ResourceManager::GetShader("model")->SetFloat("xoffset[1]", -5.0f);
-	ResourceManager::GetShader("model")->SetFloat("xoffset[2]", 0.0f);
-	ResourceManager::GetShader("model")->SetFloat("xoffset[3]", 5.0f);
-	ResourceManager::GetShader("model")->SetFloat("xoffset[4]", 10.0f);
+	jf2::ResourceManager::GetShader("model")->SetFloat("xoffset[0]", -10.0f);
+	jf2::ResourceManager::GetShader("model")->SetFloat("xoffset[1]", -5.0f);
+	jf2::ResourceManager::GetShader("model")->SetFloat("xoffset[2]", 0.0f);
+	jf2::ResourceManager::GetShader("model")->SetFloat("xoffset[3]", 5.0f);
+	jf2::ResourceManager::GetShader("model")->SetFloat("xoffset[4]", 10.0f);
 
-	ResourceManager::GetShader("model")->SetMat4("u_model", model_);
-	ResourceManager::GetShader("model")->SetMat4("u_projection", projection);
+	jf2::ResourceManager::GetShader("model")->SetMat4("u_model", model_);
+	jf2::ResourceManager::GetShader("model")->SetMat4("u_projection", projection);
 
-	ResourceManager::GetShader("model")->SetVec3("u_light_color", glm::fvec3{ 1.0f, 1.0f, 1.0f });
-	ResourceManager::GetShader("model")->SetVec3("u_view_pos", camera->GetPosition());
+	jf2::ResourceManager::GetShader("model")->SetVec3("u_light_color", glm::fvec3{ 1.0f, 1.0f, 1.0f });
+	jf2::ResourceManager::GetShader("model")->SetVec3("u_view_pos", camera->GetPosition());
 
-	ResourceManager::GetShader("cubemap")->SetInt("skybox", 0);
-	ResourceManager::GetShader("cubemap")->SetMat4("projection", projection);
+	jf2::ResourceManager::GetShader("cubemap")->SetInt("skybox", 0);
+	jf2::ResourceManager::GetShader("cubemap")->SetMat4("projection", projection);
 
-	ResourceManager::LoadTexture(
-		ResourceManager::GetShader("model"),
-		FileSystem::Instance().GetPathString("textures") + "cyborg_diffuse.png",
+	jf2::ResourceManager::LoadTexture(
+		jf2::ResourceManager::GetShader("model"),
+		jf2::FileSystem::Instance().GetPathString("textures") + "cyborg_diffuse.png",
 		"cyborg");
-	ResourceManager::LoadTexture(
-		ResourceManager::GetShader("model"),
-		FileSystem::Instance().GetPathString("textures") + "floor.jpg",
+	jf2::ResourceManager::LoadTexture(
+		jf2::ResourceManager::GetShader("model"),
+		jf2::FileSystem::Instance().GetPathString("textures") + "floor.jpg",
 		"floor");
 
-	ResourceManager::LoadShader(
-		FileSystem::Instance().GetPathString("shader") + "font_vert.glsl",
-		FileSystem::Instance().GetPathString("shader") + "font_frag.glsl",
+	jf2::ResourceManager::LoadShader(
+		jf2::FileSystem::Instance().GetPathString("shader") + "font_vert.glsl",
+		jf2::FileSystem::Instance().GetPathString("shader") + "font_frag.glsl",
 		"text");
 
-	ResourceManager::LoadShader(
-		FileSystem::Instance().GetPathString("shader") + "sprite_vert_shader.glsl",
-		FileSystem::Instance().GetPathString("shader") + "sprite_frag_shader.glsl",
+	jf2::ResourceManager::LoadShader(
+		jf2::FileSystem::Instance().GetPathString("shader") + "sprite_vert_shader.glsl",
+		jf2::FileSystem::Instance().GetPathString("shader") + "sprite_frag_shader.glsl",
 		"sprite");
 
-	ResourceManager::LoadTextRenderer(
-		ResourceManager::GetShader("text"),
-		Context::Instance().GetWidth(),
-		Context::Instance().GetHeight(),
+	jf2::ResourceManager::LoadTextRenderer(
+		jf2::ResourceManager::GetShader("text"),
+		jf2::Context::Instance().GetWidth(),
+		jf2::Context::Instance().GetHeight(),
 		20,
-		FileSystem::Instance().GetPathString("fonts") + "Wallpoet-Regular.ttf",
+		jf2::FileSystem::Instance().GetPathString("fonts") + "Wallpoet-Regular.ttf",
 		"Wallpoet");
 
-	ResourceManager::LoadTexture(
-		ResourceManager::GetShader("sprite"),
-		FileSystem::Instance().GetPathString("textures") + "donut_icon.png",
+	jf2::ResourceManager::LoadTexture(
+		jf2::ResourceManager::GetShader("sprite"),
+		jf2::FileSystem::Instance().GetPathString("textures") + "donut_icon.png",
 		"donut");
 
-	meshes_.push_back(std::make_unique<MeshRenderer>(ResourceManager::GetShader("model")));
+	meshes_.push_back(std::make_unique<jf2::MeshRenderer>(jf2::ResourceManager::GetShader("model")));
 	meshes_[0]->Load(
-		FileSystem::Instance().GetPathString("models") + "cyborg.obj",
+		jf2::FileSystem::Instance().GetPathString("models") + "cyborg.obj",
 		false);
-	meshes_.push_back(std::make_unique<MeshRenderer>(ResourceManager::GetShader("model")));
+	meshes_.push_back(std::make_unique<jf2::MeshRenderer>(jf2::ResourceManager::GetShader("model")));
 	meshes_[1]->Load(
-		FileSystem::Instance().GetPathString("models") + "floor.obj",
+		jf2::FileSystem::Instance().GetPathString("models") + "floor.obj",
 		false);
-	meshes_.push_back(std::make_unique<MeshRenderer>(ResourceManager::GetShader("cubemap")));
+	meshes_.push_back(std::make_unique<jf2::MeshRenderer>(jf2::ResourceManager::GetShader("cubemap")));
 	meshes_[2]->Load(
-		FileSystem::Instance().GetPathString("models") + "cube.obj");
+		jf2::FileSystem::Instance().GetPathString("models") + "cube.obj");
 
-	sprites_.push_back(std::make_unique<SpriteRenderer>(
-		ResourceManager::GetShader("sprite"),
-		Context::Instance().GetWidth(),
-		Context::Instance().GetHeight()));
+	sprites_.push_back(std::make_unique<jf2::SpriteRenderer>(
+		jf2::ResourceManager::GetShader("sprite"),
+		jf2::Context::Instance().GetWidth(),
+		jf2::Context::Instance().GetHeight()));
 
-	audio_list_[0]->Open(FileSystem::Instance().GetPathString("audio") + "throne.ogg");
+	audio_list_[0]->Open(jf2::FileSystem::Instance().GetPathString("audio") + "throne.ogg");
 	audio_list_[0]->Play(true);
 	audio_list_[0]->Volume(10.0f);
 	audio_list_[0]->Pitch(1.2f);
 
-	audio_list_[1]->Open(FileSystem::Instance().GetPathString("audio") + "powerup1.ogg");
+	audio_list_[1]->Open(jf2::FileSystem::Instance().GetPathString("audio") + "powerup1.ogg");
 	audio_list_[1]->Play();
 }
 
 void Sandbox::ProcessInput(float dt) {
-	if (Context::Instance().KeyDown(KeyNum::KEY_ESCAPE))
-		Context::Instance().SetCloseFlag();
+	if (jf2::Context::Instance().KeyDown(jf2::KeyNum::KEY_ESCAPE))
+		jf2::Context::Instance().SetCloseFlag();
 
-	if (Context::Instance().KeyDown(KeyNum::KEY_E))
-		opengl::PolygonMode();
-	if (Context::Instance().KeyDown(KeyNum::KEY_Q))
-		opengl::FillMode();
+	if (jf2::Context::Instance().KeyDown(jf2::KeyNum::KEY_E))
+		jf2::opengl::PolygonMode();
+	if (jf2::Context::Instance().KeyDown(jf2::KeyNum::KEY_Q))
+		jf2::opengl::FillMode();
 
-	if (Context::Instance().KeyDown(KeyNum::KEY_W))
-		camera->HandleKeyboard(CameraMovement::FORWARD, dt);
-	if (Context::Instance().KeyDown(KeyNum::KEY_S))
-		camera->HandleKeyboard(CameraMovement::BACKWARD, dt);
-	if (Context::Instance().KeyDown(KeyNum::KEY_A))
-		camera->HandleKeyboard(CameraMovement::LEFT, dt);
-	if (Context::Instance().KeyDown(KeyNum::KEY_D))
-		camera->HandleKeyboard(CameraMovement::RIGHT, dt);
+	if (jf2::Context::Instance().KeyDown(jf2::KeyNum::KEY_W))
+		camera->HandleKeyboard(jf2::CameraMovement::FORWARD, dt);
+	if (jf2::Context::Instance().KeyDown(jf2::KeyNum::KEY_S))
+		camera->HandleKeyboard(jf2::CameraMovement::BACKWARD, dt);
+	if (jf2::Context::Instance().KeyDown(jf2::KeyNum::KEY_A))
+		camera->HandleKeyboard(jf2::CameraMovement::LEFT, dt);
+	if (jf2::Context::Instance().KeyDown(jf2::KeyNum::KEY_D))
+		camera->HandleKeyboard(jf2::CameraMovement::RIGHT, dt);
 
-	if (Context::Instance().KeyDown(MouseButton::MOUSE_LEFT))
+	if (jf2::Context::Instance().KeyDown(jf2::MouseButton::MOUSE_LEFT))
 		audio_list_[1]->Play();
-	if (Context::Instance().KeyDown(KeyNum::KEY_F))
+	if (jf2::Context::Instance().KeyDown(jf2::KeyNum::KEY_F))
 		audio_list_[1]->Play();
-	if (Context::Instance().KeyDown(KeyNum::KEY_R))
-		audio_list_[1]->Open(FileSystem::Instance().GetPathString("audio") + "powerup1.ogg");
-	if (Context::Instance().KeyDown(KeyNum::KEY_V))
-		audio_list_[1]->Open(FileSystem::Instance().GetPathString("audio") + "powerup2.ogg");
+	if (jf2::Context::Instance().KeyDown(jf2::KeyNum::KEY_R))
+		audio_list_[1]->Open(jf2::FileSystem::Instance().GetPathString("audio") + "powerup1.ogg");
+	if (jf2::Context::Instance().KeyDown(jf2::KeyNum::KEY_V))
+		audio_list_[1]->Open(jf2::FileSystem::Instance().GetPathString("audio") + "powerup2.ogg");
 }
 
 void Sandbox::Render() {
-	Renderer::Clear();
+	jf2::Renderer::Clear();
 
-	light_position_.x = static_cast<float>(4 * sinf(Context::Instance().GetTime() * 3));
-	light_position_.z = static_cast<float>(4 * cosf(Context::Instance().GetTime() * 3));
+	light_position_.x = static_cast<float>(4 * sinf(jf2::Context::Instance().GetTime() * 3));
+	light_position_.z = static_cast<float>(4 * cosf(jf2::Context::Instance().GetTime() * 3));
 
 	view_ = camera->GetViewMatrix();
 
-	ResourceManager::GetShader("model")->SetMat4("u_view", view_);
-	ResourceManager::GetShader("model")->SetVec3("u_view_pos", camera->GetPosition());
-	ResourceManager::GetShader("model")->SetVec3("u_light_pos", light_position_);
+	jf2::ResourceManager::GetShader("model")->SetMat4("u_view", view_);
+	jf2::ResourceManager::GetShader("model")->SetVec3("u_view_pos", camera->GetPosition());
+	jf2::ResourceManager::GetShader("model")->SetVec3("u_light_pos", light_position_);
 
-	ResourceManager::GetTexture("floor")->Bind("u_tex_sampler", 0);
+	jf2::ResourceManager::GetTexture("floor")->Bind("u_tex_sampler", 0);
 	meshes_[1]->Draw(5);
-	ResourceManager::GetTexture("floor")->Unbind(0);
+	jf2::ResourceManager::GetTexture("floor")->Unbind(0);
 
-	ResourceManager::GetTexture("cyborg")->Bind("u_tex_sampler", 0);
+	jf2::ResourceManager::GetTexture("cyborg")->Bind("u_tex_sampler", 0);
 	meshes_[0]->Draw(5);
-	ResourceManager::GetTexture("cyborg")->Unbind(0);
+	jf2::ResourceManager::GetTexture("cyborg")->Unbind(0);
 
 	view_ = camera->GetViewMatrix(false);
-	ResourceManager::GetShader("cubemap")->SetMat4("view", view_);
+	jf2::ResourceManager::GetShader("cubemap")->SetMat4("view", view_);
 
-	ResourceManager::GetTexture("faces")->Bind("skybox", 0);
-	opengl::SetCubeMapMode();
+	jf2::ResourceManager::GetTexture("faces")->Bind("skybox", 0);
+	jf2::opengl::SetCubeMapMode();
 	meshes_[2]->Draw();
-	opengl::ResetCubeMapMode();
-	ResourceManager::GetTexture("faces")->Unbind(0);
+	jf2::opengl::ResetCubeMapMode();
+	jf2::ResourceManager::GetTexture("faces")->Unbind(0);
 
-	ResourceManager::GetTextRenderer("Wallpoet")->Draw(
-		"Framerate: " + std::to_string(Context::Instance().GetFrameRate(2)).substr(0, 5),
+	jf2::ResourceManager::GetTextRenderer("Wallpoet")->Draw(
+		"Framerate: " + std::to_string(jf2::Context::Instance().GetFrameRate(2)).substr(0, 5),
 		0.0f,
 		0.0f,
 		1.2f,
 		glm::fvec3{ 0.5f, 0.5f, 0.5f });
 
 	sprites_[0]->Draw(
-		ResourceManager::GetTexture("donut"),
-		glm::fvec2{ Context::Instance().GetWidth() - 100.0f, Context::Instance().GetHeight() - 100.0f },
+		jf2::ResourceManager::GetTexture("donut"),
+		glm::fvec2{ jf2::Context::Instance().GetWidth() - 100.0f, jf2::Context::Instance().GetHeight() - 100.0f },
 		{ glm::fvec2{ -100.0f, 0.0f }, glm::fvec2{ -200.0f, 0.0f } },
 		glm::fvec2{ 100.0f, 100.0f });
 
-	Context::Instance().PollEvents();
-	Context::Instance().SwapBuffers();
+	jf2::Context::Instance().PollEvents();
+	jf2::Context::Instance().SwapBuffers();
 }
 
 void Sandbox::SetCallbacks() {
-	glfwSetScrollCallback(Context::Instance().Get(), [](GLFWwindow* win, double xoffset, double yoffset) {
+	glfwSetScrollCallback(jf2::Context::Instance().Get(), [](GLFWwindow* win, double xoffset, double yoffset) {
 		camera->HandleScroll(static_cast<float>(yoffset));
 #if FPS == 1
-		projection = camera->GetProjectionMatrix(Context::Instance().GetRatio());
-		ResourceManager::GetShader("model")->SetMat4("u_projection", projection);
-		ResourceManager::GetShader("cubemap")->SetMat4("projection", projection);
+		projection = camera->GetProjectionMatrix(jf2::Context::Instance().GetRatio());
+		jf2::ResourceManager::GetShader("model")->SetMat4("u_projection", projection);
+		jf2::ResourceManager::GetShader("cubemap")->SetMat4("projection", projection);
 #endif
 	});
 
-	glfwSetCursorPosCallback(Context::Instance().Get(), [](GLFWwindow* win, double xpos, double ypos) {
+	glfwSetCursorPosCallback(jf2::Context::Instance().Get(), [](GLFWwindow* win, double xpos, double ypos) {
 		camera->HandleMouseCursor(static_cast<float>(xpos), static_cast<float>(ypos));
 	});
 
 	glfwSetFramebufferSizeCallback(
-		Context::Instance().Get(), [](GLFWwindow*, int width, int height) {
-		opengl::SetViewport(0, 0, width, height);
+		jf2::Context::Instance().Get(), [](GLFWwindow*, int width, int height) {
+		jf2::opengl::SetViewport(0, 0, width, height);
 	});
 }
 
 void Sandbox::Run() {
-	while (!Context::Instance()) {
-		ProcessInput(Context::Instance().GetTimePerFrame());
+	while (!jf2::Context::Instance()) {
+		ProcessInput(jf2::Context::Instance().GetTimePerFrame());
 		Render();
 	}
 }
 
-Application* CreateApplication() {
+jf2::Application* jf2::CreateApplication() {
 	return new Sandbox();
 }

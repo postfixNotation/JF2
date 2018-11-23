@@ -3,7 +3,7 @@
 
 #include <jf2.hpp>
 
-class Sandbox : public Application {
+class Sandbox : public jf2::Application {
 public:
 	Sandbox();
 	~Sandbox();
@@ -18,12 +18,12 @@ private:
 	glm::fvec3 light_position_;
 	glm::fmat4 view_, model_;
 	static glm::fmat4 projection;
-	static std::unique_ptr<Camera> camera;
-	std::vector<std::unique_ptr<Audio>> audio_list_;
-	std::vector<std::unique_ptr<MeshRenderer>> meshes_;
-	std::vector<std::unique_ptr<SpriteRenderer>> sprites_;
+	static std::unique_ptr<jf2::Camera> camera;
+	std::vector<std::unique_ptr<jf2::Audio>> audio_list_;
+	std::vector<std::unique_ptr<jf2::MeshRenderer>> meshes_;
+	std::vector<std::unique_ptr<jf2::SpriteRenderer>> sprites_;
 };
 
-Application* CreateApplication();
+jf2::Application* jf2::CreateApplication();
 
 #endif // SANDBOX_HPP_
