@@ -2,7 +2,7 @@
 
 #define FPS 1
 #define PHONG 1
-#define STARS 0
+#define STARS 1
 
 glm::mat4 Sandbox::projection;
 std::unique_ptr<jf2::Camera> Sandbox::camera;
@@ -80,7 +80,6 @@ void Sandbox::Init() {
 		jf2::FileSystem::Instance().GetPathString("shader") + "cubemap_vert_shader.glsl",
 		jf2::FileSystem::Instance().GetPathString("shader") + "cubemap_frag_shader.glsl",
 		"cubemap");
-
 	jf2::ResourceManager::LoadTexture(
 		jf2::ResourceManager::GetShader("cubemap"),
 		cubemap_textures,
@@ -104,12 +103,13 @@ void Sandbox::Init() {
 	jf2::ResourceManager::GetShader("model")->SetFloat("xoffset[2]", 0.0f);
 	jf2::ResourceManager::GetShader("model")->SetFloat("xoffset[3]", 5.0f);
 	jf2::ResourceManager::GetShader("model")->SetFloat("xoffset[4]", 10.0f);
-
 	jf2::ResourceManager::GetShader("model")->SetMat4("u_model", model_);
 	jf2::ResourceManager::GetShader("model")->SetMat4("u_projection", projection);
 
+#if PHONG == 1
 	jf2::ResourceManager::GetShader("model")->SetVec3("u_light_color", glm::fvec3{ 1.0f, 1.0f, 1.0f });
 	jf2::ResourceManager::GetShader("model")->SetVec3("u_view_pos", camera->GetPosition());
+#endif
 
 	jf2::ResourceManager::GetShader("cubemap")->SetInt("skybox", 0);
 	jf2::ResourceManager::GetShader("cubemap")->SetMat4("projection", projection);
@@ -202,16 +202,17 @@ void Sandbox::ProcessInput(float dt) {
 
 void Sandbox::Render() {
 	jf2::Renderer::Clear();
-
+#if PHONG == 1
 	light_position_.x = static_cast<float>(4 * sinf(jf2::Context::Instance().GetTime() * 3));
 	light_position_.z = static_cast<float>(4 * cosf(jf2::Context::Instance().GetTime() * 3));
-
+#endif
 	view_ = camera->GetViewMatrix();
 
 	jf2::ResourceManager::GetShader("model")->SetMat4("u_view", view_);
+#if PHONG == 1
 	jf2::ResourceManager::GetShader("model")->SetVec3("u_view_pos", camera->GetPosition());
 	jf2::ResourceManager::GetShader("model")->SetVec3("u_light_pos", light_position_);
-
+#endif
 	jf2::ResourceManager::GetTexture("floor")->Bind("u_tex_sampler", 0);
 	meshes_[1]->Draw(5);
 	jf2::ResourceManager::GetTexture("floor")->Unbind(0);
