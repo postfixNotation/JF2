@@ -75,11 +75,19 @@ void ClientDev::Init() {
 		jf2::ResourceManager::GetShader("sprite"),
 		jf2::FileSystem::Instance().GetPathString("textures") + "parallax/04_bushes.png",
 		"bushes");
+	jf2::ResourceManager::LoadTexture(
+		jf2::ResourceManager::GetShader("sprite"),
+		jf2::FileSystem::Instance().GetPathString("textures") + "parallax/05_hill1.png",
+		"hill1");
+	jf2::ResourceManager::LoadTexture(
+		jf2::ResourceManager::GetShader("sprite"),
+		jf2::FileSystem::Instance().GetPathString("textures") + "parallax/11_background.png",
+		"background");
 
-	sprites_.push_back(std::make_unique<jf2::SpriteRenderer>(
+	sprite_ = std::make_unique<jf2::SpriteRenderer>(
 		jf2::ResourceManager::GetShader("sprite"),
 		jf2::Context::Instance().GetWidth(),
-		jf2::Context::Instance().GetHeight()));
+		jf2::Context::Instance().GetHeight());
 }
 
 void ClientDev::ProcessInput(float dt) {
@@ -97,7 +105,7 @@ void ClientDev::ProcessInput(float dt) {
 void ClientDev::Render() {
 	static unsigned int stride{ 0 };
 	++stride;
-	if (stride > jf2::Context::Instance().GetWidth() / 3) stride = 0;
+	if (stride > jf2::Context::Instance().GetWidth() / 5) stride = 0;
 	jf2::Renderer::Clear();
 
 	jf2::ResourceManager::GetTextRenderer("Wallpoet")->Draw(
@@ -107,30 +115,40 @@ void ClientDev::Render() {
 		1.2f,
 		glm::fvec3{ 0.5f, 0.5f, 0.5f });
 
+	// Put this in an appropriate class method
 	glDepthFunc(GL_LEQUAL);
 
-	sprites_[0]->Draw(
+	sprite_->Draw(
+		jf2::ResourceManager::GetTexture("background"),
+		glm::fvec2{ 0.0f, 0.0f },
+		glm::fvec2{ jf2::Context::Instance().GetWidth(), jf2::Context::Instance().GetHeight() });
+	sprite_->Draw(
+		jf2::ResourceManager::GetTexture("hill1"),
+		glm::fvec2{ 0.0f - 0.6f * stride, 0.0f },
+		glm::fvec2{ jf2::Context::Instance().GetWidth(), jf2::Context::Instance().GetHeight() });
+	sprite_->Draw(
 		jf2::ResourceManager::GetTexture("bushes"),
-		glm::fvec2{ 0.0f - 1.5f * stride, 0.0f },
+		glm::fvec2{ 0.0f - 0.5f * stride, 0.0f },
 		glm::fvec2{ jf2::Context::Instance().GetWidth(), jf2::Context::Instance().GetHeight() });
-	sprites_[0]->Draw(
+	sprite_->Draw(
 		jf2::ResourceManager::GetTexture("distant_trees"),
-		glm::fvec2{ 0.0f - stride, 0.0f },
+		glm::fvec2{ 0.0f - 0.1f * stride, 0.0f },
 		glm::fvec2{ jf2::Context::Instance().GetWidth(), jf2::Context::Instance().GetHeight() });
-	sprites_[0]->Draw(
+	sprite_->Draw(
 		jf2::ResourceManager::GetTexture("trees_bushes"),
-		glm::fvec2{ 0.0f + stride, 0.0f },
+		glm::fvec2{ 0.0f + 0.1f * stride, 0.0f },
 		glm::fvec2{ jf2::Context::Instance().GetWidth(), jf2::Context::Instance().GetHeight() });
-	sprites_[0]->Draw(
+	sprite_->Draw(
 		jf2::ResourceManager::GetTexture("ground"),
-		glm::fvec2{ 0.0f + 1.5f * stride, 0.0f },
+		glm::fvec2{ 0.0f + 0.5f * stride, 0.0f },
 		glm::fvec2{ jf2::Context::Instance().GetWidth(), jf2::Context::Instance().GetHeight() });
-	//sprites_[0]->Draw(
+
+	//sprite_->Draw(
 	//	jf2::ResourceManager::GetTexture("donut"),
 	//	glm::fvec2{ jf2::Context::Instance().GetWidth() - 100.0f, jf2::Context::Instance().GetHeight() - 100.0f },
 	//	{ glm::fvec2{ -100.0f, 0.0f }, glm::fvec2{ -200.0f, 0.0f } },
 	//	glm::fvec2{ 100.0f, 100.0f });
-	sprites_[0]->Draw(
+	sprite_->Draw(
 		jf2::ResourceManager::GetTexture("donut"),
 		glm::fvec2{ jf2::Context::Instance().GetWidth() - 100.0f, jf2::Context::Instance().GetHeight() - 100.0f },
 		glm::fvec2{ 100.0f, 100.0f });

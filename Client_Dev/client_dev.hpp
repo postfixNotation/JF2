@@ -15,7 +15,7 @@ public:
 	virtual void Run() override final;
 
 private:
-	std::vector<std::unique_ptr<jf2::SpriteRenderer>> sprites_;
+	std::unique_ptr<jf2::SpriteRenderer> sprite_;
 };
 
 jf2::Application* jf2::CreateApplication();
