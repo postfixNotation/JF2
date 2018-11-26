@@ -4,6 +4,7 @@
 // For use by JF2 applications
 #include "JF2/application.hpp"
 
+#include "JF2/parallax_renderer.hpp"
 #include "JF2/resource_manager.hpp"
 #include "JF2/sprite_renderer.hpp"
 #include "JF2/mesh_renderer.hpp"

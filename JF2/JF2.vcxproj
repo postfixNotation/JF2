@@ -18,6 +18,7 @@
     <ClCompile Include="src\JF2\gl.cpp" />
     <ClCompile Include="src\JF2\index_buffer.cpp" />
     <ClCompile Include="src\JF2\mesh_renderer.cpp" />
+    <ClCompile Include="src\JF2\parallax_renderer.cpp" />
     <ClCompile Include="src\JF2\renderer.cpp" />
     <ClCompile Include="src\JF2\resource_manager.cpp" />
     <ClCompile Include="src\JF2\shader.cpp" />
@@ -44,6 +45,7 @@
     <ClInclude Include="src\JF2\music.hpp" />
     <ClInclude Include="src\JF2\non_copyable.hpp" />
     <ClInclude Include="src\JF2\non_moveable.hpp" />
+    <ClInclude Include="src\JF2\parallax_renderer.hpp" />
     <ClInclude Include="src\JF2\renderer.hpp" />
     <ClInclude Include="src\JF2\resource_manager.hpp" />
     <ClInclude Include="src\JF2\shader.hpp" />

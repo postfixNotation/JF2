@@ -63,6 +63,9 @@
     <ClCompile Include="src\JF2\application.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="src\JF2\parallax_renderer.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\jf2.hpp">
@@ -138,6 +141,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="src\JF2\entry_point.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\JF2\parallax_renderer.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

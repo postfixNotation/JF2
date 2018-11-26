@@ -51,43 +51,40 @@ void ClientDev::Init() {
 		jf2::Context::Instance().GetWidth(),
 		jf2::Context::Instance().GetHeight(),
 		20,
-		jf2::FileSystem::Instance().GetPathString("fonts") + "Wallpoet-Regular.ttf",
-		"Wallpoet");
+		jf2::FileSystem::Instance().GetPathString("fonts") + "SedgwickAve-Regular.ttf",
+		"SedgwickAve");
 
 	jf2::ResourceManager::LoadTexture(
 		jf2::ResourceManager::GetShader("sprite"),
 		jf2::FileSystem::Instance().GetPathString("textures") + "donut_icon.png",
 		"donut");
 
-	jf2::ResourceManager::LoadTexture(
-		jf2::ResourceManager::GetShader("sprite"),
-		jf2::FileSystem::Instance().GetPathString("textures") + "parallax/01_ground.png",
-		"ground");
-	jf2::ResourceManager::LoadTexture(
-		jf2::ResourceManager::GetShader("sprite"),
-		jf2::FileSystem::Instance().GetPathString("textures") + "parallax/02_trees_and_bushes.png",
-		"trees_bushes");
-	jf2::ResourceManager::LoadTexture(
-		jf2::ResourceManager::GetShader("sprite"),
-		jf2::FileSystem::Instance().GetPathString("textures") + "parallax/03_distant_trees.png",
-		"distant_trees");
-	jf2::ResourceManager::LoadTexture(
-		jf2::ResourceManager::GetShader("sprite"),
-		jf2::FileSystem::Instance().GetPathString("textures") + "parallax/04_bushes.png",
-		"bushes");
-	jf2::ResourceManager::LoadTexture(
-		jf2::ResourceManager::GetShader("sprite"),
-		jf2::FileSystem::Instance().GetPathString("textures") + "parallax/05_hill1.png",
-		"hill1");
-	jf2::ResourceManager::LoadTexture(
-		jf2::ResourceManager::GetShader("sprite"),
-		jf2::FileSystem::Instance().GetPathString("textures") + "parallax/11_background.png",
-		"background");
-
-	sprite_ = std::make_unique<jf2::SpriteRenderer>(
+	p_sprite_ = std::make_shared<jf2::SpriteRenderer>(
 		jf2::ResourceManager::GetShader("sprite"),
 		jf2::Context::Instance().GetWidth(),
 		jf2::Context::Instance().GetHeight());
+
+	p_parallax_ = std::make_unique<jf2::ParallaxRenderer>(
+		p_sprite_,
+		glm::fvec2{ jf2::Context::Instance().GetWidth(), jf2::Context::Instance().GetHeight() });
+
+	std::vector<std::string> image_path_list{
+		jf2::FileSystem::Instance().GetPathString("textures") + "parallax/11_background.png",
+		jf2::FileSystem::Instance().GetPathString("textures") + "parallax/10_distant_clouds.png",
+		jf2::FileSystem::Instance().GetPathString("textures") + "parallax/09_distant_clouds1.png",
+		jf2::FileSystem::Instance().GetPathString("textures") + "parallax/08_clouds.png",
+		jf2::FileSystem::Instance().GetPathString("textures") + "parallax/07_huge_clouds.png",
+		jf2::FileSystem::Instance().GetPathString("textures") + "parallax/06_hill2.png",
+		jf2::FileSystem::Instance().GetPathString("textures") + "parallax/05_hill1.png",
+		jf2::FileSystem::Instance().GetPathString("textures") + "parallax/04_bushes.png",
+		jf2::FileSystem::Instance().GetPathString("textures") + "parallax/03_distant_trees.png",
+		jf2::FileSystem::Instance().GetPathString("textures") + "parallax/02_trees_and_bushes.png",
+		jf2::FileSystem::Instance().GetPathString("textures") + "parallax/01_ground.png"
+	};
+
+	p_parallax_->Init(jf2::ResourceManager::GetShader("sprite"), image_path_list);
+
+	jf2::opengl::SetSpriteMode();
 }
 
 void ClientDev::ProcessInput(float dt) {
@@ -103,62 +100,33 @@ void ClientDev::ProcessInput(float dt) {
 }
 
 void ClientDev::Render() {
-	static unsigned int stride{ 0 };
-	++stride;
-	if (stride > jf2::Context::Instance().GetWidth() / 5) stride = 0;
 	jf2::Renderer::Clear();
 
-	jf2::ResourceManager::GetTextRenderer("Wallpoet")->Draw(
-		"Framerate: " + std::to_string(jf2::Context::Instance().GetFrameRate(2)).substr(0, 5),
-		0.0f,
-		0.0f,
-		1.2f,
-		glm::fvec3{ 0.5f, 0.5f, 0.5f });
+	p_parallax_->Draw(glm::fvec2{});
 
-	// Put this in an appropriate class method
-	glDepthFunc(GL_LEQUAL);
-
-	sprite_->Draw(
-		jf2::ResourceManager::GetTexture("background"),
-		glm::fvec2{ 0.0f, 0.0f },
-		glm::fvec2{ jf2::Context::Instance().GetWidth(), jf2::Context::Instance().GetHeight() });
-	sprite_->Draw(
-		jf2::ResourceManager::GetTexture("hill1"),
-		glm::fvec2{ 0.0f - 0.6f * stride, 0.0f },
-		glm::fvec2{ jf2::Context::Instance().GetWidth(), jf2::Context::Instance().GetHeight() });
-	sprite_->Draw(
-		jf2::ResourceManager::GetTexture("bushes"),
-		glm::fvec2{ 0.0f - 0.5f * stride, 0.0f },
-		glm::fvec2{ jf2::Context::Instance().GetWidth(), jf2::Context::Instance().GetHeight() });
-	sprite_->Draw(
-		jf2::ResourceManager::GetTexture("distant_trees"),
-		glm::fvec2{ 0.0f - 0.1f * stride, 0.0f },
-		glm::fvec2{ jf2::Context::Instance().GetWidth(), jf2::Context::Instance().GetHeight() });
-	sprite_->Draw(
-		jf2::ResourceManager::GetTexture("trees_bushes"),
-		glm::fvec2{ 0.0f + 0.1f * stride, 0.0f },
-		glm::fvec2{ jf2::Context::Instance().GetWidth(), jf2::Context::Instance().GetHeight() });
-	sprite_->Draw(
-		jf2::ResourceManager::GetTexture("ground"),
-		glm::fvec2{ 0.0f + 0.5f * stride, 0.0f },
-		glm::fvec2{ jf2::Context::Instance().GetWidth(), jf2::Context::Instance().GetHeight() });
-
-	//sprite_->Draw(
+	//p_sprite_->Draw(
 	//	jf2::ResourceManager::GetTexture("donut"),
 	//	glm::fvec2{ jf2::Context::Instance().GetWidth() - 100.0f, jf2::Context::Instance().GetHeight() - 100.0f },
 	//	{ glm::fvec2{ -100.0f, 0.0f }, glm::fvec2{ -200.0f, 0.0f } },
 	//	glm::fvec2{ 100.0f, 100.0f });
-	sprite_->Draw(
+
+	p_sprite_->Draw(
 		jf2::ResourceManager::GetTexture("donut"),
 		glm::fvec2{ jf2::Context::Instance().GetWidth() - 100.0f, jf2::Context::Instance().GetHeight() - 100.0f },
 		glm::fvec2{ 100.0f, 100.0f });
+
+	jf2::ResourceManager::GetTextRenderer("SedgwickAve")->Draw(
+		"Framerate: " + std::to_string(jf2::Context::Instance().GetFrameRate(2)).substr(0, 5),
+		0.0f,
+		0.0f,
+		1.2f,
+		glm::fvec3{ 0.9f, 0.4f, 0.5f });
 
 	jf2::Context::Instance().SwapBuffers();
 }
 
 void ClientDev::SetCallbacks() {
 	glfwSetScrollCallback(jf2::Context::Instance().Get(), [](GLFWwindow* win, double xoffset, double yoffset) {});
-
 	glfwSetCursorPosCallback(jf2::Context::Instance().Get(), [](GLFWwindow* win, double xpos, double ypos) {});
 
 	glfwSetFramebufferSizeCallback(

@@ -15,7 +15,8 @@ public:
 	virtual void Run() override final;
 
 private:
-	std::unique_ptr<jf2::SpriteRenderer> sprite_;
+	std::shared_ptr<jf2::SpriteRenderer> p_sprite_;
+	std::unique_ptr<jf2::ParallaxRenderer> p_parallax_;
 };
 
 jf2::Application* jf2::CreateApplication();

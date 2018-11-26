@@ -43,6 +43,10 @@ namespace jf2 {
 
 		void FillMode() { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }
 
+		void SetSpriteMode() { glDepthFunc(GL_LEQUAL); }
+
+		void ResetSpriteMode() { glDepthFunc(GL_LESS); }
+
 		void SetCubeMapMode() {
 			glDepthFunc(GL_LEQUAL);
 			glFrontFace(GL_CW);

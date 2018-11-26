@@ -21,6 +21,8 @@ namespace jf2 {
 			GLclampf a);
 		void PolygonMode();
 		void FillMode();
+		void SetSpriteMode();
+		void ResetSpriteMode();
 		void SetCubeMapMode();
 		void ResetCubeMapMode();
 		void SetDebugMessageCallback(void(*callback)(
