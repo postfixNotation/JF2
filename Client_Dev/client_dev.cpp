@@ -101,8 +101,18 @@ void ClientDev::ProcessInput(float dt) {
 
 void ClientDev::Render() {
 	jf2::Renderer::Clear();
+	static float x{}, y{};
 
-	p_parallax_->Draw(glm::fvec2{});
+	float x_half_width = jf2::Context::Instance().GetWidth() / 2;
+	float y_half_width = jf2::Context::Instance().GetHeight() / 2;
+
+	p_parallax_->Draw(0.4f, glm::fvec2{ x, y });
+
+	x += 0.5f;
+	y += 0.5f;
+
+	x = glm::clamp<float>(x, 0, x_half_width * 2);
+	y = glm::clamp<float>(y, 0, y_half_width * 2);
 
 	//p_sprite_->Draw(
 	//	jf2::ResourceManager::GetTexture("donut"),
