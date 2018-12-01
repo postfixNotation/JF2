@@ -56,7 +56,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)JF2\src;$(SolutionDir)vendor;$(SolutionDir)vendor\GLEW\include;$(SolutionDir)vendor\GLFW\include;$(SolutionDir)vendor\boost\include;$(SolutionDir)vendor\FreeType\include;$(SolutionDir)vendor\SFML-2.5.1\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)vendor;$(SolutionDir)NXtNGIN\src;$(SolutionDir)vendor\GLEW\include;$(SolutionDir)vendor\GLFW\include;$(SolutionDir)vendor\boost\include;$(SolutionDir)vendor\FreeType\include;$(SolutionDir)vendor\SFML-2.5.1\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)vendor\SFML-2.5.1\lib;$(SolutionDir)vendor\GLFW\lib-vc2015;$(SolutionDir)vendor\GLEW\lib\Release\x64;$(SolutionDir)vendor\Box2D\lib\x86_64\Debug;$(SolutionDir)vendor\boost\lib\Windows\debug;$(SolutionDir)vendor\FreeType\lib\x64\Debug Static</AdditionalLibraryDirectories>
@@ -74,7 +74,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)JF2\src;$(SolutionDir)vendor;$(SolutionDir)vendor\GLEW\include;$(SolutionDir)vendor\GLFW\include;$(SolutionDir)vendor\boost\include;$(SolutionDir)vendor\FreeType\include;$(SolutionDir)vendor\SFML-2.5.1\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)vendor;$(SolutionDir)NXtNGIN\src;$(SolutionDir)vendor\GLEW\include;$(SolutionDir)vendor\GLFW\include;$(SolutionDir)vendor\boost\include;$(SolutionDir)vendor\FreeType\include;$(SolutionDir)vendor\SFML-2.5.1\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SFML_STATIC;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -95,6 +95,9 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\JF2\JF2.vcxproj">
+      <Project>{0cb5a9b1-850e-4069-afd1-53852cc4f46a}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\NXtNGIN\NXtNGIN.vcxproj">
       <Project>{0cb5a9b1-850e-4069-afd1-53852cc4f46a}</Project>
     </ProjectReference>
   </ItemGroup>

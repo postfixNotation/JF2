@@ -56,7 +56,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)JF2\src;$(SolutionDir)vendor;$(SolutionDir)vendor\GLEW\include;$(SolutionDir)vendor\GLFW\include;$(SolutionDir)vendor\boost\include;$(SolutionDir)vendor\FreeType\include;$(SolutionDir)vendor\SFML-2.5.1\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)vendor;$(SolutionDir)NXtNGIN\src;$(SolutionDir)vendor\GLEW\include;$(SolutionDir)vendor\GLFW\include;$(SolutionDir)vendor\boost\include;$(SolutionDir)vendor\FreeType\include;$(SolutionDir)vendor\SFML-2.5.1\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SFML_STATIC;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -75,7 +75,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)JF2\src;$(SolutionDir)vendor;$(SolutionDir)vendor\GLEW\include;$(SolutionDir)vendor\GLFW\include;$(SolutionDir)vendor\boost\include;$(SolutionDir)vendor\FreeType\include;$(SolutionDir)vendor\SFML-2.5.1\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)vendor;$(SolutionDir)NXtNGIN\src;$(SolutionDir)vendor\GLEW\include;$(SolutionDir)vendor\GLFW\include;$(SolutionDir)vendor\boost\include;$(SolutionDir)vendor\FreeType\include;$(SolutionDir)vendor\SFML-2.5.1\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp14</LanguageStandard>
       <PreprocessorDefinitions>SFML_STATIC;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -97,6 +97,9 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\JF2\JF2.vcxproj">
+      <Project>{0cb5a9b1-850e-4069-afd1-53852cc4f46a}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\NXtNGIN\NXtNGIN.vcxproj">
       <Project>{0cb5a9b1-850e-4069-afd1-53852cc4f46a}</Project>
     </ProjectReference>
   </ItemGroup>

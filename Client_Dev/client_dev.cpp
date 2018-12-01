@@ -3,108 +3,108 @@
 ClientDev::ClientDev() {}
 
 ClientDev::~ClientDev() {
-	jf2::Context::Instance().Terminate();
+	nxt::Context::Instance().Terminate();
 }
 
 void ClientDev::Init() {
-	jf2::FileSystem::Instance().SetResourceRootDir("Resources");
-	jf2::FileSystem::Instance().InitSubDirs({ "fonts", "audio", "models", "shader", "textures" });
+	nxt::FileSystem::Instance().SetResourceRootDir("Resources");
+	nxt::FileSystem::Instance().InitSubDirs({ "fonts", "audio", "models", "shader", "textures" });
 
-	jf2::context::Config config;
+	nxt::context::Config config;
 	config.opengl_major = 3;
 	config.opengl_minor = 3;
 	config.number_of_samples = 4;
 	config.debug_context = true;
 	config.cusor_enabled = true;
-	config.context_title = "JF2 - Parallax Effect";
-	config.context_size = jf2::context::Size::DEBUG;
+	config.context_title = "nxt - Parallax Effect";
+	config.context_size = nxt::context::Size::DEBUG;
 
-	jf2::Context::Instance().Create(config);
-	jf2::Context::Instance().SetIcon(
-		jf2::FileSystem::Instance().GetPathString("textures") + "tux.png");
+	nxt::Context::Instance().Create(config);
+	nxt::Context::Instance().SetIcon(
+		nxt::FileSystem::Instance().GetPathString("textures") + "tux.png");
 
-	jf2::opengl::Init();
-	jf2::opengl::SetDefaultSetting();
-	jf2::opengl::SetViewport(
+	nxt::opengl::Init();
+	nxt::opengl::SetDefaultSetting();
+	nxt::opengl::SetViewport(
 		0, 0,
-		static_cast<GLsizei>(jf2::Context::Instance().GetWidth()),
-		static_cast<GLsizei>(jf2::Context::Instance().GetHeight()));
-	jf2::opengl::SetColor(
+		static_cast<GLsizei>(nxt::Context::Instance().GetWidth()),
+		static_cast<GLsizei>(nxt::Context::Instance().GetHeight()));
+	nxt::opengl::SetColor(
 		179.0f / 255,
 		255.0f / 255,
 		179.0f / 255,
 		1.0f);
-	jf2::opengl::SetDebugMessageCallback(jf2::opengl::DebugMessageCallback);
+	nxt::opengl::SetDebugMessageCallback(nxt::opengl::DebugMessageCallback);
 
-	jf2::ResourceManager::LoadShader(
-		jf2::FileSystem::Instance().GetPathString("shader") + "font_vert.glsl",
-		jf2::FileSystem::Instance().GetPathString("shader") + "font_frag.glsl",
+	nxt::ResourceManager::LoadShader(
+		nxt::FileSystem::Instance().GetPathString("shader") + "font_vert.glsl",
+		nxt::FileSystem::Instance().GetPathString("shader") + "font_frag.glsl",
 		"text");
 
-	jf2::ResourceManager::LoadShader(
-		jf2::FileSystem::Instance().GetPathString("shader") + "sprite_vert_shader.glsl",
-		jf2::FileSystem::Instance().GetPathString("shader") + "sprite_frag_shader.glsl",
+	nxt::ResourceManager::LoadShader(
+		nxt::FileSystem::Instance().GetPathString("shader") + "sprite_vert_shader.glsl",
+		nxt::FileSystem::Instance().GetPathString("shader") + "sprite_frag_shader.glsl",
 		"sprite");
 
-	jf2::ResourceManager::LoadTextRenderer(
-		jf2::ResourceManager::GetShader("text"),
-		jf2::Context::Instance().GetWidth(),
-		jf2::Context::Instance().GetHeight(),
+	nxt::ResourceManager::LoadTextRenderer(
+		nxt::ResourceManager::GetShader("text"),
+		nxt::Context::Instance().GetWidth(),
+		nxt::Context::Instance().GetHeight(),
 		20,
-		jf2::FileSystem::Instance().GetPathString("fonts") + "SedgwickAve-Regular.ttf",
+		nxt::FileSystem::Instance().GetPathString("fonts") + "SedgwickAve-Regular.ttf",
 		"SedgwickAve");
 
-	jf2::ResourceManager::LoadTexture(
-		jf2::ResourceManager::GetShader("sprite"),
-		jf2::FileSystem::Instance().GetPathString("textures") + "donut_icon.png",
+	nxt::ResourceManager::LoadTexture(
+		nxt::ResourceManager::GetShader("sprite"),
+		nxt::FileSystem::Instance().GetPathString("textures") + "donut_icon.png",
 		"donut");
 
-	p_sprite_ = std::make_shared<jf2::SpriteRenderer>(
-		jf2::ResourceManager::GetShader("sprite"),
-		jf2::Context::Instance().GetWidth(),
-		jf2::Context::Instance().GetHeight());
+	p_sprite_ = std::make_shared<nxt::SpriteRenderer>(
+		nxt::ResourceManager::GetShader("sprite"),
+		nxt::Context::Instance().GetWidth(),
+		nxt::Context::Instance().GetHeight());
 
-	p_parallax_ = std::make_unique<jf2::ParallaxRenderer>(
+	p_parallax_ = std::make_unique<nxt::ParallaxRenderer>(
 		p_sprite_,
-		glm::fvec2{ jf2::Context::Instance().GetWidth(), jf2::Context::Instance().GetHeight() });
+		glm::fvec2{ nxt::Context::Instance().GetWidth(), nxt::Context::Instance().GetHeight() });
 
 	std::vector<std::string> image_path_list{
-		jf2::FileSystem::Instance().GetPathString("textures") + "parallax/11_background.png",
-		jf2::FileSystem::Instance().GetPathString("textures") + "parallax/10_distant_clouds.png",
-		jf2::FileSystem::Instance().GetPathString("textures") + "parallax/09_distant_clouds1.png",
-		jf2::FileSystem::Instance().GetPathString("textures") + "parallax/08_clouds.png",
-		jf2::FileSystem::Instance().GetPathString("textures") + "parallax/07_huge_clouds.png",
-		jf2::FileSystem::Instance().GetPathString("textures") + "parallax/06_hill2.png",
-		jf2::FileSystem::Instance().GetPathString("textures") + "parallax/05_hill1.png",
-		jf2::FileSystem::Instance().GetPathString("textures") + "parallax/04_bushes.png",
-		jf2::FileSystem::Instance().GetPathString("textures") + "parallax/03_distant_trees.png",
-		jf2::FileSystem::Instance().GetPathString("textures") + "parallax/02_trees_and_bushes.png",
-		jf2::FileSystem::Instance().GetPathString("textures") + "parallax/01_ground.png"
+		nxt::FileSystem::Instance().GetPathString("textures") + "parallax/11_background.png",
+		nxt::FileSystem::Instance().GetPathString("textures") + "parallax/10_distant_clouds.png",
+		nxt::FileSystem::Instance().GetPathString("textures") + "parallax/09_distant_clouds1.png",
+		nxt::FileSystem::Instance().GetPathString("textures") + "parallax/08_clouds.png",
+		nxt::FileSystem::Instance().GetPathString("textures") + "parallax/07_huge_clouds.png",
+		nxt::FileSystem::Instance().GetPathString("textures") + "parallax/06_hill2.png",
+		nxt::FileSystem::Instance().GetPathString("textures") + "parallax/05_hill1.png",
+		nxt::FileSystem::Instance().GetPathString("textures") + "parallax/04_bushes.png",
+		nxt::FileSystem::Instance().GetPathString("textures") + "parallax/03_distant_trees.png",
+		nxt::FileSystem::Instance().GetPathString("textures") + "parallax/02_trees_and_bushes.png",
+		nxt::FileSystem::Instance().GetPathString("textures") + "parallax/01_ground.png"
 	};
 
-	p_parallax_->Init(jf2::ResourceManager::GetShader("sprite"), image_path_list);
+	p_parallax_->Init(nxt::ResourceManager::GetShader("sprite"), image_path_list);
 
-	jf2::opengl::SetSpriteMode();
+	nxt::opengl::SetSpriteMode();
 }
 
 void ClientDev::ProcessInput(float dt) {
-	if (jf2::Context::Instance().KeyDown(jf2::KeyNum::KEY_ESCAPE))
-		jf2::Context::Instance().SetCloseFlag();
+	if (nxt::Context::Instance().KeyDown(nxt::KeyNum::KEY_ESCAPE))
+		nxt::Context::Instance().SetCloseFlag();
 
-	if (jf2::Context::Instance().KeyDown(jf2::KeyNum::KEY_E))
-		jf2::opengl::PolygonMode();
-	if (jf2::Context::Instance().KeyDown(jf2::KeyNum::KEY_Q))
-		jf2::opengl::FillMode();
+	if (nxt::Context::Instance().KeyDown(nxt::KeyNum::KEY_E))
+		nxt::opengl::PolygonMode();
+	if (nxt::Context::Instance().KeyDown(nxt::KeyNum::KEY_Q))
+		nxt::opengl::FillMode();
 
-	jf2::Context::Instance().PollEvents();
+	nxt::Context::Instance().PollEvents();
 }
 
 void ClientDev::Render() {
-	jf2::Renderer::Clear();
+	nxt::Renderer::Clear();
 	static float x{}, y{};
 
-	float x_half_width = jf2::Context::Instance().GetWidth() / 2;
-	float y_half_width = jf2::Context::Instance().GetHeight() / 2;
+	float x_half_width = nxt::Context::Instance().GetWidth() / 2;
+	float y_half_width = nxt::Context::Instance().GetHeight() / 2;
 
 	p_parallax_->Draw(0.4f, glm::fvec2{ x, y });
 
@@ -115,43 +115,43 @@ void ClientDev::Render() {
 	y = glm::clamp<float>(y, 0, y_half_width * 2);
 
 	//p_sprite_->Draw(
-	//	jf2::ResourceManager::GetTexture("donut"),
-	//	glm::fvec2{ jf2::Context::Instance().GetWidth() - 100.0f, jf2::Context::Instance().GetHeight() - 100.0f },
+	//	nxt::ResourceManager::GetTexture("donut"),
+	//	glm::fvec2{ nxt::Context::Instance().GetWidth() - 100.0f, nxt::Context::Instance().GetHeight() - 100.0f },
 	//	{ glm::fvec2{ -100.0f, 0.0f }, glm::fvec2{ -200.0f, 0.0f } },
 	//	glm::fvec2{ 100.0f, 100.0f });
 
 	p_sprite_->Draw(
-		jf2::ResourceManager::GetTexture("donut"),
-		glm::fvec2{ jf2::Context::Instance().GetWidth() - 100.0f, jf2::Context::Instance().GetHeight() - 100.0f },
+		nxt::ResourceManager::GetTexture("donut"),
+		glm::fvec2{ nxt::Context::Instance().GetWidth() - 100.0f, nxt::Context::Instance().GetHeight() - 100.0f },
 		glm::fvec2{ 100.0f, 100.0f });
 
-	jf2::ResourceManager::GetTextRenderer("SedgwickAve")->Draw(
-		"Framerate: " + std::to_string(jf2::Context::Instance().GetFrameRate(2)).substr(0, 5),
+	nxt::ResourceManager::GetTextRenderer("SedgwickAve")->Draw(
+		"Framerate: " + std::to_string(nxt::Context::Instance().GetFrameRate(2)).substr(0, 5),
 		0.0f,
 		0.0f,
 		1.2f,
 		glm::fvec3{ 0.9f, 0.4f, 0.5f });
 
-	jf2::Context::Instance().SwapBuffers();
+	nxt::Context::Instance().SwapBuffers();
 }
 
 void ClientDev::SetCallbacks() {
-	glfwSetScrollCallback(jf2::Context::Instance().Get(), [](GLFWwindow* win, double xoffset, double yoffset) {});
-	glfwSetCursorPosCallback(jf2::Context::Instance().Get(), [](GLFWwindow* win, double xpos, double ypos) {});
+	glfwSetScrollCallback(nxt::Context::Instance().Get(), [](GLFWwindow* win, double xoffset, double yoffset) {});
+	glfwSetCursorPosCallback(nxt::Context::Instance().Get(), [](GLFWwindow* win, double xpos, double ypos) {});
 
 	glfwSetFramebufferSizeCallback(
-		jf2::Context::Instance().Get(), [](GLFWwindow*, int width, int height) {
-		jf2::opengl::SetViewport(0, 0, width, height);
+		nxt::Context::Instance().Get(), [](GLFWwindow*, int width, int height) {
+		nxt::opengl::SetViewport(0, 0, width, height);
 	});
 }
 
 void ClientDev::Run() {
-	while (!jf2::Context::Instance()) {
-		ProcessInput(jf2::Context::Instance().GetTimePerFrame());
+	while (!nxt::Context::Instance()) {
+		ProcessInput(nxt::Context::Instance().GetTimePerFrame());
 		Render();
 	}
 }
 
-jf2::Application* jf2::CreateApplication() {
+nxt::Application* nxt::CreateApplication() {
 	return new ClientDev();
 }

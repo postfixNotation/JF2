@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\nxt\application.cpp" />
+    <ClCompile Include="src\nxt\camera.cpp" />
+    <ClCompile Include="src\nxt\context.cpp" />
+    <ClCompile Include="src\nxt\filesystem.cpp" />
+    <ClCompile Include="src\nxt\gl.cpp" />
+    <ClCompile Include="src\nxt\index_buffer.cpp" />
+    <ClCompile Include="src\nxt\mesh_renderer.cpp" />
+    <ClCompile Include="src\nxt\parallax_renderer.cpp" />
+    <ClCompile Include="src\nxt\renderer.cpp" />
+    <ClCompile Include="src\nxt\resource_manager.cpp" />
+    <ClCompile Include="src\nxt\shader.cpp" />
+    <ClCompile Include="src\nxt\sprite_renderer.cpp" />
+    <ClCompile Include="src\nxt\texture2d.cpp" />
+    <ClCompile Include="src\nxt\text_renderer.cpp" />
+    <ClCompile Include="src\nxt\vertex_array.cpp" />
+    <ClCompile Include="src\nxt\vertex_buffer.cpp" />
+    <ClCompile Include="src\nxt\vertex_buffer_layout.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\nxt\audio.hpp" />
+    <ClInclude Include="src\nxt\camera.hpp" />
+    <ClInclude Include="src\nxt\config.hpp" />
+    <ClInclude Include="src\nxt\context.hpp" />
+    <ClInclude Include="src\nxt\entry_point.hpp" />
+    <ClInclude Include="src\nxt\filesystem.hpp" />
+    <ClInclude Include="src\nxt\application.hpp" />
+    <ClInclude Include="src\nxt\gl.hpp" />
+    <ClInclude Include="src\nxt\index_buffer.hpp" />
+    <ClInclude Include="src\nxt.hpp" />
+    <ClInclude Include="src\nxt\keys.hpp" />
+    <ClInclude Include="src\nxt\mesh_renderer.hpp" />
+    <ClInclude Include="src\nxt\music.hpp" />
+    <ClInclude Include="src\nxt\non_copyable.hpp" />
+    <ClInclude Include="src\nxt\non_moveable.hpp" />
+    <ClInclude Include="src\nxt\parallax_renderer.hpp" />
+    <ClInclude Include="src\nxt\renderer.hpp" />
+    <ClInclude Include="src\nxt\resource_manager.hpp" />
+    <ClInclude Include="src\nxt\shader.hpp" />
+    <ClInclude Include="src\nxt\sound.hpp" />
+    <ClInclude Include="src\nxt\sprite_renderer.hpp" />
+    <ClInclude Include="src\nxt\texture2d.hpp" />
+    <ClInclude Include="src\nxt\text_renderer.hpp" />
+    <ClInclude Include="src\nxt\vertex_array.hpp" />
+    <ClInclude Include="src\nxt\vertex_buffer.hpp" />
+    <ClInclude Include="src\nxt\vertex_buffer_layout.hpp" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{0CB5A9B1-850E-4069-AFD1-53852CC4F46A}</ProjectGuid>
+    <RootNamespace>JF2</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+    <ProjectName>NXtNGIN</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)bin\$(Configuration)-$(Platform)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)bin-int\$(Configuration)-$(Platform)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)bin\$(Configuration)-$(Platform)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)bin-int\$(Configuration)-$(Platform)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)vendor\SFML-2.5.1\include;$(SolutionDir)vendor\FreeType\include;$(SolutionDir)vendor\Box2D\include;$(SolutionDir)vendor\GLFW\include;$(SolutionDir)vendor\GLEW\include;$(SolutionDir)vendor\boost\include;$(SolutionDir)vendor</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>GLEW_STATIC</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)vendor\SFML-2.5.1\include;$(SolutionDir)vendor\FreeType\include;$(SolutionDir)vendor\Box2D\include;$(SolutionDir)vendor\GLFW\include;$(SolutionDir)vendor\GLEW\include;$(SolutionDir)vendor\boost\include;$(SolutionDir)vendor</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>GLEW_STATIC</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

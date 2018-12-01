@@ -1,9 +1,9 @@
 #ifndef CLIENT_DEV_HPP_
 #define CLIENT_DEV_HPP_
 
-#include <jf2.hpp>
+#include <nxt.hpp>
 
-class ClientDev : public jf2::Application {
+class ClientDev : public nxt::Application {
 public:
 	ClientDev();
 	~ClientDev();
@@ -15,10 +15,10 @@ public:
 	virtual void Run() override final;
 
 private:
-	std::shared_ptr<jf2::SpriteRenderer> p_sprite_;
-	std::unique_ptr<jf2::ParallaxRenderer> p_parallax_;
+	std::shared_ptr<nxt::SpriteRenderer> p_sprite_;
+	std::unique_ptr<nxt::ParallaxRenderer> p_parallax_;
 };
 
-jf2::Application* jf2::CreateApplication();
+nxt::Application* nxt::CreateApplication();
 
 #endif // CLIENT_DEV_HPP_
