@@ -60,7 +60,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{0CB5A9B1-850E-4069-AFD1-53852CC4F46A}</ProjectGuid>
-    <RootNamespace>JF2</RootNamespace>
+    <RootNamespace>NXtNGIN</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
     <ProjectName>NXtNGIN</ProjectName>
   </PropertyGroup>

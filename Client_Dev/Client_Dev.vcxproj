@@ -94,7 +94,7 @@
     <ClCompile Include="client_dev.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\JF2\JF2.vcxproj">
+    <ProjectReference Include="..\NXtNGIN\NXtNGIN.vcxproj">
       <Project>{0cb5a9b1-850e-4069-afd1-53852cc4f46a}</Project>
     </ProjectReference>
     <ProjectReference Include="..\NXtNGIN\NXtNGIN.vcxproj">
