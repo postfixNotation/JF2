@@ -3,8 +3,8 @@
 #define FPS 1
 #define PHONG 1
 #define STARS 0
-#define SKYBOX 1
-#define DEV 0
+#define SKYBOX 0
+#define DEV 1
 
 glm::mat4 Sandbox::projection;
 std::unique_ptr<nxt::Camera> Sandbox::camera;
@@ -83,11 +83,11 @@ void Sandbox::Init() {
 
 #else
 	std::vector<std::string> cubemap_textures{
-	nxt::FileSystem::Instance().GetPathString("textures") + "bricks_3k.jpg",
-	nxt::FileSystem::Instance().GetPathString("textures") + "bricks_3k.jpg",
-	nxt::FileSystem::Instance().GetPathString("textures") + "bricks_3k.jpg",
-	nxt::FileSystem::Instance().GetPathString("textures") + "bricks_3k.jpg",
-	nxt::FileSystem::Instance().GetPathString("textures") + "bricks_3k.jpg",
+	nxt::FileSystem::Instance().GetPathString("textures") + "bricks.jpg",
+	nxt::FileSystem::Instance().GetPathString("textures") + "bricks.jpg",
+	nxt::FileSystem::Instance().GetPathString("textures") + "bricks.jpg",
+	nxt::FileSystem::Instance().GetPathString("textures") + "bricks.jpg",
+	nxt::FileSystem::Instance().GetPathString("textures") + "bricks.jpg",
 	nxt::FileSystem::Instance().GetPathString("textures") + "bricks_3k.jpg" };
 #endif
 
@@ -135,13 +135,13 @@ void Sandbox::Init() {
 		"cyborg");
 	nxt::ResourceManager::LoadTexture(
 		nxt::ResourceManager::GetShader("model"),
-		nxt::FileSystem::Instance().GetPathString("textures") + "bricks.jpg",
+		nxt::FileSystem::Instance().GetPathString("textures") + "wood_floor.jpg",
 		"floor");
 #if DEV == 1
 	nxt::ResourceManager::LoadTexture(
 		nxt::ResourceManager::GetShader("model"),
-		nxt::FileSystem::Instance().GetPathString("textures") + "table.jpg",
-		"table");
+		nxt::FileSystem::Instance().GetPathString("textures") + "schrank.jpg",
+		"schrank");
 #endif
 
 	nxt::ResourceManager::LoadShader(
@@ -184,7 +184,7 @@ void Sandbox::Init() {
 #if DEV == 1
 	meshes_.push_back(std::make_unique<nxt::MeshRenderer>(nxt::ResourceManager::GetShader("model")));
 	meshes_[3]->Load(
-		nxt::FileSystem::Instance().GetPathString("models") + "table.obj",
+		nxt::FileSystem::Instance().GetPathString("models") + "schrank.obj",
 		false);
 #endif
 
@@ -251,9 +251,9 @@ void Sandbox::Render() {
 	nxt::ResourceManager::GetTexture("floor")->Unbind(0);
 
 #if DEV == 1
-	nxt::ResourceManager::GetTexture("table")->Bind("u_tex_sampler", 0);
+	nxt::ResourceManager::GetTexture("schrank")->Bind("u_tex_sampler", 0);
 	meshes_[3]->Draw(5);
-	nxt::ResourceManager::GetTexture("table")->Unbind(0);
+	nxt::ResourceManager::GetTexture("schrank")->Unbind(0);
 #else
 	nxt::ResourceManager::GetTexture("cyborg")->Bind("u_tex_sampler", 0);
 	meshes_[0]->Draw(5);
