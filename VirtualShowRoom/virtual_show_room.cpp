@@ -31,7 +31,7 @@ void VirtualShowRoom::Init() {
 	config.debug_context = true;
 	config.cusor_enabled = false;
 	config.context_title = "Virtual Show Room";
-	config.context_size = nxt::context::Size::DEBUG;
+	config.context_size = nxt::context::Size::FULLSCREEEN;
 
 	nxt::Context::Instance().Create(config);
 	nxt::Context::Instance().SetCursorPos(

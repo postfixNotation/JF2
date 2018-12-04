@@ -17,7 +17,7 @@ void ClientDev::Init() {
 	config.debug_context = true;
 	config.cusor_enabled = true;
 	config.context_title = "nxt - Parallax Effect";
-	config.context_size = nxt::context::Size::DEBUG;
+	config.context_size = nxt::context::Size::FULLSCREEEN;
 
 	nxt::Context::Instance().Create(config);
 	nxt::Context::Instance().SetIcon(
@@ -102,17 +102,17 @@ void ClientDev::ProcessInput(float dt) {
 void ClientDev::Render() {
 	nxt::Renderer::Clear();
 	static float x{}, y{};
+	static float x_half_width = nxt::Context::Instance().GetWidth() / 2;
+	static float y_half_width = nxt::Context::Instance().GetHeight() / 2;
 
-	float x_half_width = nxt::Context::Instance().GetWidth() / 2;
-	float y_half_width = nxt::Context::Instance().GetHeight() / 2;
+	//p_parallax_->Draw(0.4f, glm::fvec2{ x, y });
+	p_parallax_->Draw(0.8f, glm::fvec2{ x, y_half_width * 1.5f });
 
-	p_parallax_->Draw(0.4f, glm::fvec2{ x, y });
-
-	x += 0.5f;
-	y += 0.5f;
+	x += 2.5f;
+	//y += 0.5f;
 
 	x = glm::clamp<float>(x, 0, x_half_width * 2);
-	y = glm::clamp<float>(y, 0, y_half_width * 2);
+	//y = glm::clamp<float>(y, 0, y_half_width * 2);
 
 	//p_sprite_->Draw(
 	//	nxt::ResourceManager::GetTexture("donut"),
