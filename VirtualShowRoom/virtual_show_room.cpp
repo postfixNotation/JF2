@@ -61,7 +61,7 @@ void VirtualShowRoom::Init() {
 	cupboard_model_ *= glm::rotate<float>(glm::radians<float>(-90), glm::fvec3{ 0.0f,1.0f,0.0f });
 
 	sofa_model_ = glm::scale<float>(glm::fvec3{ 1.2f,1.2f,1.2f });
-	sofa_model_ *= glm::translate<float>(glm::fvec3{ -7.0f, 0.0f, 0.0f });
+	sofa_model_ *= glm::translate<float>(glm::fvec3{ -7.0f, 0.3f, 0.0f });
 
 	tv_model_ = glm::scale<float>(glm::fvec3{ 1.2f,1.2f,1.2f });
 	tv_model_ *= glm::translate<float>(glm::fvec3{ 6.2f, 2.12f, 0.0f });
@@ -70,9 +70,10 @@ void VirtualShowRoom::Init() {
 	lowboard_model_ *= glm::rotate<float>(glm::radians<float>(90), glm::fvec3{ 0.0f,1.0f,0.0f });
 
 	lamp_model_ = glm::scale<float>(glm::fvec3{ 1.2f, 1.2f, 1.2f });
-	lamp_model_ *= glm::translate<float>(glm::fvec3{ 0.0f, 1.8f, 0.0f });
+	lamp_model_ *= glm::translate<float>(glm::fvec3{ 0.0f, 1.69f, 0.0f });
 
 	table_model_ = glm::scale<float>(glm::fvec3{ 1.2f,1.2f,1.2f });
+	table_model_ *= glm::translate<float>(glm::fvec3{ 0.0f, -0.2f, 0.0f });
 
 	nxt::ResourceManager::LoadShader(
 		nxt::FileSystem::Instance().GetPathString("shader") + "cubemap_vert_shader.glsl",
