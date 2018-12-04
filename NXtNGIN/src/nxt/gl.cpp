@@ -47,6 +47,10 @@ namespace nxt {
 
 		void ResetSpriteMode() { glDepthFunc(GL_LESS); }
 
+		void EnableCullFace() { glEnable(GL_CULL_FACE); }
+
+		void DisableCullFace() { glDisable(GL_CULL_FACE); }
+
 		void SetCubeMapMode() {
 			glDepthFunc(GL_LEQUAL);
 			glFrontFace(GL_CW);

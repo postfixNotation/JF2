@@ -25,6 +25,8 @@ namespace nxt {
 		void ResetSpriteMode();
 		void SetCubeMapMode();
 		void ResetCubeMapMode();
+		void EnableCullFace();
+		void DisableCullFace();
 		void SetDebugMessageCallback(void(*callback)(
 			GLenum source,
 			GLenum type,

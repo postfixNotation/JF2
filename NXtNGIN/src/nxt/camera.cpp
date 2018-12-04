@@ -29,6 +29,7 @@ namespace nxt {
 		position_ = position;
 		yaw_ = yaw;
 		pitch_ = pitch;
+		UpdateVectors();
 	}
 
 	void FPSCamera::Move(const glm::fvec3& delta) {

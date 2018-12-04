@@ -2,9 +2,7 @@
 
 #define FPS 1
 #define PHONG 1
-#define STARS 0
-#define SKYBOX 0
-#define DEV 1
+#define STARS 1
 
 glm::mat4 Sandbox::projection;
 std::unique_ptr<nxt::Camera> Sandbox::camera;
@@ -35,7 +33,7 @@ void Sandbox::Init() {
 	config.number_of_samples = 4;
 	config.debug_context = true;
 	config.cusor_enabled = false;
-	config.context_title = "nxt - Rendering Engine";
+	config.context_title = "nxt - Rendering Engine - Sandbox";
 	config.context_size = nxt::context::Size::DEBUG;
 
 	nxt::Context::Instance().Create(config);
@@ -58,12 +56,9 @@ void Sandbox::Init() {
 		1.0f);
 
 	nxt::opengl::SetDebugMessageCallback(nxt::opengl::DebugMessageCallback);
+	projection = camera->GetProjectionMatrix(nxt::Context::Instance().GetRatio());
 
-#if (SKYBOX == 1) && (STARS == 1)
-#error CHOOSE ONLY ONE CUBEMAP TEXTURE SET!
-#endif
-
-#if SKYBOX == 1
+#if STARS == 1
 	std::vector<std::string> cubemap_textures{
 		nxt::FileSystem::Instance().GetPathString("textures") + "skybox/right.jpg",
 		nxt::FileSystem::Instance().GetPathString("textures") + "skybox/left.jpg",
@@ -71,34 +66,30 @@ void Sandbox::Init() {
 		nxt::FileSystem::Instance().GetPathString("textures") + "skybox/bottom.jpg",
 		nxt::FileSystem::Instance().GetPathString("textures") + "skybox/front.jpg",
 		nxt::FileSystem::Instance().GetPathString("textures") + "skybox/back.jpg" };
-
-#elif STARS == 1
-	std::vector<std::string> cubemap_textures{
-		nxt::FileSystem::Instance().GetPathString("textures") + "stars.jpg",
-		nxt::FileSystem::Instance().GetPathString("textures") + "stars.jpg",
-		nxt::FileSystem::Instance().GetPathString("textures") + "stars.jpg",
-		nxt::FileSystem::Instance().GetPathString("textures") + "stars.jpg",
-		nxt::FileSystem::Instance().GetPathString("textures") + "stars.jpg",
-		nxt::FileSystem::Instance().GetPathString("textures") + "stars.jpg" };
-
 #else
 	std::vector<std::string> cubemap_textures{
-	nxt::FileSystem::Instance().GetPathString("textures") + "bricks.jpg",
-	nxt::FileSystem::Instance().GetPathString("textures") + "bricks.jpg",
-	nxt::FileSystem::Instance().GetPathString("textures") + "bricks.jpg",
-	nxt::FileSystem::Instance().GetPathString("textures") + "bricks.jpg",
-	nxt::FileSystem::Instance().GetPathString("textures") + "bricks.jpg",
-	nxt::FileSystem::Instance().GetPathString("textures") + "bricks_3k.jpg" };
+		nxt::FileSystem::Instance().GetPathString("textures") + "stars.jpg",
+		nxt::FileSystem::Instance().GetPathString("textures") + "stars.jpg",
+		nxt::FileSystem::Instance().GetPathString("textures") + "stars.jpg",
+		nxt::FileSystem::Instance().GetPathString("textures") + "stars.jpg",
+		nxt::FileSystem::Instance().GetPathString("textures") + "stars.jpg",
+		nxt::FileSystem::Instance().GetPathString("textures") + "stars.jpg"
+	};
 #endif
 
 	nxt::ResourceManager::LoadShader(
 		nxt::FileSystem::Instance().GetPathString("shader") + "cubemap_vert_shader.glsl",
 		nxt::FileSystem::Instance().GetPathString("shader") + "cubemap_frag_shader.glsl",
 		"cubemap");
-	nxt::ResourceManager::LoadTexture(
-		nxt::ResourceManager::GetShader("cubemap"),
-		cubemap_textures,
-		"faces");
+	nxt::ResourceManager::LoadShader(
+		nxt::FileSystem::Instance().GetPathString("shader") + "font_vert.glsl",
+		nxt::FileSystem::Instance().GetPathString("shader") + "font_frag.glsl",
+		"text");
+
+	nxt::ResourceManager::LoadShader(
+		nxt::FileSystem::Instance().GetPathString("shader") + "sprite_vert_shader.glsl",
+		nxt::FileSystem::Instance().GetPathString("shader") + "sprite_frag_shader.glsl",
+		"sprite");
 
 #if PHONG == 0
 	nxt::ResourceManager::LoadShader(
@@ -111,7 +102,6 @@ void Sandbox::Init() {
 		nxt::FileSystem::Instance().GetPathString("shader") + "mesh_frag_phong.glsl",
 		"model");
 #endif
-	projection = camera->GetProjectionMatrix(nxt::Context::Instance().GetRatio());
 
 	nxt::ResourceManager::GetShader("model")->SetFloat("xoffset[0]", -10.0f);
 	nxt::ResourceManager::GetShader("model")->SetFloat("xoffset[1]", -5.0f);
@@ -137,22 +127,15 @@ void Sandbox::Init() {
 		nxt::ResourceManager::GetShader("model"),
 		nxt::FileSystem::Instance().GetPathString("textures") + "wood_floor.jpg",
 		"floor");
-#if DEV == 1
+
 	nxt::ResourceManager::LoadTexture(
-		nxt::ResourceManager::GetShader("model"),
-		nxt::FileSystem::Instance().GetPathString("textures") + "schrank.jpg",
-		"schrank");
-#endif
-
-	nxt::ResourceManager::LoadShader(
-		nxt::FileSystem::Instance().GetPathString("shader") + "font_vert.glsl",
-		nxt::FileSystem::Instance().GetPathString("shader") + "font_frag.glsl",
-		"text");
-
-	nxt::ResourceManager::LoadShader(
-		nxt::FileSystem::Instance().GetPathString("shader") + "sprite_vert_shader.glsl",
-		nxt::FileSystem::Instance().GetPathString("shader") + "sprite_frag_shader.glsl",
-		"sprite");
+		nxt::ResourceManager::GetShader("sprite"),
+		nxt::FileSystem::Instance().GetPathString("textures") + "donut_icon.png",
+		"donut");
+	nxt::ResourceManager::LoadTexture(
+		nxt::ResourceManager::GetShader("cubemap"),
+		cubemap_textures,
+		"faces");
 
 	nxt::ResourceManager::LoadTextRenderer(
 		nxt::ResourceManager::GetShader("text"),
@@ -161,11 +144,6 @@ void Sandbox::Init() {
 		20,
 		nxt::FileSystem::Instance().GetPathString("fonts") + "Wallpoet-Regular.ttf",
 		"Wallpoet");
-
-	nxt::ResourceManager::LoadTexture(
-		nxt::ResourceManager::GetShader("sprite"),
-		nxt::FileSystem::Instance().GetPathString("textures") + "donut_icon.png",
-		"donut");
 
 	meshes_.push_back(std::make_unique<nxt::MeshRenderer>(nxt::ResourceManager::GetShader("model")));
 	meshes_[0]->Load(
@@ -180,13 +158,6 @@ void Sandbox::Init() {
 	meshes_.push_back(std::make_unique<nxt::MeshRenderer>(nxt::ResourceManager::GetShader("cubemap")));
 	meshes_[2]->Load(
 		nxt::FileSystem::Instance().GetPathString("models") + "cube.obj");
-
-#if DEV == 1
-	meshes_.push_back(std::make_unique<nxt::MeshRenderer>(nxt::ResourceManager::GetShader("model")));
-	meshes_[3]->Load(
-		nxt::FileSystem::Instance().GetPathString("models") + "schrank.obj",
-		false);
-#endif
 
 	sprites_.push_back(std::make_unique<nxt::SpriteRenderer>(
 		nxt::ResourceManager::GetShader("sprite"),
@@ -250,15 +221,9 @@ void Sandbox::Render() {
 	meshes_[1]->Draw(5);
 	nxt::ResourceManager::GetTexture("floor")->Unbind(0);
 
-#if DEV == 1
-	nxt::ResourceManager::GetTexture("schrank")->Bind("u_tex_sampler", 0);
-	meshes_[3]->Draw(5);
-	nxt::ResourceManager::GetTexture("schrank")->Unbind(0);
-#else
 	nxt::ResourceManager::GetTexture("cyborg")->Bind("u_tex_sampler", 0);
 	meshes_[0]->Draw(5);
 	nxt::ResourceManager::GetTexture("cyborg")->Unbind(0);
-#endif
 
 	view_ = camera->GetViewMatrix(false);
 	nxt::ResourceManager::GetShader("cubemap")->SetMat4("view", view_);
